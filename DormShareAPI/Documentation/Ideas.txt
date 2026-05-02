@@ -1,0 +1,4 @@
+================== ITEM =======================
+
+TradeType - the way person will pay for the item: cash, barter, anything
+Price - Might be anything like a banana or cash
