@@ -1,14 +1,14 @@
 from fastapi import FastAPI, HTTPException
+
+
 app = FastAPI()
-
-
-
 
 
 @app.get("/")
 async def index():
     return "Hello world!"
 
+# ITEMS AND FEED
 
 @app.get("/post/feed")
 async def feed(data: str):
@@ -22,6 +22,8 @@ async def postDetails(postId: str):
 async def categorizedFeed(category: str):
     pass
 
+# CRUD FOR ITEMS
+
 @app.post("/item/post")
 async def postItem():
     pass
@@ -33,4 +35,18 @@ async def UpdateItem(postId: str):
 
 @app.delete("/post/delete")
 async def postDelete(postId: int):
+    pass
+
+# PHOTOS CRUD
+
+@app.post("/post/photo/upload")
+async def uploadPhoto():
+    pass
+
+@app.delete("/post/photo/remove")
+async def removePhoto():
+    pass
+
+@app.delete("/post/photo/clear-all/{postId}")
+async def clearItemPhotos():
     pass
