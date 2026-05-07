@@ -2,9 +2,17 @@ from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
 from typing import List, Annotated
 
+from DormShareAPI.application.Data.DataBase import init_db
+
 
 
 app = FastAPI()
+
+@app.on_event("startup")
+def on_startup():
+    print("🚀 Подключаемся к Neon и создаем таблицы...")
+    init_db()
+    print("✅ Все таблицы успешно созданы!")
 
 
 @app.get("/")
