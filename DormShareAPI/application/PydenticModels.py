@@ -5,7 +5,7 @@ from datetime import  datetime
 from typing import List
 
 class UserCreate(BaseModel):
-    username: str = Field(..., min_length=5, max_length=25)
+    username: str = Field(..., min_length=3, max_length=25)
     email: EmailStr
     password: str = Field(..., min_length=8)
     contact_way: str = Field(...) # Link to a social media
@@ -18,6 +18,7 @@ class UserSend(BaseModel):
     contact_way: str
     joined_at: datetime
     items: List = []
+
     model_config = ConfigDict(from_attributes=True)
 
 

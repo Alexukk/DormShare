@@ -1,9 +1,9 @@
-from fastapi import FastAPI, HTTPException, Depends
-from pydantic import BaseModel
-from typing import List, Annotated
-
-from DormShareAPI.application.Data.DataBase import init_db
-
+from fastapi import FastAPI, Depends
+from DormShareAPI.application.Data.DataBase import init_db, get_session
+from DormShareAPI.application.PydenticModels import UserCreate, UserSend
+from DormShareAPI.application.Handlers.AuthHandlers import registration
+from DormShareAPI.application.Handlers.Handlers import getUserById
+from sqlmodel import Session
 
 
 app = FastAPI()
@@ -14,6 +14,20 @@ def on_startup():
     init_db()
     print("✅ Все таблицы успешно созданы!")
 
+
+
+# User AUTH
+
+@app.post("/auth/register", status_code=201)
+async def register_user(user_data: UserCreate,
+                        session: Session = Depends(get_session)):
+    return await registration(user_data, session)
+
+
+@app.get("/user/get/{user_id}", response_model=UserSend)
+async def OrderUserById(user_id,
+                      session: Session = Depends(get_session)):
+    return await getUserById(user_id, session)
 
 @app.get("/")
 async def index():
