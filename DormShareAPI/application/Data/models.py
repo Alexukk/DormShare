@@ -7,7 +7,6 @@ from sqlmodel import Field, SQLModel, Relationship
 class User(SQLModel, table=True):
     __tablename__ = "users"
 
-    # primary_key уже создает индекс автоматически
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     username: str = Field(index=True)
     email: str = Field(index=True, unique=True)
@@ -15,7 +14,6 @@ class User(SQLModel, table=True):
     contact_way: Optional[str] = None
     joined_at: datetime = Field(default_factory=datetime.utcnow)
 
-    # Связи: Relationship помогает подтягивать связанные данные
     items: List["Item"] = Relationship(back_populates="owner")
 
 
@@ -32,7 +30,6 @@ class Item(SQLModel, table=True):
 
     owner_id: uuid.UUID = Field(foreign_key="users.id", index=True)
 
-    # Relationship
     owner: User = Relationship(back_populates="items")
     images: List["Image"] = Relationship(back_populates="item")
 
