@@ -19,3 +19,12 @@ async def getUserById(user_id, session):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail="Some shit happened")
+
+
+
+async def getAllUsers(session):
+    try:
+        users = session.exec(select(User)).all()
+        return users
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Something went wrong {e}")
