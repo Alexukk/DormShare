@@ -17,6 +17,7 @@ class UserSend(BaseModel):
     email: EmailStr
     contact_way: str
     joined_at: datetime
+    role: str
     items: List = []
 
     model_config = ConfigDict(from_attributes=True)

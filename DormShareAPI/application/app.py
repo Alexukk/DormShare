@@ -15,7 +15,6 @@ def on_startup():
     print("✅ Все таблицы успешно созданы!")
 
 
-
 # User AUTH
 
 @app.post("/auth/register", status_code=201)
@@ -25,7 +24,7 @@ async def register_user(user_data: UserCreate,
 
 
 @app.post("/auth/login", status_code=200)
-async def login_user(user_data: UserLogin, session: Session = Depends(get_session)):
+async def login_user(user_data: UserLogin, session: Session =  Depends(get_session)):
     return await login(user_data, session)
 
 

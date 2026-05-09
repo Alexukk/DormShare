@@ -2,6 +2,14 @@ from typing import Optional, List
 from datetime import datetime
 import uuid
 from sqlmodel import Field, SQLModel, Relationship
+from enum import Enum
+
+
+class UserRole(str, Enum):
+    USER = "user",
+    ADMIN = "admin",
+    MODERATOR = "moderator",
+    USER_PLUS = "user_plus"
 
 
 class User(SQLModel, table=True):
@@ -13,6 +21,7 @@ class User(SQLModel, table=True):
     password_hash: str
     contact_way: Optional[str] = None
     joined_at: datetime = Field(default_factory=datetime.utcnow)
+    role: UserRole = Field(default=UserRole.USER)
 
     items: List["Item"] = Relationship(back_populates="owner")
 

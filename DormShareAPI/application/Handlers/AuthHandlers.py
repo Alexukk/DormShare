@@ -36,5 +36,5 @@ async def login(user_data: UserLogin, session: Session):
     if not user or not verify_password(user_data.password, user.password_hash):
         raise HTTPException(status_code=400, detail="Invalid email or password")
 
-    token = create_access_token(data={"sub": user.id})
+    token = create_access_token(data={"sub": user.id, "role" : user.role})
     return {"access_token" : token, "token_type" : "bearer"}
