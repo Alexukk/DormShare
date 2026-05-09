@@ -20,11 +20,14 @@ async def registration(user_data: UserCreate, session: Session = Depends(get_ses
         session.commit()
         session.refresh(new_user)
 
+        token = create_access_token(data={"sub" : new_user.email, "role" : new_user.role})
+
         return {
-            "status": "success",
-            "message": "Created successfully!",
-            "user_id": new_user.id
-        }
+                "status" : "success",
+                "access_token" : token,
+                "token_type" : "bearer"
+                }
+
 
     except Exception as e:
         session.rollback()
