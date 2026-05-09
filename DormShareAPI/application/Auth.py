@@ -4,9 +4,13 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import jwt
 from typing import List, Optional
 from datetime import datetime, timedelta, timezone
-from DormShareAPI.application.Data import models, DataBase
+from passlib.exc import InvalidTokenError
 import os
 from dotenv import load_dotenv
+from DormShareAPI.application.Data.DataBase import get_session
+from fastapi import Depends, HTTPException, status
+from sqlmodel import Session
+from DormShareAPI.application.Data.models import User, UserRole
 
 load_dotenv()
 
@@ -40,3 +44,33 @@ def create_access_token(data: dict):
     to_encode.update({"exp" : expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+async def get_current_user(token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+
+
+        if user_id is None:
+            raise credentials_exception
+    except InvalidTokenError:
+        raise credentials_exception
+
+    user = session.get(User, user_id)
+    if user is None:
+        raise credentials_exception
+
+    if user.role == UserRole.BANNED:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your account was banned, please contact support."
+        )
+
+    return user

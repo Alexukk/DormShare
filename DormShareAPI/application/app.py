@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends
 from DormShareAPI.application.Data.DataBase import init_db, get_session
 from DormShareAPI.application.PydenticModels import UserCreate, UserSend, UserLogin
-from DormShareAPI.application.Handlers.AuthHandlers import registration, login
+from DormShareAPI.application.Handlers.AuthHandlers import registration, login, getCurrentUserData
 from DormShareAPI.application.Handlers.Handlers import getUserById, getAllUsers
 from sqlmodel import Session
 
@@ -37,6 +37,10 @@ async def order_user_by_id(user_id,
 @app.get("/user/get-all", status_code=200, response_model=list[UserSend])
 async def order_all_users(session: Session = Depends(get_session)):
     return await getAllUsers(session)
+
+@app.get("/user/me", status_code=200, response_model=UserSend)
+async def current_user_data(token, session: Session = Depends(get_session)):
+    return await getCurrentUserData(token, session)
 
 
 # Other logic

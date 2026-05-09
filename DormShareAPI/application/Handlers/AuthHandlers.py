@@ -3,7 +3,7 @@ from sqlmodel import Session, select
 from DormShareAPI.application.Data.DataBase import get_session
 from DormShareAPI.application.Data.models import User
 from DormShareAPI.application.PydenticModels import UserCreate, UserLogin
-from DormShareAPI.application.Auth import get_password_hash, create_access_token, verify_password
+from DormShareAPI.application.Auth import get_password_hash, create_access_token, verify_password, get_current_user
 from DormShareAPI.application.Mapping.UserMapping import CreateUserEntity
 
 
@@ -20,7 +20,7 @@ async def registration(user_data: UserCreate, session: Session = Depends(get_ses
         session.commit()
         session.refresh(new_user)
 
-        token = create_access_token(data={"sub" : new_user.email, "role" : new_user.role})
+        token = create_access_token(data={"sub" : new_user.id, "role" : new_user.role})
 
         return {
                 "status" : "success",
@@ -41,3 +41,7 @@ async def login(user_data: UserLogin, session: Session):
 
     token = create_access_token(data={"sub": user.id, "role" : user.role})
     return {"access_token" : token, "token_type" : "bearer"}
+
+
+async def getCurrentUserData(token, session: Session = Depends(get_session)):
+    return  await get_current_user(token, session)

@@ -9,7 +9,8 @@ class UserRole(str, Enum):
     USER = "user",
     ADMIN = "admin",
     MODERATOR = "moderator",
-    USER_PLUS = "user_plus"
+    USER_PLUS = "user_plus",
+    BANNED = "banned"
 
 
 class User(SQLModel, table=True):

@@ -27,6 +27,9 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8)
 
+class CurrentUser(BaseModel):
+    jwt_token: str
+
 
 class ItemCreate(BaseModel):
     title: str = Field(..., min_length=1, max_length=75)
