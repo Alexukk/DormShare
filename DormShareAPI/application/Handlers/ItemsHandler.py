@@ -1,3 +1,5 @@
+from tkinter.tix import Select
+
 from fastapi import HTTPException, Depends
 from sqlmodel import Session, select
 
@@ -32,3 +34,14 @@ async def create_item(item_data: ItemCreate, session: Session = Depends(get_sess
        session.rollback()
        print(f"Error: {e}")
        raise  HTTPException(status_code=500, detail="Can't save item to db")
+
+
+
+async def get_items(session):
+    try:
+        items = session.exec(select(Item)).all()
+        return items
+    except Exception as e:
+        print(f"Error occured {e}")
+        raise HTTPException(status_code=500, detail=f"Something went wrong {e}")
+

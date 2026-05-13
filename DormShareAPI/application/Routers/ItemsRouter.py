@@ -3,9 +3,9 @@ from sqlmodel import Session
 
 from DormShareAPI.application.Auth import get_current_user
 from DormShareAPI.application.Data.DataBase import get_session
-from DormShareAPI.application.Data.models import User
+from DormShareAPI.application.Data.models import User, Item
 from DormShareAPI.application.PydenticModels import ItemCreate
-from DormShareAPI.application.Handlers.ItemsHandler import create_item
+from DormShareAPI.application.Handlers.ItemsHandler import create_item, get_items
 
 
 
@@ -15,9 +15,9 @@ router = APIRouter(
 )
 
 
-@router.get("/feed")
-async def feed(data: str):
-    pass
+@router.get("/feed", status_code=200, response_model=list[Item])
+async def feed(session: Session = Depends(get_session)):
+    return await get_items(session)
 
 @router.get("/details/{postId}")
 async def postDetails(postId: str):
