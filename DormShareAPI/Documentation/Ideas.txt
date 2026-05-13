@@ -9,3 +9,11 @@ Price - Might be anything like a banana or cash
 1.Building an endpoint specifically for media content loading
 2.When endpoint is called handler receives file and ItemId so the photo could be tracked
 3.When posting an item frontend calls POST endpoint to save photos one at a time using a loop.
+
+
+
+============================== Ratings ==========================
+
+
+1. If user lends a lot of things and his reviews are cool his rating increases
+and he gets add-free experience or/and his items are higher in the feed.
