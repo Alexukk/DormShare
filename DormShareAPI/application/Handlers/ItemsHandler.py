@@ -58,3 +58,13 @@ async def get_item_by_id(item_id, session):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail="Problem occurred while ordering user by id")
+
+
+async def get_items_by_category(category, session):
+    try:
+        items = session.exec(select(Item).where(Item.category == category)).all()
+        return items
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+

@@ -5,7 +5,7 @@ from DormShareAPI.application.Auth import get_current_user
 from DormShareAPI.application.Data.DataBase import get_session
 from DormShareAPI.application.Data.models import User, Item
 from DormShareAPI.application.PydenticModels import ItemCreate
-from DormShareAPI.application.Handlers.ItemsHandler import create_item, get_items, get_item_by_id
+from DormShareAPI.application.Handlers.ItemsHandler import create_item, get_items, get_item_by_id, get_items_by_category
 
 
 
@@ -19,13 +19,13 @@ router = APIRouter(
 async def feed(session: Session = Depends(get_session)):
     return await get_items(session)
 
-@router.get("/details/{postId}")
+@router.get("/details/{itemId}")
 async def postDetails(item_id: str, session : Session = Depends(get_session)):
     return await get_item_by_id(item_id, session)
 
 @router.get("/category/{category}")
-async def categorizedFeed(category: str):
-    pass
+async def categorizedFeed(category: str, session: Session = Depends(get_session)):
+    return await get_items_by_category(category, session)
 
 
 
@@ -38,10 +38,10 @@ async def postItem(
     return await create_item(item, session, current_user)
 
 
-@router.patch("/update/{postId}")
-async def UpdateItem(postId: str):
+@router.patch("/update/{itemId}")
+async def UpdateItem(itemId: str):
     pass
 
 @router.delete("/delete")
-async def postDelete(postId: int):
+async def postDelete(itemId: int):
     pass
