@@ -12,7 +12,9 @@ if DATABASE_URL and DATABASE_URL.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
 
 
-engine = create_engine(DATABASE_URL, echo=False)
+engine = create_engine(DATABASE_URL, echo=False,
+                                    pool_pre_ping=True,
+                                    pool_recycle=True)
 
 def get_session():
     with Session(engine) as session:

@@ -88,3 +88,24 @@ async def change_item_status(itemId, session, current_user):
         session.rollback()
         print(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+
+
+async def delete_item(itemId, session, current_user):
+    try:
+        item = session.get(Item, itemId)
+
+        if item is None:
+            raise HTTPException(status_code=404, detail="item not found")
+
+
+        if item.owner_id != current_user.id and current_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=403, detail="Not enough permissions")
+
+        session.delete(item)
+        session.commit()
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        print(f"Something went wrong while deleting item: {e}")
+        raise HTTPException(status_code=500, detail=f"Something went wrong while deleting item: {e}")

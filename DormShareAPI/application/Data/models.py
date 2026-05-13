@@ -24,7 +24,10 @@ class User(SQLModel, table=True):
     joined_at: datetime = Field(default_factory=datetime.utcnow)
     role: UserRole = Field(default=UserRole.USER)
 
-    items: List["Item"] = Relationship(back_populates="owner")
+    items: List["Item"] = Relationship(back_populates="owner",
+                                       cascade_delete=True)
+
+
 
 
 class Item(SQLModel, table=True):
@@ -41,8 +44,10 @@ class Item(SQLModel, table=True):
 
     owner_id: uuid.UUID = Field(foreign_key="users.id", index=True)
 
+
     owner: User = Relationship(back_populates="items")
-    images: List["Image"] = Relationship(back_populates="item")
+    images: List["Image"] = Relationship(back_populates="item",
+                                         cascade_delete = True)
 
 
 class Image(SQLModel, table=True):
