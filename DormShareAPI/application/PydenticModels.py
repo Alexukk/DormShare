@@ -4,6 +4,9 @@ from uuid import UUID
 from datetime import  datetime
 from typing import List
 
+from sqlmodel import SQLModel
+
+
 class UserCreate(BaseModel):
     username: str = Field(..., min_length=3, max_length=25)
     email: EmailStr
@@ -38,6 +41,12 @@ class ItemCreate(BaseModel):
     price: str = Field(..., min_length=1)
     category: str = Field(..., min_length=1)
     is_available: bool = True
+
+class ItemUpdate(SQLModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[str] = None
+    category: Optional[str] = None
 
 
 class ReviewCreate(BaseModel):

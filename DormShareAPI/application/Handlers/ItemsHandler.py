@@ -6,10 +6,8 @@ from sqlmodel import Session, select
 from DormShareAPI.application.Auth import get_current_user
 from DormShareAPI.application.Data.DataBase import get_session
 from DormShareAPI.application.Data.models import Item, User
-from DormShareAPI.application.PydenticModels import ItemCreate
+from DormShareAPI.application.PydenticModels import ItemCreate, ItemUpdate
 from DormShareAPI.application.Data.models import UserRole
-
-
 
 
 async def create_item(item_data: ItemCreate, session: Session = Depends(get_session),
@@ -109,3 +107,24 @@ async def delete_item(itemId, session, current_user):
     except Exception as e:
         print(f"Something went wrong while deleting item: {e}")
         raise HTTPException(status_code=500, detail=f"Something went wrong while deleting item: {e}")
+
+
+async def update_item(item_id, item_data: ItemUpdate, session, current_user):
+    db_item = session.get(Item, item_id)
+    if not db_item:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    if db_item.owner_id != current_user.id and current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+
+
+    update_data = item_data.model_dump(exclude_unset=True)
+
+    for k, v in update_data.items():
+        setattr(db_item, k, v)
+
+        session.add(db_item)
+        session.commit()
+        session.refresh(db_item)
+
+        return db_item

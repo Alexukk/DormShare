@@ -4,10 +4,10 @@ from sqlmodel import Session
 from DormShareAPI.application.Auth import get_current_user
 from DormShareAPI.application.Data.DataBase import get_session
 from DormShareAPI.application.Data.models import User, Item
-from DormShareAPI.application.PydenticModels import ItemCreate
+from DormShareAPI.application.PydenticModels import ItemCreate, ItemUpdate
 from DormShareAPI.application.Handlers.ItemsHandler import (create_item, get_items,
                                                             get_item_by_id, get_items_by_category, change_item_status,
-                                                            delete_item)
+                                                            delete_item, update_item)
 
 
 
@@ -40,11 +40,20 @@ async def postItem(
     return await create_item(item, session, current_user)
 
 
-@router.patch("/status/update/{itemId}")
-async def UpdateItem(itemId: str, session: Session = Depends(get_session),
+@router.patch("/status/update/{itemId}", status_code=200, response_model=Item)
+async def UpdateItemStatus(itemId: str, session: Session = Depends(get_session),
                           current_user: User = Depends(get_current_user)):
 
     return await change_item_status(itemId, session, current_user)
+
+@router.patch("/update/{itemId}", status_code=200, response_model=Item)
+async def updateItem(itemId: str, item_data: ItemUpdate,
+                     session: Session = Depends(get_session),
+                     current_user: User = Depends(get_current_user)):
+
+    return await update_item(itemId, item_data, session, current_user)
+
+
 
 @router.delete("/delete", status_code=204)
 async def postDelete(itemId: str, session: Session = Depends(get_session),
