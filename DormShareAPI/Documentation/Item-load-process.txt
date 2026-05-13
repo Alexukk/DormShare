@@ -1,0 +1,3 @@
+1. Item data as title, text, price, category is composed and sent via POST route
+2. Backend processes data and returns {"status" : 201, "item_id" : UUID}
+3. Frontend asynchronously posts photos via POST route

@@ -22,7 +22,8 @@ ALGORITHM = os.getenv("ALGORITHM")
 
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+# Теперь Swagger будет стучаться сюда при нажатии кнопки Authorize
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login-swagger")
 
 
 def get_password_hash(password: str):

@@ -45,3 +45,18 @@ async def login(user_data: UserLogin, session: Session):
 
 async def getCurrentUserData(token, session: Session = Depends(get_session)):
     return  await get_current_user(token, session)
+
+
+async def authenticate_user(email: str, password: str, session: Session):
+    # 1. Ищем пользователя по email
+    statement = select(User).where(User.email == email)
+    result = session.exec(statement)
+    user = result.first()
+
+    if not user:
+        return False
+
+    if not verify_password(password, user.password_hash):
+        return False
+
+    return user

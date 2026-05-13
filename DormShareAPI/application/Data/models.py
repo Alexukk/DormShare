@@ -37,6 +37,7 @@ class Item(SQLModel, table=True):
     trade_type: str
     price: str
     category: str = Field(index=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
     owner_id: uuid.UUID = Field(foreign_key="users.id", index=True)
 
