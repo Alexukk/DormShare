@@ -5,7 +5,7 @@ from DormShareAPI.application.Auth import get_current_user
 from DormShareAPI.application.Data.DataBase import get_session
 from DormShareAPI.application.Data.models import User, Item
 from DormShareAPI.application.PydenticModels import ItemCreate
-from DormShareAPI.application.Handlers.ItemsHandler import create_item, get_items
+from DormShareAPI.application.Handlers.ItemsHandler import create_item, get_items, get_item_by_id
 
 
 
@@ -20,8 +20,8 @@ async def feed(session: Session = Depends(get_session)):
     return await get_items(session)
 
 @router.get("/details/{postId}")
-async def postDetails(postId: str):
-    pass
+async def postDetails(item_id: str, session : Session = Depends(get_session)):
+    return await get_item_by_id(item_id, session)
 
 @router.get("/category/{category}")
 async def categorizedFeed(category: str):

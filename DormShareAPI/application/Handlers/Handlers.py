@@ -18,7 +18,7 @@ async def getUserById(user_id, session):
 
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Some shit happened")
+        raise HTTPException(status_code=500, detail="Problem occurred while ordering user")
 
 
 

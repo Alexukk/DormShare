@@ -45,3 +45,16 @@ async def get_items(session):
         print(f"Error occured {e}")
         raise HTTPException(status_code=500, detail=f"Something went wrong {e}")
 
+
+
+async def get_item_by_id(item_id, session):
+    try:
+        item = session.get(Item, item_id)
+
+        if not item:
+            raise HTTPException(status_code=404, detail=f"No item found by id: {item_id}")
+
+        return item
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Problem occurred while ordering user by id")
