@@ -7,6 +7,26 @@ from typing import List
 from sqlmodel import SQLModel
 
 
+class ImageRead(SQLModel):
+    id: UUID
+    photo_url: str
+
+
+class ItemReadWithImages(SQLModel):
+    id: UUID
+    title: str
+    description: str
+    price: str
+    trade_type: str
+    category: str
+    is_available: bool
+    created_at: datetime
+    owner_id: UUID
+
+    images: list[ImageRead] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
 class UserCreate(BaseModel):
     username: str = Field(..., min_length=3, max_length=25)
     email: EmailStr
@@ -21,7 +41,7 @@ class UserSend(BaseModel):
     contact_way: str
     joined_at: datetime
     role: str
-    items: List = []
+    items: List[ItemReadWithImages] = []
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -36,7 +56,7 @@ class CurrentUser(BaseModel):
 
 class ItemCreate(BaseModel):
     title: str = Field(..., min_length=1, max_length=75)
-    description: str = Field(..., min_length=10)
+    description: str = Field(..., min_length=1)
     trade_type: str = Field(..., min_length=1, max_length=70)
     price: str = Field(..., min_length=1)
     category: str = Field(..., min_length=1)
@@ -48,8 +68,3 @@ class ItemUpdate(SQLModel):
     price: Optional[str] = None
     category: Optional[str] = None
 
-
-class ReviewCreate(BaseModel):
-    transaction_id: UUID
-    text: str = Field(..., min_length=5, max_length=500)
-    stars_amount: int = Field(..., ge=1, le=5, description="Mark from 1 to 5 stars")

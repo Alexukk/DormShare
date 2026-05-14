@@ -46,7 +46,7 @@ class Item(SQLModel, table=True):
 
 
     owner: User = Relationship(back_populates="items")
-    images: List["Image"] = Relationship(back_populates="item",
+    images: list["Image"] = Relationship(back_populates="item",
                                          cascade_delete = True)
 
 
@@ -54,6 +54,7 @@ class Image(SQLModel, table=True):
     __tablename__ = "images"
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    external_id: str
     item_id: uuid.UUID = Field(foreign_key="items.id", index=True)
     photo_url: str
 
