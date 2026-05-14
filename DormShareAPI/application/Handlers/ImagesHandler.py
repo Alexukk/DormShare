@@ -3,7 +3,8 @@ from fastapi import HTTPException
 from dotenv import load_dotenv
 import os
 from DormShareAPI.application.Data.models import Image, Item
-from sqlalchemy import  Select
+from sqlalchemy import Select, select
+
 load_dotenv()
 
 from imagekitio import ImageKit
@@ -50,8 +51,13 @@ async def upload_photo(item_id, file, session, current_user):
 
 
 
-async def delete_photo(image_id, session, current_user):
-    Photo = session.Select(Image).where(Image.external_id == image_id).first()
+def delete_photo(image_id, session, current_user):
+    Photo = session.get(Image, image_id)
+
+
+    if not Photo:
+        raise HTTPException(status_code=404, detail="Photo record not found in database")
+
     item = session.get(Item, Photo.item_id)
 
     if not item:
@@ -62,6 +68,8 @@ async def delete_photo(image_id, session, current_user):
 
 
     try:
+        imagekit.files.delete(file_id=Photo.external_id)
+
         session.delete(Photo)
         session.commit()
     except Exception as e:
