@@ -50,27 +50,33 @@ async def upload_photo(item_id, file, session, current_user):
         raise HTTPException(status_code=500, detail=f"Cant save a file: {e}")
 
 
+from sqlmodel import select
+
 
 def delete_photo(image_id, session, current_user):
-    Photo = session.get(Image, image_id)
+    statement = select(Image).where(Image.external_id == image_id)
+    photo = session.exec(statement).first()
 
-
-    if not Photo:
-        raise HTTPException(status_code=404, detail="Photo record not found in database")
-
-    item = session.get(Item, Photo.item_id)
-
-    if not item:
-        raise HTTPException(status_code=404, detail="item not found")
-
-    if item.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="not enough permissions")
+    if not photo:
+        raise HTTPException(status_code=404, detail="Photo not found")
 
 
     try:
-        imagekit.files.delete(file_id=Photo.external_id)
+        current_item_id = photo.item_id
+    except AttributeError:
+        current_item_id = photo[0].item_id
+        photo = photo[0]
 
-        session.delete(Photo)
+    item = session.get(Item, current_item_id)
+
+    if not item or item.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="No permissions")
+
+    try:
+        imagekit.files.delete(file_id=image_id)
+        session.delete(photo)
         session.commit()
+        return {"status": "success"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Something went wrong while deleting image: {e}")
+        session.rollback()
+        raise HTTPException(status_code=500, detail=f"Error: {e}")
