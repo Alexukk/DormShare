@@ -32,7 +32,8 @@ async def upload_photo(item_id, file, session, current_user):
     try:
          response = imagekit.files.upload(
             file=image_data,
-            file_name=f"{uuid.uuid4()}.jpg"
+            file_name=f"{uuid.uuid4()}.jpg",
+            folder="/items"
         )
 
          session.add(Image(external_id=response.file_id,

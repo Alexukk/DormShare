@@ -29,7 +29,6 @@ class User(SQLModel, table=True):
 
 
 
-
 class Item(SQLModel, table=True):
     __tablename__ = "items"
 
