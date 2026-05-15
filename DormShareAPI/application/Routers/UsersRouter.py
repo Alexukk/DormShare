@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlmodel import Session
 
+from DormShareAPI.application.Auth import get_current_user
 from DormShareAPI.application.Data.DataBase import get_session
+from DormShareAPI.application.Data.models import User
 from DormShareAPI.application.Handlers.AuthHandlers import getCurrentUserData
 from DormShareAPI.application.Handlers.Handlers import getAllUsers, getUserById
 from DormShareAPI.application.PydenticModels import UserSend
@@ -14,8 +16,8 @@ router = APIRouter(
 
 
 @router.get("/me", status_code=200, response_model=UserSend)
-async def current_user_data(token, session: Session = Depends(get_session)):
-    return await getCurrentUserData(token, session)
+async def current_user_data(current_user: User = Depends(get_current_user)):
+    return current_user
 
 
 @router.get("/get-all", status_code=200, response_model=list[UserSend])
