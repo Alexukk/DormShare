@@ -68,3 +68,7 @@ class ItemUpdate(SQLModel):
     price: Optional[str] = None
     category: Optional[str] = None
 
+
+class ChatCreate(BaseModel):
+    lender_id: UUID
+    item_id: UUID

@@ -3,7 +3,7 @@ from fastapi import HTTPException
 from dotenv import load_dotenv
 import os
 from DormShareAPI.application.Data.models import Image, Item
-from sqlalchemy import Select, select
+from sqlalchemy import select
 
 load_dotenv()
 

@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends
 from DormShareAPI.application.Data.DataBase import init_db
-from DormShareAPI.application.Routers import UsersRouter, AuthRouter, ItemsRouter, ImagesRouter
+from DormShareAPI.application.Routers import UsersRouter, AuthRouter, ItemsRouter, ImagesRouter, ChatsRouter
 app = FastAPI()
 
 @app.on_event("startup")
@@ -16,6 +16,7 @@ app.include_router(AuthRouter.router)
 app.include_router(UsersRouter.router)
 app.include_router(ItemsRouter.router)
 app.include_router(ImagesRouter.router)
+app.include_router(ChatsRouter.router)
 
 @app.get("/")
 async def index():
