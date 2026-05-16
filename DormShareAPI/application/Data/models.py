@@ -79,3 +79,35 @@ class Review(SQLModel, table=True):
     transaction_id: uuid.UUID = Field(foreign_key="transactions.id")
     text: str
     stars_amount: int
+
+
+class Message(SQLModel, table=True):
+    __tablename__ = "messages"
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    content: str
+    is_viewed: bool = Field(default=False)
+    reaction: Optional[str] = None
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+    sender_id: uuid.UUID = Field(foreign_key="users.id")
+    chat_id: uuid.UUID = Field(foreign_key="chats.id", index=True)
+
+    chat: "Chat" = Relationship(back_populates="messages")
+
+
+class Chat(SQLModel, table=True):
+    __tablename__ = "chats"
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    status: str = Field(default="default")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    lender_id: uuid.UUID = Field(foreign_key="users.id", index=True)
+    borrower_id: uuid.UUID = Field(foreign_key="users.id", index=True)
+    item_id: uuid.UUID = Field(foreign_key="items.id", index=True)
+
+    messages: List[Message] = Relationship(
+        back_populates="chat",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
