@@ -22,17 +22,17 @@ async def feed(session: Session = Depends(get_session)):
     return await get_items(session)
 
 @router.get("/details/{itemId}", status_code=200, response_model=ItemReadWithImages)
-async def postDetails(item_id: str, session : Session = Depends(get_session)):
+async def post_Details(item_id: str, session : Session = Depends(get_session)):
     return await get_item_by_id(item_id, session)
 
 @router.get("/category/{category}", status_code=200, response_model=list[ItemReadWithImages])
-async def categorizedFeed(category: str, session: Session = Depends(get_session)):
+async def categorized_Feed(category: str, session: Session = Depends(get_session)):
     return await get_items_by_category(category, session)
 
 
 
 @router.post("/post", status_code=201)
-async def postItem(
+async def post_Item(
     item: ItemCreate,
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user)
@@ -41,13 +41,13 @@ async def postItem(
 
 
 @router.patch("/status/update/{itemId}", status_code=200, response_model=ItemReadWithImages)
-async def UpdateItemStatus(itemId: str, session: Session = Depends(get_session),
+async def Update_ItemStatus(itemId: str, session: Session = Depends(get_session),
                           current_user: User = Depends(get_current_user)):
 
     return await change_item_status(itemId, session, current_user)
 
 @router.patch("/update/{itemId}", status_code=200, response_model=ItemReadWithImages)
-async def updateItem(itemId: str, item_data: ItemUpdate,
+async def update_Item(itemId: str, item_data: ItemUpdate,
                      session: Session = Depends(get_session),
                      current_user: User = Depends(get_current_user)):
 
@@ -56,7 +56,7 @@ async def updateItem(itemId: str, item_data: ItemUpdate,
 
 
 @router.delete("/delete", status_code=204)
-async def postDelete(itemId: str, session: Session = Depends(get_session),
+async def post_Delete(itemId: str, session: Session = Depends(get_session),
                         current_user: User = Depends(get_current_user)):
 
     return await delete_item(itemId, session, current_user)
