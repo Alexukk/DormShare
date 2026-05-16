@@ -74,3 +74,48 @@ async def getUserChats(session, current_user) -> list[Chat]:
         return chats
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"couldn't get chats: {e}")
+
+
+
+async def chatDelete(chat_id, session, current_user):
+    try:
+        chat = session.get(Chat, chat_id)
+
+        if chat is None:
+            return {"status": "success"}
+
+        if chat.lender_id != current_user.id and chat.borrower_id != current_user.id and current_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=403, detail="not enough permissions")
+
+        session.delete(chat)
+        session.commit()
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"can't delete chat: {e}")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        session.delete(chat)
+        session.commit()
+
+        return {"status" : "success"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="couldn't delete chat")
+

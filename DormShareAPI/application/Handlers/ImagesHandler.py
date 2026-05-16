@@ -56,7 +56,7 @@ from sqlmodel import select
 
 def delete_photo(image_id, session, current_user):
     statement = select(Image).where(Image.external_id == image_id)
-    photo = session.exec(statement).scalars().first()
+    photo = session.exec(statement).first()
 
     if not photo:
         raise HTTPException(status_code=404, detail="Photo not found")
