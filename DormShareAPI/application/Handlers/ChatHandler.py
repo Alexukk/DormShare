@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, or_
 
 from DormShareAPI.application.Auth import get_current_user
 from DormShareAPI.application.Data.DataBase import get_session
@@ -47,7 +47,7 @@ async def CreateChat(data: ChatCreate, session: Session = Depends(get_session),
 
 
 
-async def getChatById(chat_id, session, current_user):
+async def getChatById(chat_id, session, current_user) -> Chat:
     try:
         chat = session.get(Chat, chat_id)
 
@@ -63,3 +63,14 @@ async def getChatById(chat_id, session, current_user):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Something went wrong: {e}")
+
+
+async def getUserChats(session, current_user) -> list[Chat]:
+    try:
+        statement = select(Chat).where(or_(Chat.lender_id == current_user.id,
+                                       Chat.borrower_id == current_user.id))
+
+        chats = session.exec(statement).scalars().all()
+        return chats
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"couldn't get chats: {e}")
