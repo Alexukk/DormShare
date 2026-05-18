@@ -1,9 +1,9 @@
 from sqlalchemy import select, or_
 
-from DormShareAPI.application.Auth import get_current_user
+from DormShareAPI.application.Services.Auth import get_current_user
 from DormShareAPI.application.Data.DataBase import get_session
-from DormShareAPI.application.Data.models import User, Item, Chat, Message, UserRole
-from DormShareAPI.application.PydenticModels import ChatCreate
+from DormShareAPI.application.Data.models import User, Chat, UserRole
+from DormShareAPI.application.Data.PydenticModels import ChatCreate
 from fastapi import Depends, HTTPException
 from sqlmodel import Session
 

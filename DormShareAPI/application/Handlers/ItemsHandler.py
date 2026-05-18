@@ -1,12 +1,10 @@
-from tkinter.tix import Select
-
 from fastapi import HTTPException, Depends
 from sqlmodel import Session, select
 
-from DormShareAPI.application.Auth import get_current_user
+from DormShareAPI.application.Services.Auth import get_current_user
 from DormShareAPI.application.Data.DataBase import get_session
 from DormShareAPI.application.Data.models import Item, User
-from DormShareAPI.application.PydenticModels import ItemCreate, ItemUpdate
+from DormShareAPI.application.Data.PydenticModels import ItemCreate, ItemUpdate
 from DormShareAPI.application.Data.models import UserRole
 
 

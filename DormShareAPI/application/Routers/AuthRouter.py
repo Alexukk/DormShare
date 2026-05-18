@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 
-from DormShareAPI.application.Auth import create_access_token
+from DormShareAPI.application.Services.Auth import create_access_token
 from DormShareAPI.application.Data.DataBase import get_session
 from DormShareAPI.application.Handlers.AuthHandlers import registration, login, authenticate_user
-from DormShareAPI.application.PydenticModels import UserCreate, UserLogin
+from DormShareAPI.application.Data.PydenticModels import UserCreate, UserLogin
 
 router = APIRouter(
     prefix="/auth",

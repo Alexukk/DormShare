@@ -1,11 +1,8 @@
 
-from fastapi import Depends, HTTPException, status
+from fastapi import HTTPException
 from sqlalchemy.orm import selectinload
-from sqlmodel import Session, select
-from DormShareAPI.application.Data.DataBase import get_session
+from sqlmodel import select
 from DormShareAPI.application.Data.models import User, Item
-from DormShareAPI.application.PydenticModels import UserSend
-
 
 
 async def getUserById(user_id, session):

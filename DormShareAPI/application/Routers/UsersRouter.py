@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Depends
 from sqlmodel import Session
 
-from DormShareAPI.application.Auth import get_current_user
+from DormShareAPI.application.Services.Auth import get_current_user
 from DormShareAPI.application.Data.DataBase import get_session
 from DormShareAPI.application.Data.models import User
-from DormShareAPI.application.Handlers.AuthHandlers import getCurrentUserData
 from DormShareAPI.application.Handlers.Handlers import getAllUsers, getUserById
-from DormShareAPI.application.PydenticModels import UserSend
+from DormShareAPI.application.Data.PydenticModels import UserSend
 
 router = APIRouter(
     prefix="/users",

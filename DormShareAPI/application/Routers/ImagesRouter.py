@@ -2,7 +2,7 @@ import uuid
 from fastapi import APIRouter, UploadFile, File
 from fastapi.params import Depends
 from sqlmodel import Session
-from DormShareAPI.application.Auth import get_current_user
+from DormShareAPI.application.Services.Auth import get_current_user
 from DormShareAPI.application.Data.DataBase import get_session
 from DormShareAPI.application.Data.models import User
 from DormShareAPI.application.Handlers.ImagesHandler import upload_photo, delete_photo

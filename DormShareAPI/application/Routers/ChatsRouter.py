@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlmodel import Session
 from DormShareAPI.application.Data.models import User, Chat
-from DormShareAPI.application.Auth import get_current_user
+from DormShareAPI.application.Services.Auth import get_current_user
 from DormShareAPI.application.Data.DataBase import get_session
 from DormShareAPI.application.Handlers.ChatHandler import CreateChat, getChatById, getUserChats, chatDelete
-from DormShareAPI.application.PydenticModels import ChatCreate
+from DormShareAPI.application.Data.PydenticModels import ChatCreate
 from uuid import UUID
 
 

@@ -1,9 +1,9 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException
 from sqlmodel import Session, select
 from DormShareAPI.application.Data.DataBase import get_session
 from DormShareAPI.application.Data.models import User
-from DormShareAPI.application.PydenticModels import UserCreate, UserLogin
-from DormShareAPI.application.Auth import get_password_hash, create_access_token, verify_password, get_current_user
+from DormShareAPI.application.Data.PydenticModels import UserCreate, UserLogin
+from DormShareAPI.application.Services.Auth import get_password_hash, create_access_token, verify_password, get_current_user
 from DormShareAPI.application.Mapping.UserMapping import CreateUserEntity
 
 

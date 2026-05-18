@@ -1,10 +1,10 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends
 from sqlmodel import Session
 
-from DormShareAPI.application.Auth import get_current_user
+from DormShareAPI.application.Services.Auth import get_current_user
 from DormShareAPI.application.Data.DataBase import get_session
-from DormShareAPI.application.Data.models import User, Item
-from DormShareAPI.application.PydenticModels import ItemCreate, ItemUpdate, ItemReadWithImages
+from DormShareAPI.application.Data.models import User
+from DormShareAPI.application.Data.PydenticModels import ItemCreate, ItemUpdate, ItemReadWithImages
 from DormShareAPI.application.Handlers.ItemsHandler import (create_item, get_items,
                                                             get_item_by_id, get_items_by_category, change_item_status,
                                                             delete_item, update_item)
