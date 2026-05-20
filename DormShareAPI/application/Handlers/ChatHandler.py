@@ -1,13 +1,12 @@
 from sqlalchemy import select, or_
-
 from DormShareAPI.application.Services.Auth import get_current_user
 from DormShareAPI.application.Data.DataBase import get_session
 from DormShareAPI.application.Data.models import User, Chat, UserRole
 from DormShareAPI.application.Data.PydenticModels import ChatCreate
 from fastapi import Depends, HTTPException
 from sqlmodel import Session
-
-
+from sqlalchemy.orm import selectinload
+from sqlalchemy import select as sa_select
 
 
 
@@ -46,13 +45,13 @@ async def CreateChat(data: ChatCreate, session: Session = Depends(get_session),
         raise HTTPException(status_code=500, detail=f"Can't create a chat, error log: {e}")
 
 
-
-async def getChatById(chat_id, session, current_user) -> Chat:
+async def getChatById(chat_id, session, current_user):
     try:
-        chat = session.get(Chat, chat_id)
+        statement = sa_select(Chat).where(Chat.id == chat_id).options(selectinload(Chat.messages))
+        chat = session.execute(statement).scalar_one_or_none()
 
         if not chat:
-            raise HTTPException(status_code=404, detail="item not foundgit ")
+            raise HTTPException(status_code=404, detail="Chat not found")
 
         if chat.lender_id != current_user.id and chat.borrower_id != current_user.id and current_user.role != UserRole.ADMIN:
             raise HTTPException(status_code=403, detail="Can't access not related chat")
@@ -67,13 +66,14 @@ async def getChatById(chat_id, session, current_user) -> Chat:
 
 async def getUserChats(session, current_user) -> list[Chat]:
     try:
-        statement = select(Chat).where(or_(Chat.lender_id == current_user.id,
-                                       Chat.borrower_id == current_user.id))
+        statement = sa_select(Chat).where(
+            or_(Chat.lender_id == current_user.id, Chat.borrower_id == current_user.id)
+        ).options(selectinload(Chat.messages))
 
-        chats = session.exec(statement).scalars().all()
+        chats = session.execute(statement).scalars().all()
         return chats
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"couldn't get chats: {e}")
+        raise HTTPException(status_code=500, detail=f"Couldn't get chats: {e}")
 
 
 
@@ -94,28 +94,4 @@ async def chatDelete(chat_id, session, current_user):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"can't delete chat: {e}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        session.delete(chat)
-        session.commit()
-
-        return {"status" : "success"}
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="couldn't delete chat")
 

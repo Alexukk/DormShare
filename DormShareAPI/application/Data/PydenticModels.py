@@ -72,3 +72,23 @@ class ItemUpdate(SQLModel):
 class ChatCreate(BaseModel):
     lender_id: UUID
     item_id: UUID
+
+
+
+
+class MessageResponse(SQLModel):
+    id: UUID
+    content: str
+    sender_id: UUID
+    timestamp: datetime
+    is_viewed: bool
+    reaction: Optional[str]
+
+class ChatResponse(SQLModel):
+    id: UUID
+    status: str
+    created_at: datetime
+    lender_id: UUID
+    borrower_id: UUID
+    item_id: UUID
+    messages: list[MessageResponse] = []

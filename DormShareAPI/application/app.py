@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from DormShareAPI.application.Data.DataBase import init_db
 from DormShareAPI.application.Routers import UsersRouter, AuthRouter, ItemsRouter, ImagesRouter, ChatsRouter
 app = FastAPI()
@@ -9,6 +9,8 @@ def on_startup():
     init_db()
     print("✅ Все таблицы успешно созданы!")
 
+    for route in app.routes:
+        print(route.path)
 
 # All app's routes from DormShareAPI.application.Routers
 

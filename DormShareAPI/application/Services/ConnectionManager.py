@@ -13,7 +13,7 @@ class ConnectionManager:
         if chat_id not in self.active_connections:
             self.active_connections[chat_id] = []
 
-            self.active_connections[chat_id].append(websocket)
+        self.active_connections[chat_id].append(websocket)
 
 
     def disconnect(self, websocket: WebSocket, chat_id: str):
