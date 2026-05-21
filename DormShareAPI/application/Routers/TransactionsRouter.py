@@ -2,7 +2,7 @@ from uuid import UUID
 from sqlmodel import Session
 from DormShareAPI.application.Data.models import User
 from DormShareAPI.application.Data.DataBase import get_session
-from DormShareAPI.application.Handlers.TransactionsHandler import InitializeTransaction, ApproveTransaction, GetTransaction
+from DormShareAPI.application.Handlers.TransactionsHandler import InitializeTransaction, ApproveTransaction, GetTransaction, DeclineTransaction
 from DormShareAPI.application.Data.PydenticModels import TransactionInitialize
 from fastapi import APIRouter, Depends
 
@@ -30,3 +30,8 @@ async def Approve_transaction(transaction_id: UUID, session: Session = Depends(g
 @router.get("/get/{transaction_id}")
 async def Order_Transaction(transaction_id: UUID, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
     return await GetTransaction(transaction_id, session, current_user)
+
+
+@router.patch("/cancel/{transaction_id}", status_code=200)
+async def Cancel_transaction(transaction_id: UUID, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
+    return await DeclineTransaction(transaction_id, session, current_user)

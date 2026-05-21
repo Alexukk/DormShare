@@ -108,3 +108,32 @@ async def GetTransaction(transaction_id, session, current_user):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"an error occurred while ordering transaction: {e}")
+
+
+async def DeclineTransaction(transaction_id, session, current_user):
+    try:
+        transaction = session.get(Transaction, transaction_id)
+
+        if not transaction:
+            raise HTTPException(status_code=404, detail="transaction not found")
+
+        if transaction.status != 'pending':
+            raise HTTPException(status_code=400, detail="can't cancel active transaction")
+
+        if current_user.id != transaction.lender_id:
+            raise HTTPException(status_code=403, detail="only lender can decline transaction")
+
+        session.delete(transaction)
+        session.commit()
+
+        await manager.broadcast_to_chat(str(transaction.chat_id), {
+                                            "type" : "transaction_cancelled",
+                                            "transaction_id": str(transaction.id)})
+
+        return {"status" : "success"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status_code=500, detail=f"something went wrong while cancelling a transaction: {e}")
