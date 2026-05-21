@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from DormShareAPI.application.Data.PydenticModels import TransactionInitialize
 from sqlmodel import Session, select
-from DormShareAPI.application.Data.models import User, Transaction, Item
+from DormShareAPI.application.Data.models import User, Transaction, Item, UserRole
 from DormShareAPI.application.Services.ConnectionManager import manager
 
 
@@ -86,3 +86,25 @@ async def ApproveTransaction(transaction_id, session, current_user):
     except Exception as e:
         session.rollback()
         raise HTTPException(status_code=500, detail=f"something went wrong while approving transaction: {e}")
+
+
+async def GetTransaction(transaction_id, session, current_user):
+
+    try:
+        transaction = session.get(Transaction, transaction_id)
+
+        if not transaction:
+            raise HTTPException(status_code=404, detail="transaction not found")
+
+        if current_user.id not in (transaction.lender_id, transaction.borrower_id) and current_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=403, detail="can't get non-related transaction")
+
+        return {
+            "status" : "success",
+            "transaction" : transaction
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"an error occurred while ordering transaction: {e}")
