@@ -2,7 +2,7 @@ from uuid import UUID
 from sqlmodel import Session
 from DormShareAPI.application.Data.models import User
 from DormShareAPI.application.Data.DataBase import get_session
-from DormShareAPI.application.Handlers.TransactionsHandler import InitializeTransaction, ApproveTransaction, GetTransaction, DeclineTransaction, ConfirmTransaction
+from DormShareAPI.application.Handlers.TransactionsHandler import InitializeTransaction, ApproveTransaction, GetTransaction, DeclineTransaction, ConfirmTransaction, GetTransactionByChat
 from DormShareAPI.application.Data.PydenticModels import TransactionInitialize
 from fastapi import APIRouter, Depends
 
@@ -42,3 +42,8 @@ async def Confirm_transaction(transaction_id: UUID, session: Session = Depends(g
     return await ConfirmTransaction(transaction_id, session, current_user)
 
 
+
+
+@router.get("/by-chat/{chat_id}", status_code=200)
+async def Confirm_transaction(chat_id: UUID, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
+    return await GetTransactionByChat(chat_id, session, current_user)

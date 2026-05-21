@@ -108,7 +108,7 @@ async def GetTransaction(transaction_id, session, current_user):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"an error occurred while ordering transaction: {e}")
+        raise HTTPException(status_code=500, detail=f"an error occurred while ordering a transaction: {e}")
 
 
 async def DeclineTransaction(transaction_id, session, current_user):
@@ -180,3 +180,26 @@ async def ConfirmTransaction(transaction_id, session, current_user):
     except Exception as e:
         session.rollback()
         raise HTTPException(status_code=500, detail=f"something went wrong while confirming transaction: {e}")
+
+
+async def GetTransactionByChat(chat_id, session, current_user):
+    try:
+        statement = select(Transaction).where(Transaction.chat_id == chat_id)
+        transaction = session.exec(statement).first()
+
+        if not transaction:
+            raise HTTPException(status_code=404, detail="transaction not found")
+
+        if current_user.id not in (transaction.lender_id, transaction.borrower_id):
+            raise HTTPException(status_code=403, detail="not a participant of this transaction")
+
+        return {
+            "status": "success",
+            "transaction": transaction
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"an error occurred while ordering a transaction: {e}")
