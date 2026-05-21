@@ -70,7 +70,7 @@ class Transaction(SQLModel, table=True):
     borrower_id: uuid.UUID = Field(foreign_key="users.id", index=True)
     lender_confirmation: bool = Field(default=False)
     borrower_confirmation: bool = Field(default=False)
-    status: str = Field(default="pending")  # pending | active | completing | completed | cancelled
+    status: str = Field(default="pending")  # pending | active | completing | completed | canceled
     review_id: Optional[uuid.UUID] = Field(default=None, foreign_key="reviews.id")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     completed_at: Optional[datetime] = Field(default=None)

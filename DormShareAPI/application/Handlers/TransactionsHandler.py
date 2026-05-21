@@ -3,6 +3,7 @@ from DormShareAPI.application.Data.PydenticModels import TransactionInitialize
 from sqlmodel import Session, select
 from DormShareAPI.application.Data.models import User, Transaction, Item, UserRole
 from DormShareAPI.application.Services.ConnectionManager import manager
+from datetime import datetime
 
 
 async def InitializeTransaction(data: TransactionInitialize, session, current_user):
@@ -137,3 +138,45 @@ async def DeclineTransaction(transaction_id, session, current_user):
     except Exception as e:
         session.rollback()
         raise HTTPException(status_code=500, detail=f"something went wrong while cancelling a transaction: {e}")
+
+
+async def ConfirmTransaction(transaction_id, session, current_user):
+    try:
+        transaction = session.get(Transaction, transaction_id)
+
+        if not transaction:
+            raise HTTPException(status_code=404, detail="transaction not found")
+
+        if transaction.status in ('pending', "canceled", "completed"):
+            raise HTTPException(status_code=400, detail="transaction is already ower or is not yet confirmed")
+
+        if current_user.id not in (transaction.lender_id, transaction.borrower_id):
+            raise HTTPException(status_code=403, detail="not a participant of this transaction")
+
+        if transaction.lender_id == current_user.id:
+            transaction.lender_confirmation = True
+        elif transaction.borrower_id == current_user.id:
+            transaction.borrower_confirmation = True
+
+        if transaction.borrower_confirmation and transaction.lender_confirmation:
+            transaction.status = "completed"
+            transaction.completed_at = datetime.utcnow()
+            item = session.get(Item, transaction.item_id)
+            item.is_available = True
+            broadcast_type = "transaction_completed"
+        else:
+            broadcast_type = "transaction_completing"
+
+        session.commit()
+        await manager.broadcast_to_chat(str(transaction.chat_id), {
+            "type": broadcast_type,
+            "transaction_id": str(transaction.id)
+        })
+
+        return {"status": "success"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status_code=500, detail=f"something went wrong while confirming transaction: {e}")
