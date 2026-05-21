@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Extra Files
+
+AGENTS.md
+HANDOFF.md
+reference/
