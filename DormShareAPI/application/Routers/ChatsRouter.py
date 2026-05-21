@@ -7,15 +7,13 @@ from DormShareAPI.application.Handlers.ChatHandler import CreateChat, getChatByI
 from DormShareAPI.application.Data.PydenticModels import ChatCreate
 from uuid import UUID
 from DormShareAPI.application.Handlers.WebsocketHandler import chat_handler
-from DormShareAPI.application.Services.ConnectionManager import ConnectionManager
+from DormShareAPI.application.Services.ConnectionManager import manager
 from DormShareAPI.application.Data.PydenticModels import ChatResponse
 
 
 
 router = APIRouter(prefix="/chat",
                    tags=["Chat"])
-
-manager = ConnectionManager()
 
 
 @router.post("/create", status_code=201)

@@ -92,3 +92,9 @@ class ChatResponse(SQLModel):
     borrower_id: UUID
     item_id: UUID
     messages: list[MessageResponse] = []
+
+
+class TransactionInitialize(SQLModel):
+    lender_id: UUID
+    chat_id: UUID
+    item_id: UUID

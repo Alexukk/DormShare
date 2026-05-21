@@ -27,3 +27,7 @@ class ConnectionManager:
         if chat_id in self.active_connections:
             for connection in self.active_connections[chat_id]:
                 await connection.send_json(message_data)
+
+
+
+manager =ConnectionManager()
