@@ -47,3 +47,42 @@ async def InitializeTransaction(data: TransactionInitialize, session, current_us
     except Exception as e:
         session.rollback()
         raise HTTPException(status_code=500, detail=f"An error occurred while initializing a transaction: {e}")
+
+
+
+async def ApproveTransaction(transaction_id, session, current_user):
+    try:
+        transaction = session.get(Transaction, transaction_id)
+
+        if transaction is None:
+            raise HTTPException(status_code=404, detail="transaction not found")
+
+        if transaction.lender_id != current_user.id:
+            raise HTTPException(status_code=403, detail="method forbidden for borrower")
+
+
+        if not transaction.status == "pending":
+            raise HTTPException(status_code=400, detail="transaction already approved or canceled")
+
+        transaction.status = "active"
+
+        item = session.get(Item, transaction.item_id)
+
+        if item is None:
+            raise HTTPException(status_code=404, detail="item not found transaction is invalid")
+
+        item.is_available = False
+
+        session.commit()
+
+        await manager.broadcast_to_chat(str(transaction.chat_id), {
+            "type" : "transaction_active",
+            "transaction_id": str(transaction.id)
+        })
+
+        return {"status": "success", "transaction_id": transaction.id}
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status_code=500, detail=f"something went wrong while approving transaction: {e}")
