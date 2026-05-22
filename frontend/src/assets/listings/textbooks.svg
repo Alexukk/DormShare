@@ -1,0 +1,33 @@
+<svg width="720" height="560" viewBox="0 0 720 560" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Stack of textbooks</title>
+  <desc id="desc">A neat stack of college textbooks on a dorm desk with a plant in the background.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="720" y1="0" y2="560" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4F7F1"/>
+      <stop offset="1" stop-color="#EEF3F8"/>
+    </linearGradient>
+    <filter id="shadow" x="68" y="104" width="584" height="368" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="22" stdDeviation="20" flood-color="#152033" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <rect width="720" height="560" rx="34" fill="url(#bg)"/>
+  <circle cx="582" cy="130" r="96" fill="#E4EFE2"/>
+  <path d="M548 132c40-48 80-52 114-94 8 66-24 108-92 128" stroke="#4C7A56" stroke-width="16" stroke-linecap="round"/>
+  <g filter="url(#shadow)">
+    <rect x="118" y="126" width="456" height="72" rx="16" fill="#F8F3E7"/>
+    <rect x="144" y="146" width="386" height="14" rx="7" fill="#182136"/>
+    <rect x="136" y="198" width="462" height="74" rx="16" fill="#172134"/>
+    <rect x="160" y="220" width="236" height="13" rx="6.5" fill="#F7FAFF"/>
+    <rect x="422" y="220" width="118" height="13" rx="6.5" fill="#F5B84A"/>
+    <rect x="100" y="272" width="490" height="72" rx="16" fill="#EAF0F8"/>
+    <rect x="130" y="294" width="342" height="14" rx="7" fill="#172134"/>
+    <rect x="126" y="344" width="476" height="74" rx="16" fill="#111827"/>
+    <rect x="160" y="366" width="318" height="13" rx="6.5" fill="#F7FAFF"/>
+    <rect x="108" y="418" width="444" height="70" rx="16" fill="#24344D"/>
+    <rect x="138" y="438" width="240" height="14" rx="7" fill="#F7FAFF"/>
+    <path d="M542 126v362" stroke="#BD8A3D" stroke-width="12" stroke-linecap="round"/>
+    <path d="M102 490h494" stroke="#8D9AAF" stroke-width="8" stroke-linecap="round" opacity=".26"/>
+  </g>
+  <rect x="64" y="408" width="76" height="76" rx="24" fill="#FFFFFF" opacity=".72"/>
+  <path d="M100 434v30M84 450h32" stroke="#6E7C91" stroke-width="8" stroke-linecap="round"/>
+</svg>
