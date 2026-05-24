@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from DormShareAPI.application.Data.models import Review, Transaction, User
+from DormShareAPI.application.Data.models import Review, Transaction, User, UserRole
 from sqlmodel import select
 from DormShareAPI.application.Data.PydenticModels import CreateReview
 
@@ -56,3 +56,34 @@ async def getReview(review_id, session):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"something went wrong: {e}")
+
+
+
+async def deleteReview(review_id, session, current_user):
+    try:
+        review = session.get(Review, review_id)
+
+        if not review:
+            return {"status" : "success"}
+
+        if review.borrower_id != current_user.id and current_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=403, detail="can't delete a review you didn't post")
+
+        transaction = session.exec(
+            select(Transaction).where(Transaction.review_id == review_id)
+        ).first()
+        if transaction:
+            transaction.review_id = None
+
+        session.delete(review)
+
+
+        session.commit()
+
+
+        return {"status": "success"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status_code=500, detail=f"an error occurred while deleting a review: {e}")

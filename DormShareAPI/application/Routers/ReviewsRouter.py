@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from DormShareAPI.application.Handlers.ReviewsHandler import createReview, getReview
+from DormShareAPI.application.Handlers.ReviewsHandler import createReview, getReview, deleteReview
 from DormShareAPI.application.Data.DataBase import get_session
 from DormShareAPI.application.Data.models import Review, User
 from DormShareAPI.application.Data.PydenticModels import CreateReview
@@ -24,3 +24,10 @@ async def Create_review(transaction_id: UUID, data: CreateReview,
 @router.get("/get/{review_id}", response_model=Review, status_code=200)
 async def Get_review(review_id, session: Session = Depends(get_session)):
     return await getReview(review_id, session)
+
+
+
+@router.delete("/delete/{review_id}", status_code=204)
+async def Get_review(review_id, session: Session = Depends(get_session),
+                     current_user: User = Depends(get_current_user)):
+    return await deleteReview(review_id, session, current_user)
