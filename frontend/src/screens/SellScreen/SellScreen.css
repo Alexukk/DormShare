@@ -119,18 +119,18 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: var(--space-16);
-  min-height: 82px;
-  padding: 0 var(--space-24);
+  gap: var(--space-12);
+  min-height: 52px;
+  padding: 0 var(--space-16);
   border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-20);
+  border-radius: var(--radius-16);
   background: var(--color-surface);
   box-shadow: var(--shadow-control);
 }
 
 .sell-field .material-symbols-rounded {
   color: var(--color-icon);
-  font-size: 30px;
+  font-size: 24px;
 }
 
 .sell-field input,
@@ -140,7 +140,7 @@
   outline: 0;
   background: transparent;
   color: var(--color-text);
-  font-size: var(--font-size-control);
+  font-size: 16px;
   font-weight: 500;
 }
 
@@ -150,13 +150,13 @@
 }
 
 .sell-field--textarea {
-  min-height: 154px;
+  min-height: 120px;
   align-items: start;
-  padding-top: var(--space-24);
+  padding-top: var(--space-12);
 }
 
 .sell-field textarea {
-  min-height: 94px;
+  min-height: 88px;
   resize: none;
 }
 
@@ -164,8 +164,8 @@
   display: flex;
   justify-content: space-between;
   gap: var(--space-16);
-  margin-top: calc(var(--space-18) * -1);
-  padding: 0 var(--space-14) 0 78px;
+  margin-top: calc(var(--space-10) * -1);
+  padding: 0 var(--space-8);
   color: var(--color-muted-strong);
   font-size: var(--font-size-meta);
   font-weight: 500;
@@ -173,22 +173,22 @@
 
 .sell-screen__price-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(230px, 0.62fr);
-  gap: var(--space-18);
+  grid-template-columns: minmax(0, 1fr) minmax(210px, 0.62fr);
+  gap: var(--space-14);
 }
 
 .sell-screen__select-button {
   display: flex;
-  min-height: 82px;
+  min-height: 52px;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-12);
-  padding: 0 var(--space-22);
+  gap: var(--space-10);
+  padding: 0 var(--space-16);
   border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-20);
+  border-radius: var(--radius-16);
   background: var(--color-surface);
   color: var(--color-text);
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 700;
   box-shadow: var(--shadow-control);
   cursor: pointer;
@@ -252,16 +252,16 @@
 
 .sell-screen__category-chip {
   display: inline-flex;
-  min-height: 58px;
+  min-height: 48px;
   align-items: center;
-  gap: var(--space-10);
-  padding: 0 var(--space-18);
+  gap: var(--space-8);
+  padding: 0 var(--space-14);
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-pill);
   background: var(--color-surface);
   color: var(--color-text);
   font-size: var(--font-size-chip);
-  font-weight: 800;
+  font-weight: 600;
   box-shadow: var(--shadow-control);
   cursor: pointer;
 }
@@ -273,18 +273,18 @@
 }
 
 .sell-screen__category-chip .material-symbols-rounded {
-  font-size: 27px;
+  font-size: 20px;
 }
 
 .sell-screen__condition {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--space-16);
-  min-height: 98px;
-  padding: 0 var(--space-24);
+  gap: var(--space-14);
+  min-height: 72px;
+  padding: 0 var(--space-18);
   border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-20);
+  border-radius: var(--radius-16);
   background: var(--color-surface);
   color: var(--color-text);
   text-align: left;
@@ -295,26 +295,26 @@
 .sell-screen__condition strong,
 .sell-action-row strong {
   display: block;
-  font-size: 22px;
-  font-weight: 800;
+  font-size: 16px;
+  font-weight: 700;
   line-height: 1.2;
 }
 
 .sell-screen__condition small,
 .sell-action-row small {
   display: block;
-  margin-top: var(--space-4);
-  color: var(--color-muted-strong);
-  font-size: 17px;
+  margin-top: 2px;
+  color: var(--color-muted);
+  font-size: 13px;
   font-weight: 500;
 }
 
 .sell-screen__primary {
-  min-height: 78px;
-  border-radius: var(--radius-18, 18px);
+  min-height: 56px;
+  border-radius: var(--radius-14);
   background: var(--color-primary);
   color: var(--color-surface);
-  font-size: 25px;
+  font-size: 16px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -324,7 +324,7 @@
   padding: 0;
   background: transparent;
   color: var(--color-primary);
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 800;
   cursor: pointer;
 }
@@ -678,20 +678,66 @@
   }
 
   .sell-detail-row {
-    font-size: 17px;
-  }
-
-  .sell-screen__condition strong {
-    font-size: 19px;
-  }
-
-  .sell-screen__condition small {
     font-size: 15px;
   }
 
+  .sell-field {
+    min-height: 46px;
+    padding: 0 var(--space-12);
+    border-radius: var(--radius-12);
+  }
+
+  .sell-field .material-symbols-rounded {
+    font-size: 20px;
+  }
+
+  .sell-field input,
+  .sell-field textarea {
+    font-size: 14px;
+  }
+
+  .sell-field--textarea {
+    min-height: 90px;
+    padding-top: var(--space-10);
+  }
+
+  .sell-screen__select-button {
+    min-height: 46px;
+    padding: 0 var(--space-12);
+    font-size: 13px;
+    border-radius: var(--radius-12);
+  }
+
+  .sell-screen__category-chip {
+    min-height: 38px;
+    padding: 0 var(--space-12);
+    font-size: 13px;
+    gap: var(--space-6);
+  }
+
+  .sell-screen__category-chip .material-symbols-rounded {
+    font-size: 18px;
+  }
+
+  .sell-screen__condition {
+    min-height: 58px;
+    padding: 0 var(--space-12);
+    gap: var(--space-10);
+    border-radius: var(--radius-12);
+  }
+
+  .sell-screen__condition strong {
+    font-size: 14px;
+  }
+
+  .sell-screen__condition small {
+    font-size: 11px;
+  }
+
   .sell-screen__primary {
-    min-height: 68px;
-    font-size: 21px;
+    min-height: 48px;
+    font-size: 15px;
+    border-radius: var(--radius-12);
   }
 
   .sell-screen__success {

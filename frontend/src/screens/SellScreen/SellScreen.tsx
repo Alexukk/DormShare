@@ -316,7 +316,7 @@ function DetailsStep({
           value={draft.title}
           onChange={(event) => onUpdate('title', event.target.value)}
           maxLength={60}
-          placeholder="Be clear and specific (e.g. IKEA Desk)"
+          placeholder="Item title"
         />
       </label>
       <div className="sell-screen__field-help">
@@ -332,7 +332,7 @@ function DetailsStep({
           value={draft.description}
           onChange={(event) => onUpdate('description', event.target.value)}
           maxLength={300}
-          placeholder="Add condition, features, and any important info"
+          placeholder="Description"
         />
       </label>
       <div className="sell-screen__field-help">
