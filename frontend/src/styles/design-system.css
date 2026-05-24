@@ -110,50 +110,71 @@
 
 @media (max-width: 480px) {
   :root {
-    --app-padding-inline: 20px;
-    --bottom-nav-height: 98px;
-    --bottom-nav-radius: 24px;
+    --app-padding-inline: 16px;
+    --bottom-nav-height: 82px;
+    --bottom-nav-radius: 20px;
 
-    --icon-size-sm: 18px;
-    --icon-size-md: 24px;
-    --icon-size-lg: 30px;
+    --icon-size-sm: 16px;
+    --icon-size-md: 20px;
+    --icon-size-lg: 26px;
 
-    --font-size-caption: 11px;
-    --font-size-badge: 12px;
-    --font-size-nav: 13px;
-    --font-size-meta: 13px;
-    --font-size-seller: 13px;
-    --font-size-chip: 14px;
-    --font-size-body: 16px;
-    --font-size-control: 16px;
-    --font-size-card-title: 16px;
-    --font-size-price: 18px;
-    --font-size-section-title: 24px;
-    --font-size-heading-home: 35px;
-    --font-size-heading-screen: 42px;
-    --font-size-avatar: 26px;
-    --font-size-chat-name: 19px;
-    --font-size-chat-preview: 15px;
+    --font-size-caption: 10px;
+    --font-size-badge: 11px;
+    --font-size-nav: 11px;
+    --font-size-meta: 11px;
+    --font-size-seller: 11px;
+    --font-size-chip: 13px;
+    --font-size-body: 13px;
+    --font-size-control: 14px;
+    --font-size-card-title: 13px;
+    --font-size-price: 15px;
+    --font-size-section-title: 18px;
+    --font-size-heading-home: 26px;
+    --font-size-heading-screen: 28px;
+    --font-size-avatar: 22px;
+    --font-size-chat-name: 15px;
+    --font-size-chat-preview: 13px;
 
-    --search-control-height: 64px;
-    --filter-button-size: 64px;
-    --chip-height: 54px;
-    --listing-card-radius: 20px;
-    --listing-grid-gap: 14px;
-    --favorite-button-size: 44px;
-    --seller-avatar-size: 32px;
-    --status-dot-size: 10px;
-    --notification-button-size: 44px;
-    --notification-badge-size: 22px;
-    --chat-tab-height: 56px;
-    --chat-row-height: 96px;
-    --chat-avatar-size: 64px;
-    --chat-badge-size: 22px;
-    --chat-online-dot-size: 14px;
+    --search-control-height: 52px;
+    --filter-button-size: 52px;
+    --chip-height: 42px;
+    --listing-card-radius: 16px;
+    --listing-grid-gap: 12px;
+    --favorite-button-size: 34px;
+    --seller-avatar-size: 26px;
+    --status-dot-size: 8px;
+    --notification-button-size: 38px;
+    --notification-badge-size: 18px;
+    --chat-tab-height: 44px;
+    --chat-row-height: 80px;
+    --chat-avatar-size: 52px;
+    --chat-badge-size: 18px;
+    --chat-online-dot-size: 12px;
 
-    --bottom-nav-item-height: 70px;
-    --bottom-nav-icon-box: 28px;
-    --badge-size: 18px;
+    --bottom-nav-item-height: 58px;
+    --bottom-nav-icon-box: 24px;
+    --badge-size: 15px;
+
+    /* Contract spacing tokens on mobile by ~40-50% for high density layouts */
+    --space-2: 1px;
+    --space-4: 2px;
+    --space-6: 3px;
+    --space-8: 4px;
+    --space-10: 5px;
+    --space-12: 6px;
+    --space-14: 7px;
+    --space-16: 8px;
+    --space-18: 9px;
+    --space-20: 10px;
+    --space-22: 11px;
+    --space-24: 12px;
+    --space-28: 14px;
+    --space-32: 16px;
+    --space-36: 18px;
+    --space-40: 20px;
+    --space-44: 22px;
+    --space-56: 28px;
+    --space-64: 32px;
   }
 }
 
