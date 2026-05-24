@@ -1,50 +1,39 @@
 import { useEffect, useMemo, useState } from 'react'
-import BottomNav from '../../components/BottomNav/BottomNav'
+import BottomNav, {
+  type BottomNavItem,
+} from '../../components/BottomNav/BottomNav'
 import CategoryChips from '../../components/CategoryChips/CategoryChips'
 import ListingCard from '../../components/ListingCard/ListingCard'
 import NotificationButton from '../../components/NotificationButton/NotificationButton'
 import SearchFilterBar from '../../components/SearchFilterBar/SearchFilterBar'
-import {
-  dormshareApi,
-  type CategoryId,
-  type CurrentUser,
-  type FeedCategory,
-  type FeedItem,
-} from '../../data/dormshareApi'
+import { useDormShare } from '../../data/DormShareContext'
+import { dormshareApi, type CategoryId, type FeedCategory } from '../../data/dormshareApi'
 import './FeedScreen.css'
 
-function FeedScreen() {
-  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null)
+type FeedScreenProps = {
+  onNavigate?: (item: BottomNavItem) => void
+  onOpenListing?: (listingId: string) => void
+}
+
+function FeedScreen({ onNavigate, onOpenListing }: FeedScreenProps) {
+  const { items, favoriteIds, toggleFavorite, currentUserProfile, notificationCount } = useDormShare()
   const [categories, setCategories] = useState<FeedCategory[]>([])
-  const [items, setItems] = useState<FeedItem[]>([])
   const [selectedCategory, setSelectedCategory] = useState<CategoryId>('all')
   const [searchQuery, setSearchQuery] = useState('')
-  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(() => new Set())
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     let isMounted = true
 
-    async function loadFeed() {
+    async function loadCategories() {
       setIsLoading(true)
-
-      const [loadedUser, loadedCategories, loadedItems] = await Promise.all([
-        dormshareApi.getCurrentUser(),
-        dormshareApi.getCategories(),
-        dormshareApi.getFeedItems(),
-      ])
-
-      if (!isMounted) {
-        return
-      }
-
-      setCurrentUser(loadedUser)
+      const loadedCategories = await dormshareApi.getCategories()
+      if (!isMounted) return
       setCategories(loadedCategories)
-      setItems(loadedItems)
       setIsLoading(false)
     }
 
-    loadFeed()
+    loadCategories()
 
     return () => {
       isMounted = false
@@ -65,32 +54,18 @@ function FeedScreen() {
           .toLowerCase()
           .includes(normalizedQuery)
 
-      return matchesCategory && matchesQuery
+      return matchesCategory && matchesQuery && item.is_available
     })
   }, [items, searchQuery, selectedCategory])
-
-  function handleFavoriteToggle(itemId: string) {
-    setFavoriteIds((currentFavorites) => {
-      const nextFavorites = new Set(currentFavorites)
-
-      if (nextFavorites.has(itemId)) {
-        nextFavorites.delete(itemId)
-      } else {
-        nextFavorites.add(itemId)
-      }
-
-      return nextFavorites
-    })
-  }
 
   return (
     <main className="feed-screen" aria-label="DormShare marketplace feed">
       <header className="feed-screen__header">
         <div>
-          <h1>Hey, {currentUser?.firstName ?? 'Andrew'}! <span aria-hidden="true">👋</span></h1>
+          <h1>Hey, {currentUserProfile.name.split(' ')[0]}! <span aria-hidden="true">👋</span></h1>
           <p>Buy, sell and find great deals on campus</p>
         </div>
-        <NotificationButton count={currentUser?.notificationCount ?? 3} />
+        <NotificationButton count={notificationCount} />
       </header>
 
       <SearchFilterBar value={searchQuery} onChange={setSearchQuery} />
@@ -121,7 +96,8 @@ function FeedScreen() {
                 key={item.id}
                 item={item}
                 isFavorite={favoriteIds.has(item.id)}
-                onFavoriteToggle={handleFavoriteToggle}
+                onFavoriteToggle={toggleFavorite}
+                onClick={() => onOpenListing?.(item.id)}
               />
             ))}
           </div>
@@ -130,7 +106,7 @@ function FeedScreen() {
         )}
       </section>
 
-      <BottomNav activeItem="feed" />
+      <BottomNav activeItem="feed" onSelect={onNavigate} />
     </main>
   )
 }
