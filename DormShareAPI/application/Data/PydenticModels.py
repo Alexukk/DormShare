@@ -100,11 +100,6 @@ class ChatResponse(SQLModel):
     messages: list[MessageResponse] = []
 
 
-class TransactionInitialize(SQLModel):
-    chat_id: UUID
-    item_id: UUID
-
-
 class CreateReview(SQLModel):
     text: str
     stars_amount: float

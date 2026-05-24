@@ -3,7 +3,6 @@ from sqlmodel import Session
 from DormShareAPI.application.Data.models import User
 from DormShareAPI.application.Data.DataBase import get_session
 from DormShareAPI.application.Handlers.TransactionsHandler import InitializeTransaction, ApproveTransaction, GetTransaction, DeclineTransaction, ConfirmTransaction, GetTransactionByChat
-from DormShareAPI.application.Data.PydenticModels import TransactionInitialize
 from fastapi import APIRouter, Depends
 
 from DormShareAPI.application.Services.Auth import get_current_user
@@ -17,8 +16,8 @@ router = APIRouter(
 
 
 @router.post("/create", status_code=201)
-async def Initialize_transaction(data: TransactionInitialize, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
-    return await InitializeTransaction(data, session, current_user)
+async def Initialize_transaction(chat_id: UUID, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
+    return await InitializeTransaction(chat_id, session, current_user)
 
 
 @router.patch("/approve/{transaction_id}")

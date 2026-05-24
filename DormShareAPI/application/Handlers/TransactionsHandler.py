@@ -1,16 +1,17 @@
 from fastapi import HTTPException
-from DormShareAPI.application.Data.PydenticModels import TransactionInitialize
 from sqlmodel import Session, select
-from DormShareAPI.application.Data.models import User, Transaction, Item, UserRole
+from DormShareAPI.application.Data.models import Transaction, Item, UserRole, Chat
 from DormShareAPI.application.Services.ConnectionManager import manager
 from datetime import datetime
 
 
-async def InitializeTransaction(data: TransactionInitialize, session, current_user):
+async def InitializeTransaction(chat_id, session, current_user):
 
+    chat = session.get(Chat, chat_id)
+    if not chat:
+        raise HTTPException(status_code=404, detail="chat not found")
 
-
-    item = session.get(Item, data.item_id)
+    item = session.get(Item, chat.item_id)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
     if item.owner_id == current_user.id:
@@ -19,7 +20,7 @@ async def InitializeTransaction(data: TransactionInitialize, session, current_us
         raise HTTPException(status_code=400, detail="Item is not available")
 
     try:
-        statement = select(Transaction).where(Transaction.chat_id == data.chat_id)
+        statement = select(Transaction).where(Transaction.chat_id == chat.id)
 
         transaction = session.exec(statement).first()
 
@@ -28,9 +29,9 @@ async def InitializeTransaction(data: TransactionInitialize, session, current_us
 
 
         new_transaction = Transaction(
-            lender_id=item.owner_id,
-            chat_id=data.chat_id,
-            item_id=data.item_id,
+            lender_id=chat.lender_id,
+            chat_id=chat.id,
+            item_id=chat.item_id,
             borrower_id=current_user.id
         )
 
@@ -38,7 +39,7 @@ async def InitializeTransaction(data: TransactionInitialize, session, current_us
         session.add(new_transaction)
         session.commit()
         session.refresh(new_transaction)
-        await manager.broadcast_to_chat(str(data.chat_id), {
+        await manager.broadcast_to_chat(str(chat.id), {
             "type": "transaction_created",
             "transaction_id": str(new_transaction.id)
         })
