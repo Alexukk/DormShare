@@ -8,12 +8,13 @@ from datetime import datetime
 
 async def InitializeTransaction(data: TransactionInitialize, session, current_user):
 
-    if data.lender_id == current_user.id:
-        raise HTTPException(status_code=400, detail="can't start transaction with yourself")
+
 
     item = session.get(Item, data.item_id)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
+    if item.owner_id == current_user.id:
+        raise HTTPException(status_code=400, detail="can't start transaction with yourself")
     if not item.is_available:
         raise HTTPException(status_code=400, detail="Item is not available")
 
@@ -27,7 +28,7 @@ async def InitializeTransaction(data: TransactionInitialize, session, current_us
 
 
         new_transaction = Transaction(
-            lender_id=data.lender_id,
+            lender_id=item.owner_id,
             chat_id=data.chat_id,
             item_id=data.item_id,
             borrower_id=current_user.id

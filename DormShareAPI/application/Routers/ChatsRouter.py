@@ -4,7 +4,6 @@ from DormShareAPI.application.Data.models import User, Chat
 from DormShareAPI.application.Services.Auth import get_current_user
 from DormShareAPI.application.Data.DataBase import get_session
 from DormShareAPI.application.Handlers.ChatHandler import CreateChat, getChatById, getUserChats, chatDelete
-from DormShareAPI.application.Data.PydenticModels import ChatCreate
 from uuid import UUID
 from DormShareAPI.application.Handlers.WebsocketHandler import chat_handler
 from DormShareAPI.application.Services.ConnectionManager import manager
@@ -16,11 +15,11 @@ router = APIRouter(prefix="/chat",
                    tags=["Chat"])
 
 
-@router.post("/create", status_code=201)
-async def create_chat(data: ChatCreate, session: Session = Depends(get_session),
+@router.post("/create/{item_id}", status_code=201)
+async def create_chat(item_id: UUID, session: Session = Depends(get_session),
                       current_user: User = Depends(get_current_user)):
 
-    return await CreateChat(data, session, current_user)
+    return await CreateChat(item_id, session, current_user)
 
 
 @router.get("/get/{chat_id}", status_code=200, response_model=ChatResponse)

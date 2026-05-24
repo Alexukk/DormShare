@@ -80,9 +80,6 @@ class ItemUpdate(SQLModel):
     category: Optional[str] = None
 
 
-class ChatCreate(BaseModel):
-    lender_id: UUID
-    item_id: UUID
 
 
 class MessageResponse(SQLModel):
@@ -104,7 +101,6 @@ class ChatResponse(SQLModel):
 
 
 class TransactionInitialize(SQLModel):
-    lender_id: UUID
     chat_id: UUID
     item_id: UUID
 

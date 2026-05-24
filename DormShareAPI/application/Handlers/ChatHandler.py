@@ -1,8 +1,7 @@
 from sqlalchemy import select, or_
 from DormShareAPI.application.Services.Auth import get_current_user
 from DormShareAPI.application.Data.DataBase import get_session
-from DormShareAPI.application.Data.models import User, Chat, UserRole
-from DormShareAPI.application.Data.PydenticModels import ChatCreate
+from DormShareAPI.application.Data.models import User, Chat, UserRole, Item
 from fastapi import Depends, HTTPException
 from sqlmodel import Session
 from sqlalchemy.orm import selectinload
@@ -10,18 +9,24 @@ from sqlalchemy import select as sa_select
 
 
 
-async def CreateChat(data: ChatCreate, session: Session = Depends(get_session),
+async def CreateChat(item_id, session: Session = Depends(get_session),
                      current_user: User = Depends(get_current_user)):
 
-    if current_user.id == data.lender_id:
+
+    item = session.get(Item, item_id)
+
+    if not item:
+        raise HTTPException(status_code=404, detail="item not found")
+
+    if current_user.id == item.owner_id:
         raise HTTPException(status_code=400, detail=f"can't start chat with yourself!")
 
     statement = select(Chat).where(
-                       Chat.lender_id == data.lender_id,
+                       Chat.lender_id == item.owner_id,
                                    Chat.borrower_id == current_user.id,
-                                   Chat.item_id == data.item_id)
+                                   Chat.item_id == item_id)
 
-    existing_chat = session.exec(statement).scalars().first()
+    existing_chat = session.exec(statement).first()
 
     if existing_chat is not None:
         return {"status": "success",
@@ -29,9 +34,9 @@ async def CreateChat(data: ChatCreate, session: Session = Depends(get_session),
 
     try:
         new_chat = Chat(
-            lender_id=data.lender_id,
+            lender_id=item.owner_id,
             borrower_id=current_user.id,
-            item_id=data.item_id,
+            item_id=item_id,
             status="default"
         )
         session.add(new_chat)
@@ -42,7 +47,7 @@ async def CreateChat(data: ChatCreate, session: Session = Depends(get_session),
 
     except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=500, detail=f"Can't create a chat, error log: {e}")
+        raise HTTPException(status_code=500, detail=f"Can't create a chat, error: {e}")
 
 
 async def getChatById(chat_id, session, current_user):

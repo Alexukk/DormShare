@@ -28,6 +28,6 @@ async def Get_review(review_id, session: Session = Depends(get_session)):
 
 
 @router.delete("/delete/{review_id}", status_code=204)
-async def Get_review(review_id, session: Session = Depends(get_session),
+async def Delete_review(review_id, session: Session = Depends(get_session),
                      current_user: User = Depends(get_current_user)):
     return await deleteReview(review_id, session, current_user)

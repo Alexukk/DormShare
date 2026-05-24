@@ -16,7 +16,7 @@ router = APIRouter(
 
 
 
-@router.post("/create")
+@router.post("/create", status_code=201)
 async def Initialize_transaction(data: TransactionInitialize, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
     return await InitializeTransaction(data, session, current_user)
 
