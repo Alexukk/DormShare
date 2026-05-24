@@ -45,5 +45,5 @@ async def Confirm_transaction(transaction_id: UUID, session: Session = Depends(g
 
 
 @router.get("/by-chat/{chat_id}", status_code=200)
-async def Confirm_transaction(chat_id: UUID, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
+async def Get_transaction_by_chat(chat_id: UUID, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
     return await GetTransactionByChat(chat_id, session, current_user)

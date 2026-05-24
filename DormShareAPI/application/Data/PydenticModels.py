@@ -74,8 +74,6 @@ class ChatCreate(BaseModel):
     item_id: UUID
 
 
-
-
 class MessageResponse(SQLModel):
     id: UUID
     content: str
@@ -98,3 +96,8 @@ class TransactionInitialize(SQLModel):
     lender_id: UUID
     chat_id: UUID
     item_id: UUID
+
+
+class CreateReview(SQLModel):
+    text: str
+    stars_amount: float
