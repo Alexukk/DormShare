@@ -79,27 +79,6 @@ function ProfileScreen({ onNavigate }: ProfileScreenProps) {
         </span>
       </button>
 
-      {isInstallable && (
-        <button
-          type="button"
-          className="profile-row profile-row--install"
-          onClick={triggerInstallPrompt}
-        >
-          <span className="profile-row__icon">
-            <span className="material-symbols-rounded" aria-hidden="true">
-              download_for_offline
-            </span>
-          </span>
-          <span className="profile-row__install-content">
-            <strong>Install DormShare App</strong>
-            <small>Add to home screen for native access</small>
-          </span>
-          <span className="material-symbols-rounded" aria-hidden="true">
-            chevron_right
-          </span>
-        </button>
-      )}
-
       <section className="profile-screen__listings" aria-label="My listings">
         <h2>My Listings</h2>
         <div className="profile-screen__tabs" role="tablist" aria-label="Listing filters">
@@ -153,6 +132,27 @@ function ProfileScreen({ onNavigate }: ProfileScreenProps) {
           </div>
         )}
       </section>
+
+      {isInstallable && (
+        <button
+          type="button"
+          className="profile-row profile-row--install"
+          onClick={triggerInstallPrompt}
+        >
+          <span className="profile-row__icon">
+            <span className="material-symbols-rounded" aria-hidden="true">
+              download_for_offline
+            </span>
+          </span>
+          <span className="profile-row__install-content">
+            <strong>Install DormShare App</strong>
+            <small>Add to home screen for native access</small>
+          </span>
+          <span className="material-symbols-rounded" aria-hidden="true">
+            chevron_right
+          </span>
+        </button>
+      )}
 
       <BottomNav activeItem="profile" onSelect={onNavigate} />
     </main>
