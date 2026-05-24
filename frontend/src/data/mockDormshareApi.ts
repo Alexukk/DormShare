@@ -1,5 +1,18 @@
-import { mockCategories, mockCurrentUser, mockFeedItems } from './mockData'
-import type { CategoryId, CurrentUser, FeedCategory, FeedItem } from './types'
+import {
+  mockCategories,
+  mockChatDetails,
+  mockChatSummaries,
+  mockCurrentUser,
+  mockFeedItems,
+} from './mockData'
+import type {
+  CategoryId,
+  ChatDetail,
+  ChatSummary,
+  CurrentUser,
+  FeedCategory,
+  FeedItem,
+} from './types'
 
 const MOCK_DELAY_MS = 120
 
@@ -55,5 +68,34 @@ export const mockDormshareApi = {
         owner: { ...item.owner },
         images: item.images.map((image) => ({ ...image })),
       }))
+  },
+
+  async getChatSummaries(): Promise<ChatSummary[]> {
+    await delay()
+
+    return mockChatSummaries.map((chat) => ({
+      ...chat,
+      participant: { ...chat.participant },
+    }))
+  },
+
+  async getChatDetail(chatId: string): Promise<ChatDetail | null> {
+    await delay()
+
+    const chat = mockChatDetails.find((detail) => detail.id === chatId)
+
+    if (!chat) {
+      return null
+    }
+
+    return {
+      ...chat,
+      participant: { ...chat.participant },
+      listing: {
+        ...chat.listing,
+        image: { ...chat.listing.image },
+      },
+      messages: chat.messages.map((message) => ({ ...message })),
+    }
   },
 }
