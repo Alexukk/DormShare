@@ -79,6 +79,10 @@
   --font-size-price: clamp(20px, 2.8vw, 24px);
   --font-size-section-title: clamp(26px, 4vw, 30px);
   --font-size-heading-home: clamp(34px, 9vw, 44px);
+  --font-size-heading-screen: clamp(42px, 7vw, 48px);
+  --font-size-avatar: 30px;
+  --font-size-chat-name: 24px;
+  --font-size-chat-preview: 19px;
 
   --search-control-height: 84px;
   --filter-button-size: 84px;
@@ -90,6 +94,11 @@
   --status-dot-size: 14px;
   --notification-button-size: 56px;
   --notification-badge-size: 26px;
+  --chat-tab-height: 72px;
+  --chat-row-height: 130px;
+  --chat-avatar-size: 88px;
+  --chat-badge-size: 28px;
+  --chat-online-dot-size: 18px;
 
   --bottom-nav-item-height: 84px;
   --bottom-nav-icon-box: 34px;
@@ -102,7 +111,7 @@
 @media (max-width: 480px) {
   :root {
     --app-padding-inline: 20px;
-    --bottom-nav-height: 88px;
+    --bottom-nav-height: 98px;
     --bottom-nav-radius: 24px;
 
     --icon-size-sm: 18px;
@@ -121,6 +130,10 @@
     --font-size-price: 18px;
     --font-size-section-title: 24px;
     --font-size-heading-home: 35px;
+    --font-size-heading-screen: 42px;
+    --font-size-avatar: 26px;
+    --font-size-chat-name: 19px;
+    --font-size-chat-preview: 15px;
 
     --search-control-height: 64px;
     --filter-button-size: 64px;
@@ -132,8 +145,13 @@
     --status-dot-size: 10px;
     --notification-button-size: 44px;
     --notification-badge-size: 22px;
+    --chat-tab-height: 56px;
+    --chat-row-height: 96px;
+    --chat-avatar-size: 64px;
+    --chat-badge-size: 22px;
+    --chat-online-dot-size: 14px;
 
-    --bottom-nav-item-height: 66px;
+    --bottom-nav-item-height: 70px;
     --bottom-nav-icon-box: 28px;
     --badge-size: 18px;
   }
