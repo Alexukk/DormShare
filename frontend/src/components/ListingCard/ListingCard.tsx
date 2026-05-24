@@ -5,17 +5,23 @@ type ListingCardProps = {
   item: FeedItem
   isFavorite: boolean
   onFavoriteToggle: (itemId: string) => void
+  onClick?: () => void
 }
 
 function ListingCard({
   item,
   isFavorite,
   onFavoriteToggle,
+  onClick,
 }: ListingCardProps) {
   const image = item.images[0]
 
   return (
-    <article className="listing-card">
+    <article 
+      className="listing-card" 
+      onClick={onClick} 
+      style={{ cursor: onClick ? 'pointer' : 'default' }}
+    >
       <div className="listing-card__media">
         <img src={image.photo_url} alt={image.alt} className="listing-card__image" />
         {item.isNew ? <span className="listing-card__flag">NEW</span> : null}
@@ -28,7 +34,10 @@ function ListingCard({
               : `Add ${item.title} to favorites`
           }
           aria-pressed={isFavorite}
-          onClick={() => onFavoriteToggle(item.id)}
+          onClick={(e) => {
+            e.stopPropagation()
+            onFavoriteToggle(item.id)
+          }}
         >
           <span className="material-symbols-rounded listing-card__favorite-icon">
             favorite
