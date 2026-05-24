@@ -17,7 +17,7 @@ const listingTabs = [
 ]
 
 function ProfileScreen({ onNavigate }: ProfileScreenProps) {
-  const { items, currentUserProfile, updateProfile, notificationCount } = useDormShare()
+  const { items, currentUserProfile, updateProfile, notificationCount, isInstallable, triggerInstallPrompt } = useDormShare()
   const [mode, setMode] = useState<'profile' | 'edit'>('profile')
   const [selectedTab, setSelectedTab] = useState('all')
 
@@ -78,6 +78,34 @@ function ProfileScreen({ onNavigate }: ProfileScreenProps) {
           chevron_right
         </span>
       </button>
+
+      {isInstallable && (
+        <button
+          type="button"
+          className="profile-row profile-row--install"
+          onClick={triggerInstallPrompt}
+          style={{
+            marginTop: '12px',
+            background: 'var(--color-primary-soft)',
+            borderColor: 'var(--color-primary)',
+            color: 'var(--color-primary)',
+            textAlign: 'left'
+          }}
+        >
+          <span className="profile-row__icon" style={{ background: 'var(--color-primary)', color: '#ffffff' }}>
+            <span className="material-symbols-rounded" aria-hidden="true">
+              download_for_offline
+            </span>
+          </span>
+          <span>
+            <strong style={{ fontStyle: 'normal', fontSize: '19px', fontWeight: '800' }}>Install DormShare App</strong>
+            <small style={{ fontSize: '15px', color: 'var(--color-muted)', fontWeight: '500', marginTop: '2px', display: 'block' }}>Add to home screen for native access</small>
+          </span>
+          <span className="material-symbols-rounded" aria-hidden="true">
+            chevron_right
+          </span>
+        </button>
+      )}
 
       <section className="profile-screen__listings" aria-label="My listings">
         <h2>My Listings</h2>

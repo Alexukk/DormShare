@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState } from 'react'
+import React, { createContext, useContext, useState, useEffect } from 'react'
 import {
   mockFeedItems,
   mockChatDetails,
@@ -13,6 +13,7 @@ import type {
   ListingCategoryId,
   DormShareNotification,
   NotificationType,
+  BeforeInstallPromptEvent,
 } from './types'
 
 export type DormShareContextType = {
@@ -23,6 +24,8 @@ export type DormShareContextType = {
   notificationCount: number
   favoriteIds: Set<string>
   typingStates: Record<string, boolean> // chatId -> boolean
+  isInstallable: boolean
+  triggerInstallPrompt: () => void
   toggleFavorite: (itemId: string) => void
   addItem: (draft: {
     title: string
@@ -135,8 +138,50 @@ export function DormShareProvider({ children }: { children: React.ReactNode }) {
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set(['item-headphones']))
   const [typingStates, setTypingStates] = useState<Record<string, boolean>>({})
 
+  // PWA Install States
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
+  const [isInstallable, setIsInstallable] = useState(() => {
+    if (typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches) {
+      return false
+    }
+    return true // Default to true so the installer card is mock-demonstrable in browser dev environments
+  })
+
   // Derived unread count
   const notificationCount = notifications.filter(n => !n.isRead).length
+
+  // Listen to installation prompts globally
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault()
+      setDeferredPrompt(e as BeforeInstallPromptEvent)
+      setIsInstallable(true)
+      console.log('[PWA] beforeinstallprompt event fired! Application is installable.')
+    }
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    }
+  }, [])
+
+  async function triggerInstallPrompt() {
+    if (!deferredPrompt) {
+      // Fallback for simulation in desktop sandbox environments
+      alert('PWA simulation: Triggering mobile home screen installation prompt!')
+      return
+    }
+
+    // Trigger the standard native prompt
+    deferredPrompt.prompt()
+    const { outcome } = await deferredPrompt.userChoice
+    console.log(`[PWA] Native installation prompt outcome: ${outcome}`)
+
+    // Clear saved event
+    setDeferredPrompt(null)
+    setIsInstallable(false)
+  }
 
   function toggleFavorite(itemId: string) {
     setFavoriteIds((prev) => {
@@ -251,6 +296,15 @@ export function DormShareProvider({ children }: { children: React.ReactNode }) {
     )
   }
 
+  // Pre-cached mock reply templates
+  const autoReplies = [
+    "Awesome! That location works perfectly for me. See you there!",
+    "Yes, it is still in pristine condition, barely used since last fall.",
+    "Sure! Let me check my schedule. Tomorrow afternoon after 3 PM works best. How about the library lobby?",
+    "Sounds great, cash or Venmo both work perfectly for me. Let me know when you arrive!",
+    "No major scratches or issues, it works like a charm. Let me know if you want to inspect it first!"
+  ]
+
   function startOrOpenChat(item: FeedItem): string {
     const existingChat = chats.find(c => c.listing.id === item.id && c.participant.id === item.owner.id)
     if (existingChat) {
@@ -283,15 +337,6 @@ export function DormShareProvider({ children }: { children: React.ReactNode }) {
     setChats(prev => [newChat, ...prev])
     return newChatId
   }
-
-  // Preloaded mock reply templates
-  const autoReplies = [
-    "Awesome! That location works perfectly for me. See you there!",
-    "Yes, it is still in pristine condition, barely used since last fall.",
-    "Sure! Let me check my schedule. Tomorrow afternoon after 3 PM works best. How about the library lobby?",
-    "Sounds great, cash or Venmo both work perfectly for me. Let me know when you arrive!",
-    "No major scratches or issues, it works like a charm. Let me know if you want to inspect it first!"
-  ]
 
   function sendMessage(chatId: string, content: string) {
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -366,6 +411,8 @@ export function DormShareProvider({ children }: { children: React.ReactNode }) {
         notificationCount,
         favoriteIds,
         typingStates,
+        isInstallable,
+        triggerInstallPrompt,
         toggleFavorite,
         addItem,
         sendMessage,
