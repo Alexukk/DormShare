@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from DormShareAPI.application.Handlers.ReviewsHandler import createReview
+from DormShareAPI.application.Handlers.ReviewsHandler import createReview, getReview
 from DormShareAPI.application.Data.DataBase import get_session
 from DormShareAPI.application.Data.models import Review, User
 from DormShareAPI.application.Data.PydenticModels import CreateReview
@@ -18,3 +18,9 @@ async def Create_review(transaction_id: UUID, data: CreateReview,
                         current_user: User = Depends(get_current_user)):
 
     return await createReview(transaction_id, data, session, current_user)
+
+
+
+@router.get("/get/{review_id}", response_model=Review, status_code=200)
+async def Get_review(review_id, session: Session = Depends(get_session)):
+    return await getReview(review_id, session)

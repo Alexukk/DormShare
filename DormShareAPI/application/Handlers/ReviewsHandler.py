@@ -41,3 +41,18 @@ async def createReview(transaction_id, data: CreateReview, session, current_user
     except Exception as e:
         session.rollback()
         raise HTTPException(status_code=500, detail=f"something went wrong while posting the review: {e}")
+
+
+async def getReview(review_id, session):
+    try:
+        review = session.get(Review, review_id)
+
+        if not review:
+            raise HTTPException(status_code=404, detail="review not found")
+
+        return review
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"something went wrong: {e}")
