@@ -15,7 +15,7 @@ router = APIRouter(
 
 
 
-@router.post("/create", status_code=201)
+@router.post("/create/{chat_id}", status_code=201)
 async def Initialize_transaction(chat_id: UUID, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
     return await InitializeTransaction(chat_id, session, current_user)
 
