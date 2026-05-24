@@ -47,7 +47,7 @@ class Item(SQLModel, table=True):
     owner: User = Relationship(back_populates="items")
     images: list["Image"] = Relationship(back_populates="item",
                                          cascade_delete = True)
-
+    reviews: list["Review"] = Relationship(back_populates="item")
 
 class Image(SQLModel, table=True):
     __tablename__ = "images"
@@ -85,7 +85,7 @@ class Review(SQLModel, table=True):
     transaction_id: uuid.UUID = Field(foreign_key="transactions.id")
     text: str
     stars_amount: int
-
+    item: Optional["Item"] = Relationship(back_populates="reviews")
 
 class Message(SQLModel, table=True):
     __tablename__ = "messages"

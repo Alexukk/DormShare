@@ -12,6 +12,16 @@ class ImageRead(SQLModel):
     photo_url: str
 
 
+class ReviewRead(SQLModel):
+    id: UUID
+    borrower_id: UUID
+    transaction_id: UUID
+    text: str
+    stars_amount: float
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class ItemReadWithImages(SQLModel):
     id: UUID
     title: str
@@ -24,6 +34,7 @@ class ItemReadWithImages(SQLModel):
     owner_id: UUID
 
     images: list[ImageRead] = []
+    reviews: list[ReviewRead] = []
 
     model_config = ConfigDict(from_attributes=True)
 
