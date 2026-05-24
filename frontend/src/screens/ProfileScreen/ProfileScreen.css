@@ -428,7 +428,7 @@
   color: var(--color-danger);
 }
 
-@media (max-width: 520px) {
+@media (max-width: 768px) {
   .profile-screen {
     padding: max(var(--space-14), env(safe-area-inset-top, 0px))
       var(--app-padding-inline)

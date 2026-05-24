@@ -223,7 +223,7 @@
   text-align: center;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .chats-screen {
     padding: max(var(--space-18), env(safe-area-inset-top, 0px))
       var(--app-padding-inline)

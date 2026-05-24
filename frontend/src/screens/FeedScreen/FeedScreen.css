@@ -101,7 +101,7 @@
   text-align: center;
 }
 
-@media (max-width: 430px) {
+@media (max-width: 768px) {
   .feed-screen {
     padding: max(var(--space-18), env(safe-area-inset-top, 0px))
       var(--app-padding-inline)

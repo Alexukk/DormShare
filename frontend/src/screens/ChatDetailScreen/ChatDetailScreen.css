@@ -328,7 +328,7 @@
   border: 0;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .chat-detail {
     padding-bottom: calc(76px + var(--safe-bottom));
   }

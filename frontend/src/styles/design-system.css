@@ -75,11 +75,11 @@
   --font-size-chip: 16px;
   --font-size-body: 18px;
   --font-size-control: 20px;
-  --font-size-card-title: clamp(18px, 2.55vw, 23px);
-  --font-size-price: clamp(20px, 2.8vw, 24px);
-  --font-size-section-title: clamp(26px, 4vw, 30px);
-  --font-size-heading-home: clamp(34px, 9vw, 44px);
-  --font-size-heading-screen: clamp(42px, 7vw, 48px);
+  --font-size-card-title: clamp(15px, 2.2vw, 19px);
+  --font-size-price: clamp(17px, 2.4vw, 21px);
+  --font-size-section-title: clamp(22px, 3vw, 26px);
+  --font-size-heading-home: clamp(28px, 6vw, 36px);
+  --font-size-heading-screen: clamp(34px, 5vw, 40px);
   --font-size-avatar: 30px;
   --font-size-chat-name: 24px;
   --font-size-chat-preview: 19px;
@@ -108,7 +108,7 @@
   --z-nav: 20;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   :root {
     --app-padding-inline: 16px;
     --bottom-nav-height: 82px;
@@ -126,11 +126,11 @@
     --font-size-chip: 13px;
     --font-size-body: 13px;
     --font-size-control: 14px;
-    --font-size-card-title: 13px;
-    --font-size-price: 15px;
-    --font-size-section-title: 18px;
-    --font-size-heading-home: 26px;
-    --font-size-heading-screen: 28px;
+    --font-size-card-title: 12px;
+    --font-size-price: 13px;
+    --font-size-section-title: 15px;
+    --font-size-heading-home: 20px;
+    --font-size-heading-screen: 22px;
     --font-size-avatar: 22px;
     --font-size-chat-name: 15px;
     --font-size-chat-preview: 13px;

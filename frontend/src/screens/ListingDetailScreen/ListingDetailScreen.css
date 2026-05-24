@@ -396,7 +396,7 @@
 }
 
 /* Responsive Overrides */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .listing-detail-screen {
     padding-bottom: calc(var(--bottom-nav-height) + 20px);
   }

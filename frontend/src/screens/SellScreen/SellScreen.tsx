@@ -145,7 +145,6 @@ function SellScreen({ onNavigate }: SellScreenProps) {
               }, 100)
             }
           }}
-          onGoToMessages={() => onNavigate?.('chats')}
         />
       ) : null}
 
@@ -317,11 +316,11 @@ function DetailsStep({
           value={draft.title}
           onChange={(event) => onUpdate('title', event.target.value)}
           maxLength={60}
-          placeholder="Item title"
+          placeholder="Be clear and specific (e.g. IKEA Desk)"
         />
       </label>
       <div className="sell-screen__field-help">
-        <span>Be clear and specific (e.g. IKEA Desk)</span>
+        <span></span>
         <span>{draft.title.length}/60</span>
       </div>
 
@@ -333,11 +332,11 @@ function DetailsStep({
           value={draft.description}
           onChange={(event) => onUpdate('description', event.target.value)}
           maxLength={300}
-          placeholder="Description"
+          placeholder="Add condition, features, and any important info"
         />
       </label>
       <div className="sell-screen__field-help">
-        <span>Add condition, features, and any important info</span>
+        <span></span>
         <span>{draft.description.length}/300</span>
       </div>
 
@@ -538,10 +537,9 @@ type PostedStepProps = {
   draft: ListingDraft
   categoryLabel: string
   onOpenPostedListing: () => void
-  onGoToMessages: () => void
 }
 
-function PostedStep({ draft, categoryLabel, onOpenPostedListing, onGoToMessages }: PostedStepProps) {
+function PostedStep({ draft, categoryLabel, onOpenPostedListing }: PostedStepProps) {
   const mainImage = draft.images[0] || deskChairImage
 
   return (
@@ -568,24 +566,6 @@ function PostedStep({ draft, categoryLabel, onOpenPostedListing, onGoToMessages 
         </div>
         <button type="button" onClick={onOpenPostedListing}>View listing</button>
       </article>
-
-      <section className="sell-screen__next">
-        <h2>What's next?</h2>
-        <div className="sell-action-list">
-          <ActionRow
-            icon="chat_bubble"
-            title="Check your messages"
-            body="Respond to interested students."
-            onClick={onGoToMessages}
-          />
-          <ActionRow
-            icon="trending_up"
-            title="Manage your listing"
-            body="Edit, refresh, or mark as sold anytime."
-            onClick={onOpenPostedListing}
-          />
-        </div>
-      </section>
 
       <button type="button" className="sell-screen__primary" onClick={onOpenPostedListing}>
         Go to my listing
@@ -628,30 +608,6 @@ function IconLine({ icon, text }: IconLineProps) {
   )
 }
 
-type ActionRowProps = {
-  icon: string
-  title: string
-  body: string
-  onClick?: () => void
-}
 
-function ActionRow({ icon, title, body, onClick }: ActionRowProps) {
-  return (
-    <button type="button" className="sell-action-row" onClick={onClick}>
-      <span className="sell-action-row__icon">
-        <span className="material-symbols-rounded" aria-hidden="true">
-          {icon}
-        </span>
-      </span>
-      <span>
-        <strong>{title}</strong>
-        <small>{body}</small>
-      </span>
-      <span className="material-symbols-rounded" aria-hidden="true">
-        chevron_right
-      </span>
-    </button>
-  )
-}
 
 export default SellScreen
