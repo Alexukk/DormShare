@@ -84,22 +84,15 @@ function ProfileScreen({ onNavigate }: ProfileScreenProps) {
           type="button"
           className="profile-row profile-row--install"
           onClick={triggerInstallPrompt}
-          style={{
-            marginTop: '12px',
-            background: 'var(--color-primary-soft)',
-            borderColor: 'var(--color-primary)',
-            color: 'var(--color-primary)',
-            textAlign: 'left'
-          }}
         >
-          <span className="profile-row__icon" style={{ background: 'var(--color-primary)', color: '#ffffff' }}>
+          <span className="profile-row__icon">
             <span className="material-symbols-rounded" aria-hidden="true">
               download_for_offline
             </span>
           </span>
-          <span>
-            <strong style={{ fontStyle: 'normal', fontSize: '19px', fontWeight: '800' }}>Install DormShare App</strong>
-            <small style={{ fontSize: '15px', color: 'var(--color-muted)', fontWeight: '500', marginTop: '2px', display: 'block' }}>Add to home screen for native access</small>
+          <span className="profile-row__install-content">
+            <strong>Install DormShare App</strong>
+            <small>Add to home screen for native access</small>
           </span>
           <span className="material-symbols-rounded" aria-hidden="true">
             chevron_right
@@ -127,7 +120,7 @@ function ProfileScreen({ onNavigate }: ProfileScreenProps) {
         </div>
 
         {visibleMyItems.length > 0 ? (
-          <div className="profile-screen__grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginTop: '16px' }}>
+          <div className="profile-screen__grid">
             {visibleMyItems.map((item) => (
               <div 
                 key={item.id} 
@@ -136,24 +129,14 @@ function ProfileScreen({ onNavigate }: ProfileScreenProps) {
                   const clickEvent = new CustomEvent('open-listing-details', { detail: item.id })
                   window.dispatchEvent(clickEvent)
                 }}
-                style={{
-                  cursor: 'pointer',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--listing-card-radius)',
-                  overflow: 'hidden',
-                  background: 'var(--color-surface)',
-                  boxShadow: 'var(--shadow-card)',
-                  paddingBottom: '12px'
-                }}
               >
                 <img 
                   src={item.images[0]?.photo_url} 
                   alt={item.title} 
-                  style={{ width: '100%', aspectRatio: '1.2', objectFit: 'cover' }}
                 />
-                <div style={{ padding: '12px 10px 0' }}>
-                  <h3 style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: '800', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</h3>
-                  <strong style={{ color: 'var(--color-primary)', fontSize: '15px' }}>{item.price}</strong>
+                <div className="profile-item-card__copy">
+                  <h3>{item.title}</h3>
+                  <strong>{item.price}</strong>
                 </div>
               </div>
             ))}
@@ -294,18 +277,7 @@ type ProfileAvatarProps = {
 
 function ProfileAvatar({ size, initials }: ProfileAvatarProps) {
   return (
-    <div className={`profile-avatar profile-avatar--${size}`} aria-hidden="true" style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'var(--color-primary-soft)',
-      color: 'var(--color-primary)',
-      fontWeight: '850',
-      fontSize: size === 'large' ? '38px' : '28px',
-      borderRadius: 'var(--radius-pill)',
-      border: '3px solid var(--color-bg)',
-      boxShadow: 'var(--shadow-floating)'
-    }}>
+    <div className={`profile-avatar profile-avatar--${size}`} aria-hidden="true">
       <span>{initials}</span>
     </div>
   )
