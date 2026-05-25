@@ -566,10 +566,6 @@ function PostedStep({ draft, categoryLabel, onOpenPostedListing }: PostedStepPro
         </div>
         <button type="button" onClick={onOpenPostedListing}>View listing</button>
       </article>
-
-      <button type="button" className="sell-screen__primary" onClick={onOpenPostedListing}>
-        Go to my listing
-      </button>
     </section>
   )
 }
