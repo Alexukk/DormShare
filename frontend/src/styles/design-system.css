@@ -195,3 +195,20 @@
   word-wrap: normal;
   -webkit-font-smoothing: antialiased;
 }
+
+/* --- Screen Transitions --- */
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.feed-screen > *:not(.bottom-nav),
+.chats-screen > *:not(.bottom-nav),
+.sell-screen > *:not(.bottom-nav),
+.profile-screen > *:not(.bottom-nav) {
+  animation: tabFadeIn 0.2s ease-out forwards;
+}
