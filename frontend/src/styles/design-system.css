@@ -209,6 +209,7 @@
 .feed-screen > *:not(.bottom-nav),
 .chats-screen > *:not(.bottom-nav),
 .sell-screen > *:not(.bottom-nav),
-.profile-screen > *:not(.bottom-nav) {
+.profile-screen > *:not(.bottom-nav),
+.chat-detail {
   animation: tabFadeIn 0.2s ease-out forwards;
 }
