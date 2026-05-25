@@ -291,21 +291,40 @@
 
 .profile-screen__edit-topbar button {
   display: inline-grid;
-  min-width: 64px;
-  min-height: 56px;
+  min-width: 40px;
+  min-height: 40px;
   place-items: center;
-  border-radius: var(--radius-14, 14px);
+  border-radius: var(--radius-pill);
   background: transparent;
   color: var(--color-text);
   cursor: pointer;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  transition: background-color 0.2s ease;
+}
+
+.profile-screen__edit-topbar button:hover {
+  background: #f3f5f8;
 }
 
 .profile-screen__save {
-  padding: 0 var(--space-24);
+  min-width: unset !important;
+  min-height: unset !important;
+  height: 38px !important;
+  padding: 0 var(--space-20) !important;
   background: var(--color-primary-soft) !important;
   color: var(--color-primary) !important;
-  font-size: 19px;
-  font-weight: 800;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  border-radius: var(--radius-pill) !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-screen__save:hover {
+  filter: brightness(0.95);
 }
 
 .profile-screen__photo-editor {
