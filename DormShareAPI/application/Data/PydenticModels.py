@@ -42,16 +42,16 @@ class UserCreate(BaseModel):
     username: str = Field(..., min_length=3, max_length=25)
     email: EmailStr
     password: str = Field(..., min_length=8)
-    contact_way: str = Field(...) # Link to a social media
+    university: str
 
 
 class UserSend(BaseModel):
     id: UUID
     username: str
     email: EmailStr
-    contact_way: str
     joined_at: datetime
     role: str
+    university: str
     items: List[ItemReadWithImages] = []
 
     model_config = ConfigDict(from_attributes=True)

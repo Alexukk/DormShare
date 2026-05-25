@@ -23,6 +23,7 @@ class User(SQLModel, table=True):
     contact_way: Optional[str] = None
     joined_at: datetime = Field(default_factory=datetime.utcnow)
     role: UserRole = Field(default=UserRole.USER)
+    university: str = Field(index=True)
 
     items: List["Item"] = Relationship(back_populates="owner",
                                        cascade_delete=True)
