@@ -12,6 +12,16 @@ class ImageRead(SQLModel):
     photo_url: str
 
 
+class ReviewRead(SQLModel):
+    id: UUID
+    borrower_id: UUID
+    transaction_id: UUID
+    text: str
+    stars_amount: float
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class ItemReadWithImages(SQLModel):
     id: UUID
     title: str
@@ -24,6 +34,7 @@ class ItemReadWithImages(SQLModel):
     owner_id: UUID
 
     images: list[ImageRead] = []
+    reviews: list[ReviewRead] = []
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -31,16 +42,16 @@ class UserCreate(BaseModel):
     username: str = Field(..., min_length=3, max_length=25)
     email: EmailStr
     password: str = Field(..., min_length=8)
-    contact_way: str = Field(...) # Link to a social media
+    university: str
 
 
 class UserSend(BaseModel):
     id: UUID
     username: str
     email: EmailStr
-    contact_way: str
     joined_at: datetime
     role: str
+    university: str
     items: List[ItemReadWithImages] = []
 
     model_config = ConfigDict(from_attributes=True)
@@ -69,6 +80,26 @@ class ItemUpdate(SQLModel):
     category: Optional[str] = None
 
 
-class ChatCreate(BaseModel):
+
+
+class MessageResponse(SQLModel):
+    id: UUID
+    content: str
+    sender_id: UUID
+    timestamp: datetime
+    is_viewed: bool
+    reaction: Optional[str]
+
+class ChatResponse(SQLModel):
+    id: UUID
+    status: str
+    created_at: datetime
     lender_id: UUID
+    borrower_id: UUID
     item_id: UUID
+    messages: list[MessageResponse] = []
+
+
+class CreateReview(SQLModel):
+    text: str
+    stars_amount: float

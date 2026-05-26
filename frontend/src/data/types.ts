@@ -47,3 +47,72 @@ export type CurrentUser = {
   firstName: string
   notificationCount: number
 }
+
+export type ChatTabId = 'all' | 'unread' | 'archived'
+
+export type ChatSummary = {
+  id: string
+  participant: DormShareUser
+  lastMessage: string
+  timestampLabel: string
+  unreadCount: number
+  isArchived: boolean
+}
+
+export type ChatMessage = {
+  id: string
+  sender: 'me' | 'them'
+  content: string
+  timestampLabel: string
+  status?: 'sent' | 'read'
+}
+
+export type ChatListingSummary = {
+  id: string
+  title: string
+  price: string
+  category: string
+  image: ListingImage
+}
+
+export type ChatDetail = {
+  id: string
+  participant: DormShareUser
+  listing: ChatListingSummary
+  dateLabel: string
+  messages: ChatMessage[]
+}
+
+export type ProfileForm = {
+  name: string
+  username: string
+  bio: string
+  email: string
+  school: string
+}
+
+export type NotificationType = 'like' | 'message' | 'system' | 'offer'
+
+export type DormShareNotification = {
+  id: string
+  type: NotificationType
+  title: string
+  body: string
+  timestamp: string
+  isRead: boolean
+  targetId?: string
+  senderName?: string
+  senderInitials?: string
+}
+
+export interface BeforeInstallPromptEvent extends Event {
+  readonly platforms: string[]
+  readonly userChoice: Promise<{
+    outcome: 'accepted' | 'dismissed'
+    platform: string
+  }>
+  prompt(): Promise<void>
+}
+
+
+

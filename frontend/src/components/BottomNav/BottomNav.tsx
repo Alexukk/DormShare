@@ -18,9 +18,10 @@ const navItems: NavItem[] = [
 
 type BottomNavProps = {
   activeItem?: BottomNavItem
+  onSelect?: (item: BottomNavItem) => void
 }
 
-function BottomNav({ activeItem = 'feed' }: BottomNavProps) {
+function BottomNav({ activeItem = 'feed', onSelect }: BottomNavProps) {
   return (
     <nav className="bottom-nav" aria-label="Primary navigation">
       <ul className="bottom-nav__list">
@@ -30,6 +31,7 @@ function BottomNav({ activeItem = 'feed' }: BottomNavProps) {
               type="button"
               className="bottom-nav__button"
               aria-current={activeItem === item.id ? 'page' : undefined}
+              onClick={() => onSelect?.(item.id)}
             >
               <span className="bottom-nav__icon-wrap" aria-hidden="true">
                 <span className="material-symbols-rounded bottom-nav__icon">
