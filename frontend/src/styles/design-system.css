@@ -1,0 +1,158 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..700,0..1,0&display=swap');
+
+:root {
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    sans-serif;
+
+  --color-bg: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-soft: #f6f9ff;
+  --color-surface-raised: #fbfcff;
+  --color-text: #060b2b;
+  --color-text-soft: #1b2540;
+  --color-muted: #667085;
+  --color-muted-strong: #475467;
+  --color-primary: #0877f2;
+  --color-primary-strong: #0067e8;
+  --color-primary-soft: #eaf4ff;
+  --color-success: #28c76f;
+  --color-border: #edf0f6;
+  --color-border-strong: #dfe5ef;
+  --color-icon: #080b2a;
+  --color-danger: #f04438;
+
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-10: 10px;
+  --space-12: 12px;
+  --space-14: 14px;
+  --space-16: 16px;
+  --space-18: 18px;
+  --space-20: 20px;
+  --space-22: 22px;
+  --space-24: 24px;
+  --space-28: 28px;
+  --space-32: 32px;
+  --space-36: 36px;
+  --space-40: 40px;
+  --space-44: 44px;
+  --space-56: 56px;
+  --space-64: 64px;
+
+  --radius-8: 8px;
+  --radius-12: 12px;
+  --radius-16: 16px;
+  --radius-20: 20px;
+  --radius-24: 24px;
+  --radius-28: 28px;
+  --radius-32: 32px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-control: 0 8px 24px rgba(15, 23, 42, 0.06);
+  --shadow-floating: 0 6px 18px rgba(15, 23, 42, 0.1);
+  --shadow-nav: 0 -10px 30px rgba(15, 23, 42, 0.08);
+
+  --app-max-width: 853px;
+  --app-padding-inline: clamp(20px, 5vw, 40px);
+  --bottom-nav-height: 112px;
+  --bottom-nav-max-width: 790px;
+  --bottom-nav-radius: 28px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  --icon-size-sm: 20px;
+  --icon-size-md: 28px;
+  --icon-size-lg: 34px;
+
+  --font-size-caption: 12px;
+  --font-size-badge: 14px;
+  --font-size-nav: 16px;
+  --font-size-meta: 16px;
+  --font-size-seller: 16px;
+  --font-size-chip: 16px;
+  --font-size-body: 18px;
+  --font-size-control: 20px;
+  --font-size-card-title: clamp(18px, 2.55vw, 23px);
+  --font-size-price: clamp(20px, 2.8vw, 24px);
+  --font-size-section-title: clamp(26px, 4vw, 30px);
+  --font-size-heading-home: clamp(34px, 9vw, 44px);
+
+  --search-control-height: 84px;
+  --filter-button-size: 84px;
+  --chip-height: 64px;
+  --listing-card-radius: 24px;
+  --listing-grid-gap: 18px;
+  --favorite-button-size: 56px;
+  --seller-avatar-size: 44px;
+  --status-dot-size: 14px;
+  --notification-button-size: 56px;
+  --notification-badge-size: 26px;
+
+  --bottom-nav-item-height: 84px;
+  --bottom-nav-icon-box: 34px;
+  --badge-size: 22px;
+  --badge-border-width: 2px;
+
+  --z-nav: 20;
+}
+
+@media (max-width: 480px) {
+  :root {
+    --app-padding-inline: 20px;
+    --bottom-nav-height: 88px;
+    --bottom-nav-radius: 24px;
+
+    --icon-size-sm: 18px;
+    --icon-size-md: 24px;
+    --icon-size-lg: 30px;
+
+    --font-size-caption: 11px;
+    --font-size-badge: 12px;
+    --font-size-nav: 13px;
+    --font-size-meta: 13px;
+    --font-size-seller: 13px;
+    --font-size-chip: 14px;
+    --font-size-body: 16px;
+    --font-size-control: 16px;
+    --font-size-card-title: 16px;
+    --font-size-price: 18px;
+    --font-size-section-title: 24px;
+    --font-size-heading-home: 35px;
+
+    --search-control-height: 64px;
+    --filter-button-size: 64px;
+    --chip-height: 54px;
+    --listing-card-radius: 20px;
+    --listing-grid-gap: 14px;
+    --favorite-button-size: 44px;
+    --seller-avatar-size: 32px;
+    --status-dot-size: 10px;
+    --notification-button-size: 44px;
+    --notification-badge-size: 22px;
+
+    --bottom-nav-item-height: 66px;
+    --bottom-nav-icon-box: 28px;
+    --badge-size: 18px;
+  }
+}
+
+.material-symbols-rounded {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  direction: ltr;
+  font-family: 'Material Symbols Rounded';
+  font-feature-settings: 'liga';
+  font-size: var(--icon-size-md);
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: normal;
+  line-height: 1;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  -webkit-font-smoothing: antialiased;
+}
