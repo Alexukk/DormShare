@@ -13,7 +13,7 @@ class ConnectionManager:
         if chat_id not in self.active_connections:
             self.active_connections[chat_id] = []
 
-            self.active_connections[chat_id].append(websocket)
+        self.active_connections[chat_id].append(websocket)
 
 
     def disconnect(self, websocket: WebSocket, chat_id: str):
@@ -27,3 +27,7 @@ class ConnectionManager:
         if chat_id in self.active_connections:
             for connection in self.active_connections[chat_id]:
                 await connection.send_json(message_data)
+
+
+
+manager =ConnectionManager()

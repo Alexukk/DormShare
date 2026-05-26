@@ -22,8 +22,8 @@ async def feed(session: Session = Depends(get_session)):
     return await get_items(session)
 
 @router.get("/details/{itemId}", status_code=200, response_model=ItemReadWithImages)
-async def post_Details(item_id: str, session : Session = Depends(get_session)):
-    return await get_item_by_id(item_id, session)
+async def post_Details(itemId: str, session : Session = Depends(get_session)):
+    return await get_item_by_id(itemId, session)
 
 @router.get("/category/{category}", status_code=200, response_model=list[ItemReadWithImages])
 async def categorized_Feed(category: str, session: Session = Depends(get_session)):

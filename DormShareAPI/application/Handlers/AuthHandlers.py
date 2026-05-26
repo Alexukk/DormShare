@@ -4,8 +4,6 @@ from DormShareAPI.application.Data.DataBase import get_session
 from DormShareAPI.application.Data.models import User
 from DormShareAPI.application.Data.PydenticModels import UserCreate, UserLogin
 from DormShareAPI.application.Services.Auth import get_password_hash, create_access_token, verify_password, get_current_user
-from DormShareAPI.application.Mapping.UserMapping import CreateUserEntity
-
 
 async def registration(user_data: UserCreate, session: Session = Depends(get_session)):
     existing_user = session.exec(select(User).where(User.email == user_data.email)).first()
@@ -14,7 +12,12 @@ async def registration(user_data: UserCreate, session: Session = Depends(get_ses
         raise HTTPException(status_code=400, detail="User already exists!")
 
     try:
-        new_user = CreateUserEntity(user_data, get_password_hash)
+        new_user = User(
+            username=user_data.username,
+            email=user_data.email,
+            password_hash=get_password_hash(user_data.password),
+            university=user_data.university
+        )
 
         session.add(new_user)
         session.commit()
