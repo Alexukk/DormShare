@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from sqlmodel import Session, select
-from DormShareAPI.application.Data.models import Transaction, Item, UserRole, Chat
+from DormShareAPI.application.Data.models import Transaction, Item, UserRole, Chat, User
 from DormShareAPI.application.Services.ConnectionManager import manager
 from datetime import datetime
 
@@ -14,10 +14,15 @@ async def InitializeTransaction(chat_id, session, current_user):
     item = session.get(Item, chat.item_id)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
-    if item.owner_id == current_user.id:
+    if chat.lender_id == current_user.id:
         raise HTTPException(status_code=400, detail="can't start transaction with yourself")
+    if chat.borrower_id != current_user.id:
+        raise HTTPException(status_code=403, detail="not your chat")
     if not item.is_available:
         raise HTTPException(status_code=400, detail="Item is not available")
+    lender = session.get(User, chat.lender_id)
+    if lender.university != current_user.university:
+        raise HTTPException(status_code=403, detail="can't start transaction with person from another university")
 
     try:
         statement = select(Transaction).where(Transaction.chat_id == chat.id)
