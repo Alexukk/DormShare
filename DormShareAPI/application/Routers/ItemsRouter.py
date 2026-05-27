@@ -18,16 +18,19 @@ router = APIRouter(
 
 
 @router.get("/feed", status_code=200, response_model=list[ItemReadWithImages])
-async def feed(session: Session = Depends(get_session)):
-    return await get_items(session)
+async def feed(session: Session = Depends(get_session),
+               current_user: User = Depends(get_current_user)):
+    return await get_items(session, current_user)
+
+
 
 @router.get("/details/{itemId}", status_code=200, response_model=ItemReadWithImages)
-async def post_Details(itemId: str, session : Session = Depends(get_session)):
-    return await get_item_by_id(itemId, session)
+async def post_Details(itemId: str, session : Session = Depends(get_session), current_user: User = Depends(get_current_user)):
+    return await get_item_by_id(itemId, session, current_user)
 
 @router.get("/category/{category}", status_code=200, response_model=list[ItemReadWithImages])
-async def categorized_Feed(category: str, session: Session = Depends(get_session)):
-    return await get_items_by_category(category, session)
+async def categorized_Feed(category: str, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
+    return await get_items_by_category(category, session, current_user)
 
 
 

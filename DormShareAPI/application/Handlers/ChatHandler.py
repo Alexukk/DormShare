@@ -15,11 +15,20 @@ async def CreateChat(item_id, session: Session = Depends(get_session),
 
     item = session.get(Item, item_id)
 
+
     if not item:
         raise HTTPException(status_code=404, detail="item not found")
 
+    lender = session.get(User, item.owner_id)
+
+    if not lender:
+        raise HTTPException(status_code=404, detail="user not found")
+
     if current_user.id == item.owner_id:
         raise HTTPException(status_code=400, detail=f"can't start chat with yourself!")
+
+    if lender.university != current_user.university:
+        raise HTTPException(status_code=403, detail="can't start chat with a person not from your university")
 
     statement = select(Chat).where(
                        Chat.lender_id == item.owner_id,

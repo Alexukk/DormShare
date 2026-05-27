@@ -23,7 +23,7 @@ async def registration(user_data: UserCreate, session: Session = Depends(get_ses
         session.commit()
         session.refresh(new_user)
 
-        token = create_access_token(data={"sub" : new_user.id, "role" : new_user.role})
+        token = create_access_token(data={"sub" : new_user.id, "role" : new_user.role, "university" : new_user.university})
 
         return {
                 "status" : "success",
@@ -42,7 +42,7 @@ async def login(user_data: UserLogin, session: Session):
     if not user or not verify_password(user_data.password, user.password_hash):
         raise HTTPException(status_code=400, detail="Invalid email or password")
 
-    token = create_access_token(data={"sub": user.id, "role" : user.role})
+    token = create_access_token(data={"sub": user.id, "role" : user.role, "university" : user.university})
     return {"access_token" : token, "token_type" : "bearer"}
 
 
