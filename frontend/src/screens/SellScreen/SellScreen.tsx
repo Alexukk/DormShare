@@ -3,7 +3,6 @@ import type { BottomNavItem } from '../../components/BottomNav/BottomNav'
 import BottomNav from '../../components/BottomNav/BottomNav'
 import NotificationButton from '../../components/NotificationButton/NotificationButton'
 import { useDormShare } from '../../data/DormShareContext'
-import deskChairImage from '../../assets/listings/desk-chair.svg'
 import './SellScreen.css'
 
 type SellScreenProps = {
@@ -45,14 +44,13 @@ const priceModeOptions = [
 ]
 
 const initialDraft: ListingDraft = {
-  title: 'IKEA Desk + Chair',
-  description:
-    'Well-maintained IKEA desk and ergonomic chair. Great for small dorm rooms. Sturdy, comfortable, and in great condition.',
-  price: '120',
+  title: '',
+  description: '',
+  price: '',
   priceMode: 'Price is negotiable',
-  category: 'furniture',
+  category: 'electronics',
   condition: 'Good',
-  images: [deskChairImage],
+  images: [],
 }
 
 const stepItems: Array<{ id: SellStep; label: string; number: number }> = [
@@ -66,7 +64,7 @@ function getStepIndex(step: SellStep) {
 }
 
 function SellScreen({ onNavigate }: SellScreenProps) {
-  const { addItem } = useDormShare()
+  const { addItem, notificationCount } = useDormShare()
   const [step, setStep] = useState<SellStep>('details')
   const [draft, setDraft] = useState<ListingDraft>(initialDraft)
   const [newPostedId, setNewPostedId] = useState('')
@@ -106,7 +104,7 @@ function SellScreen({ onNavigate }: SellScreenProps) {
                 : ''}
           </p>
         </div>
-        <NotificationButton count={3} />
+        <NotificationButton count={notificationCount} />
       </header>
 
       <SellProgress currentStepIndex={currentStepIndex} />
@@ -307,7 +305,7 @@ function DetailsStep({
     <section className="sell-screen__details" aria-label="Item details">
       <h2>Item details</h2>
 
-      <label className="sell-field sell-field--single">
+      <label className="sell-field">
         <span className="material-symbols-rounded" aria-hidden="true">
           sell
         </span>
@@ -341,7 +339,7 @@ function DetailsStep({
       </div>
 
       <div className="sell-screen__price-row">
-        <label className="sell-field sell-field--single">
+        <label className="sell-field">
           <span className="material-symbols-rounded" aria-hidden="true">
             attach_money
           </span>
@@ -457,7 +455,7 @@ type ReviewStepProps = {
 }
 
 function ReviewStep({ draft, categoryLabel, onEdit, onPost }: ReviewStepProps) {
-  const mainImage = draft.images[0] || deskChairImage
+  const mainImage = draft.images[0] || ''
   const thumbs = draft.images.slice(1, 4)
 
   return (
@@ -540,7 +538,7 @@ type PostedStepProps = {
 }
 
 function PostedStep({ draft, categoryLabel, onOpenPostedListing }: PostedStepProps) {
-  const mainImage = draft.images[0] || deskChairImage
+  const mainImage = draft.images[0] || ''
 
   return (
     <section className="sell-screen__posted" aria-label="Listing posted">
@@ -603,7 +601,4 @@ function IconLine({ icon, text }: IconLineProps) {
     </span>
   )
 }
-
-
-
 export default SellScreen

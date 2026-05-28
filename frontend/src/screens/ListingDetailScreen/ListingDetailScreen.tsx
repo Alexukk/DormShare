@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useDormShare } from '../../data/DormShareContext'
+import { capitalize } from '../../utils'
 import './ListingDetailScreen.css'
 
 type ListingDetailScreenProps = {
@@ -79,7 +80,7 @@ function ListingDetailScreen({
             aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
           >
             <span className="material-symbols-rounded" aria-hidden="true">
-              {isFavorite ? 'favorite' : 'favorite'}
+              favorite
             </span>
           </button>
         </header>
@@ -105,7 +106,7 @@ function ListingDetailScreen({
         <div className="listing-detail-screen__header-group">
           <div className="listing-detail-screen__meta-row">
             <span className="listing-detail-screen__category">
-              {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
+              {capitalize(item.category)}
             </span>
             {item.isNew ? (
               <span className="listing-detail-screen__badge">NEW</span>

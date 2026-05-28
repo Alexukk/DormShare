@@ -308,17 +308,17 @@
   background: #f3f5f8;
 }
 
-.profile-screen__save {
-  min-width: unset !important;
-  min-height: unset !important;
-  height: 38px !important;
-  padding: 0 var(--space-20) !important;
-  background: var(--color-primary-soft) !important;
-  color: var(--color-primary) !important;
-  font-size: 14px !important;
-  font-weight: 800 !important;
-  border-radius: var(--radius-pill) !important;
-  display: inline-flex !important;
+.profile-screen__edit-topbar .profile-screen__save {
+  display: inline-flex;
+  min-width: unset;
+  min-height: unset;
+  height: 38px;
+  padding: 0 var(--space-20);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: 800;
+  border-radius: var(--radius-pill);
   align-items: center;
   justify-content: center;
 }
