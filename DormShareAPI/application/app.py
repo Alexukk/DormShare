@@ -11,8 +11,28 @@ def on_startup():
     init_db()
     print("✅ Все таблицы успешно созданы!")
 
-    for route in app.routes:
-        print(route.path)
+
+origins = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
+    "https://dorm-share-five.vercel.app",
+    "https://lovable.dev",
+    "https://lovable.app",
+    "https://lovable.project",
+]
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_origin_regex=r"https://.*\.lovable\.(dev|app|project|com|dev\.app)",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # All app's routes from DormShareAPI.application.Routers
 
@@ -24,24 +44,6 @@ app.include_router(ChatsRouter.router)
 app.include_router(TransactionsRouter.router)
 app.include_router(ReviewsRouter.router)
 
-
-
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://dorm-share-five.vercel.app",
-    "https://lovable.dev",
-    "https://lovable.app",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origin_regex=r"https://.*\.lovable\.(dev|app|project|com)",
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 @app.get("/")
 async def index():
