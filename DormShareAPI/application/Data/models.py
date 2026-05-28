@@ -20,7 +20,6 @@ class User(SQLModel, table=True):
     username: str = Field(index=True)
     email: str = Field(index=True, unique=True)
     password_hash: str
-    contact_way: Optional[str] = None
     joined_at: datetime = Field(default_factory=datetime.utcnow)
     role: UserRole = Field(default=UserRole.USER)
     university: str = Field(index=True)
