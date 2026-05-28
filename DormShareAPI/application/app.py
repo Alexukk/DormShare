@@ -30,10 +30,13 @@ origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://dorm-share-five.vercel.app",
+    "https://lovable.dev",
+    "https://lovable.app",
 ]
 
 app.add_middleware(
     CORSMiddleware,
+    allow_origin_regex=r"https://.*\.lovable\.(dev|app|project|com)",
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
