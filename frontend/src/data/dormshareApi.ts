@@ -1,15 +1,7 @@
-export { mockDormshareApi as dormshareApi } from './mockDormshareApi'
+// API service barrel — real API calls will be added in Phase 3
 export type {
   CategoryId,
-  ChatDetail,
-  ChatListingSummary,
-  ChatMessage,
-  ChatSummary,
-  ChatTabId,
-  CurrentUser,
-  DormShareUser,
   FeedCategory,
   FeedItem,
   ListingCategoryId,
-  ListingImage,
 } from './types'
