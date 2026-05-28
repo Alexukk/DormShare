@@ -21,6 +21,7 @@ app.include_router(ImagesRouter.router)
 app.include_router(ChatsRouter.router)
 app.include_router(TransactionsRouter.router)
 app.include_router(ReviewsRouter.router)
+
 @app.get("/")
 async def index():
     return "App is running!"
