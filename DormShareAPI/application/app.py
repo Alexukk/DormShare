@@ -21,6 +21,7 @@ origins = [
     "https://lovable.dev",
     "https://lovable.app",
     "https://lovable.project",
+    "https://dorm-share-marketplace.lovable.app"
 ]
 
 
