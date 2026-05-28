@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from DormShareAPI.application.Data.DataBase import init_db
 from DormShareAPI.application.Routers import UsersRouter, AuthRouter, ItemsRouter, ImagesRouter, ChatsRouter, TransactionsRouter, ReviewsRouter
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI()
 
 @app.on_event("startup")
@@ -21,6 +23,22 @@ app.include_router(ImagesRouter.router)
 app.include_router(ChatsRouter.router)
 app.include_router(TransactionsRouter.router)
 app.include_router(ReviewsRouter.router)
+
+
+
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://dorm-share-five.vercel.app",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 async def index():
