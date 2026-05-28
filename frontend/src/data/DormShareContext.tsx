@@ -1,10 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState, useEffect } from 'react'
-import {
-  mockFeedItems,
-  mockChatDetails,
-  mockChatSummaries,
-} from './mockData'
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
 import type {
   FeedItem,
   ChatDetail,
@@ -15,6 +10,7 @@ import type {
   NotificationType,
   BeforeInstallPromptEvent,
 } from './types'
+import { capitalize, getInitials, formatTimestamp } from '../utils'
 
 export type DormShareContextType = {
   items: FeedItem[]
@@ -56,87 +52,20 @@ export type DormShareContextType = {
 const DormShareContext = createContext<DormShareContextType | undefined>(undefined)
 
 const initialProfile: ProfileForm = {
-  name: 'Andrew',
-  username: 'andrew_campus',
-  bio: 'Computer Science sophomore. Mostly selling electronics and textbooks from freshman year.',
-  email: 'andrew@university.edu',
-  school: 'University of Michigan',
+  name: '',
+  username: '',
+  bio: '',
+  email: '',
+  school: '',
 }
 
-const initialNotifications: DormShareNotification[] = [
-  {
-    id: 'notif-1',
-    type: 'like',
-    title: 'New Favorite! ❤️',
-    body: 'Jake M. favorited your IKEA Desk + Chair listing.',
-    timestamp: '12m ago',
-    isRead: false,
-    targetId: 'item-desk-chair',
-    senderName: 'Jake M.',
-    senderInitials: 'JM',
-  },
-  {
-    id: 'notif-2',
-    type: 'message',
-    title: 'New Message 💬',
-    body: 'Emily Chen sent you a message about IKEA Desk + Chair.',
-    timestamp: '45m ago',
-    isRead: false,
-    targetId: 'chat-emily-chen',
-    senderName: 'Emily Chen',
-    senderInitials: 'EC',
-  },
-  {
-    id: 'notif-3',
-    type: 'system',
-    title: 'Welcome to DormShare! 🎉',
-    body: 'Your student account is successfully configured. Ready to buy, sell or loan items!',
-    timestamp: '2d ago',
-    isRead: true,
-  },
-]
-
-export function DormShareProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<FeedItem[]>(mockFeedItems)
-  const [chats, setChats] = useState<ChatDetail[]>(() => {
-    // Build the complete list of chat details from mock data (in case some summaries don't have matching details)
-    const initialChats = [...mockChatDetails]
-    const detailsMap = new Map(initialChats.map(c => [c.id, c]))
-    
-    mockChatSummaries.forEach(summary => {
-      if (!detailsMap.has(summary.id)) {
-        // Create a dummy chat detail based on summary info
-        const matchingItem = mockFeedItems.find(item => item.owner.id === summary.participant.id) || mockFeedItems[0]
-        
-        const newDetail: ChatDetail = {
-          id: summary.id,
-          participant: summary.participant,
-          listing: {
-            id: matchingItem.id,
-            title: matchingItem.title,
-            price: matchingItem.price,
-            category: matchingItem.category.charAt(0).toUpperCase() + matchingItem.category.slice(1),
-            image: matchingItem.images[0],
-          },
-          dateLabel: 'Today',
-          messages: [
-            {
-              id: `msg-${summary.id}-init`,
-              sender: 'them',
-              content: summary.lastMessage,
-              timestampLabel: summary.timestampLabel,
-            }
-          ]
-        }
-        initialChats.push(newDetail)
-      }
-    })
-    return initialChats
-  })
+export function DormShareProvider({ children }: { children: ReactNode }) {
+  const [items, setItems] = useState<FeedItem[]>([])
+  const [chats, setChats] = useState<ChatDetail[]>([])
   const [currentUserProfile, setCurrentUserProfile] = useState<ProfileForm>(initialProfile)
-  const [notifications, setNotifications] = useState<DormShareNotification[]>(initialNotifications)
-  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set(['item-headphones']))
-  const [typingStates, setTypingStates] = useState<Record<string, boolean>>({})
+  const [notifications, setNotifications] = useState<DormShareNotification[]>([])
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set())
+  const [typingStates] = useState<Record<string, boolean>>({})
 
   // PWA Install States
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
@@ -156,7 +85,6 @@ export function DormShareProvider({ children }: { children: React.ReactNode }) {
       e.preventDefault()
       setDeferredPrompt(e as BeforeInstallPromptEvent)
       setIsInstallable(true)
-      console.log('[PWA] beforeinstallprompt event fired! Application is installable.')
     }
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
@@ -175,8 +103,7 @@ export function DormShareProvider({ children }: { children: React.ReactNode }) {
 
     // Trigger the standard native prompt
     deferredPrompt.prompt()
-    const { outcome } = await deferredPrompt.userChoice
-    console.log(`[PWA] Native installation prompt outcome: ${outcome}`)
+    await deferredPrompt.userChoice
 
     // Clear saved event
     setDeferredPrompt(null)
@@ -251,16 +178,16 @@ export function DormShareProvider({ children }: { children: React.ReactNode }) {
       category: draft.category as ListingCategoryId,
       is_available: true,
       created_at: new Date().toISOString(),
-      owner_id: 'user-andrew',
+      owner_id: 'user-local',
       owner: {
-        id: 'user-andrew',
-        name: currentUserProfile.name,
-        initials: currentUserProfile.name.split(' ').map(n => n[0]).join('').toUpperCase() || 'A',
+        id: 'user-local',
+        name: currentUserProfile.name || 'You',
+        initials: getInitials(currentUserProfile.name || 'You'),
         isOnline: true,
       },
       images: draft.images.length > 0 
         ? draft.images.map((img, i) => ({ id: `img-local-${newItemId}-${i}`, photo_url: img, alt: draft.title }))
-        : [{ id: `img-local-${newItemId}-default`, photo_url: mockFeedItems[0].images[0].photo_url, alt: draft.title }],
+        : [],
       isNew: true,
     }
 
@@ -296,15 +223,6 @@ export function DormShareProvider({ children }: { children: React.ReactNode }) {
     )
   }
 
-  // Pre-cached mock reply templates
-  const autoReplies = [
-    "Awesome! That location works perfectly for me. See you there!",
-    "Yes, it is still in pristine condition, barely used since last fall.",
-    "Sure! Let me check my schedule. Tomorrow afternoon after 3 PM works best. How about the library lobby?",
-    "Sounds great, cash or Venmo both work perfectly for me. Let me know when you arrive!",
-    "No major scratches or issues, it works like a charm. Let me know if you want to inspect it first!"
-  ]
-
   function startOrOpenChat(item: FeedItem): string {
     const existingChat = chats.find(c => c.listing.id === item.id && c.participant.id === item.owner.id)
     if (existingChat) {
@@ -320,7 +238,7 @@ export function DormShareProvider({ children }: { children: React.ReactNode }) {
         id: item.id,
         title: item.title,
         price: item.price,
-        category: item.category.charAt(0).toUpperCase() + item.category.slice(1),
+        category: capitalize(item.category),
         image: item.images[0],
       },
       dateLabel: 'Today',
@@ -329,7 +247,7 @@ export function DormShareProvider({ children }: { children: React.ReactNode }) {
           id: `msg-welcome-${newChatId}`,
           sender: 'them',
           content: `Hi! I noticed you are interested in my ${item.title}. Let me know if you have any questions!`,
-          timestampLabel: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          timestampLabel: formatTimestamp(),
         }
       ]
     }
@@ -339,7 +257,7 @@ export function DormShareProvider({ children }: { children: React.ReactNode }) {
   }
 
   function sendMessage(chatId: string, content: string) {
-    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    const timestamp = formatTimestamp()
     const newMessage: ChatMessage = {
       id: `msg-sent-${Date.now()}`,
       sender: 'me',
@@ -360,45 +278,8 @@ export function DormShareProvider({ children }: { children: React.ReactNode }) {
       })
     )
 
-    // Trigger simulated reply after a brief typing duration
-    setTypingStates(prev => ({ ...prev, [chatId]: true }))
-
-    setTimeout(() => {
-      const chatObj = chats.find(c => c.id === chatId)
-      
-      // Choose a contextual or random reply
-      const randIdx = Math.floor(Math.random() * autoReplies.length)
-      const replyText = autoReplies[randIdx]
-      const replyMessage: ChatMessage = {
-        id: `msg-recv-${Date.now()}`,
-        sender: 'them',
-        content: replyText,
-        timestampLabel: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      }
-
-      setTypingStates(prev => ({ ...prev, [chatId]: false }))
-      setChats(prevChats => 
-        prevChats.map(chat => {
-          if (chat.id === chatId) {
-            return {
-              ...chat,
-              messages: [...chat.messages, replyMessage]
-            }
-          }
-          return chat
-        })
-      )
-
-      // Dynamically dispatch a message notification alert!
-      addNotification(
-        'message',
-        `New Message from ${chatObj?.participant.name || 'Emily Chen'}`,
-        replyText,
-        chatId,
-        chatObj?.participant.name || 'Emily Chen',
-        chatObj?.participant.initials || 'EC'
-      )
-    }, 1800)
+    // Note: In Phase 3, this will be replaced with a WebSocket send.
+    // For now, messages are local-only with no simulated replies.
   }
 
   return (

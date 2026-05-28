@@ -42,12 +42,6 @@ export type FeedItem = {
   isNew?: boolean
 }
 
-export type CurrentUser = {
-  id: string
-  firstName: string
-  notificationCount: number
-}
-
 export type ChatTabId = 'all' | 'unread' | 'archived'
 
 export type ChatSummary = {
@@ -113,6 +107,3 @@ export interface BeforeInstallPromptEvent extends Event {
   }>
   prompt(): Promise<void>
 }
-
-
-
