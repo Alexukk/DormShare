@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import BottomNav, {
   type BottomNavItem,
 } from '../../components/BottomNav/BottomNav'
@@ -7,8 +7,17 @@ import ListingCard from '../../components/ListingCard/ListingCard'
 import NotificationButton from '../../components/NotificationButton/NotificationButton'
 import SearchFilterBar from '../../components/SearchFilterBar/SearchFilterBar'
 import { useDormShare } from '../../data/DormShareContext'
-import { dormshareApi, type CategoryId, type FeedCategory } from '../../data/dormshareApi'
+import type { CategoryId, FeedCategory } from '../../data/types'
 import './FeedScreen.css'
+
+const FEED_CATEGORIES: FeedCategory[] = [
+  { id: 'all', label: 'All', icon: 'grid_view' },
+  { id: 'electronics', label: 'Electronics', icon: 'desktop_windows' },
+  { id: 'books', label: 'Books', icon: 'menu_book' },
+  { id: 'furniture', label: 'Furniture', icon: 'chair' },
+  { id: 'appliances', label: 'Appliances', icon: 'kitchen' },
+  { id: 'other', label: 'More', icon: 'expand_more' },
+]
 
 type FeedScreenProps = {
   onNavigate?: (item: BottomNavItem) => void
@@ -17,28 +26,8 @@ type FeedScreenProps = {
 
 function FeedScreen({ onNavigate, onOpenListing }: FeedScreenProps) {
   const { items, favoriteIds, toggleFavorite, currentUserProfile, notificationCount } = useDormShare()
-  const [categories, setCategories] = useState<FeedCategory[]>([])
   const [selectedCategory, setSelectedCategory] = useState<CategoryId>('all')
   const [searchQuery, setSearchQuery] = useState('')
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    let isMounted = true
-
-    async function loadCategories() {
-      setIsLoading(true)
-      const loadedCategories = await dormshareApi.getCategories()
-      if (!isMounted) return
-      setCategories(loadedCategories)
-      setIsLoading(false)
-    }
-
-    loadCategories()
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
 
   const visibleItems = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase()
@@ -49,7 +38,7 @@ function FeedScreen({ onNavigate, onOpenListing }: FeedScreenProps) {
 
       const matchesQuery =
         !normalizedQuery ||
-        [item.title, item.description, item.category, item.owner.name]
+        [item.title, item.description, item.category, item.owner?.name ?? '']
           .join(' ')
           .toLowerCase()
           .includes(normalizedQuery)
@@ -71,7 +60,7 @@ function FeedScreen({ onNavigate, onOpenListing }: FeedScreenProps) {
       <SearchFilterBar value={searchQuery} onChange={setSearchQuery} />
 
       <CategoryChips
-        categories={categories}
+        categories={FEED_CATEGORIES}
         selectedCategory={selectedCategory}
         onSelect={setSelectedCategory}
       />
@@ -87,9 +76,7 @@ function FeedScreen({ onNavigate, onOpenListing }: FeedScreenProps) {
           </button>
         </div>
 
-        {isLoading ? (
-          <p className="feed-screen__empty">Loading listings...</p>
-        ) : visibleItems.length > 0 ? (
+        {visibleItems.length > 0 ? (
           <div className="feed-screen__grid">
             {visibleItems.map((item) => (
               <ListingCard

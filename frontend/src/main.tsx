@@ -27,7 +27,6 @@ if (import.meta.env.DEV) {
         });
       }
       if (unregistered) {
-        console.log('[Dev SW Cleanup] Unregistered active service worker and cleared cache to prevent stale layout caching. Reloading...');
         window.location.reload();
       }
     });
@@ -35,14 +34,9 @@ if (import.meta.env.DEV) {
 } else {
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then((reg) => {
-          console.log('[Service Worker] Registered successfully with scope:', reg.scope)
-        })
-        .catch((err) => {
-          console.error('[Service Worker] Registration failed:', err)
-        })
+      navigator.serviceWorker.register('/sw.js').catch(() => {
+        // Service worker registration failed silently
+      })
     })
   }
 }
-

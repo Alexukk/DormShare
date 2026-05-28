@@ -4,6 +4,7 @@ import BottomNav from '../../components/BottomNav/BottomNav'
 import NotificationButton from '../../components/NotificationButton/NotificationButton'
 import { useDormShare } from '../../data/DormShareContext'
 import type { ProfileForm } from '../../data/types'
+import { getInitials } from '../../utils'
 import './ProfileScreen.css'
 
 type ProfileScreenProps = {
@@ -56,7 +57,7 @@ function ProfileScreen({ onNavigate }: ProfileScreenProps) {
       </header>
 
       <section className="profile-screen__summary" aria-label="Profile summary">
-        <ProfileAvatar size="large" initials={currentUserProfile.name.split(' ').map(n => n[0]).join('').toUpperCase() || 'A'} />
+        <ProfileAvatar size="large" initials={getInitials(currentUserProfile.name)} />
         <div>
           <h2>{currentUserProfile.name}</h2>
           <p>{myItems.length} {myItems.length === 1 ? 'Listing' : 'Listings'}</p>
@@ -199,7 +200,7 @@ function EditProfileView({
 
       <section className="profile-screen__photo-editor" aria-label="Profile photo">
         <div className="profile-screen__photo-wrap">
-          <ProfileAvatar size="edit" initials={profile.name.split(' ').map(n => n[0]).join('').toUpperCase() || 'A'} />
+          <ProfileAvatar size="edit" initials={getInitials(profile.name)} />
           <button type="button" aria-label="Change profile photo" onClick={() => alert("Photo picker simulation: You can upload your profile photo here!")}>
             <span className="material-symbols-rounded" aria-hidden="true">
               photo_camera

@@ -8,7 +8,6 @@ import ProfileScreen from './screens/ProfileScreen/ProfileScreen'
 import SellScreen from './screens/SellScreen/SellScreen'
 import ListingDetailScreen from './screens/ListingDetailScreen/ListingDetailScreen'
 import NotificationDrawer from './components/NotificationDrawer/NotificationDrawer'
-import './App.css'
 
 type AppScreen = BottomNavItem | 'chat-detail' | 'listing-detail'
 

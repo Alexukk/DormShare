@@ -171,11 +171,6 @@ function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
       </section>
 
       <form className="chat-detail__composer" onSubmit={handleSubmit}>
-        <button type="button" aria-label="Attach image">
-          <span className="material-symbols-rounded" aria-hidden="true">
-            image
-          </span>
-        </button>
         <label className="chat-detail__input">
           <span className="sr-only">Type a message</span>
           <input
