@@ -1,4 +1,5 @@
 import type { FeedItem } from '../../data/dormshareApi'
+import { PLACEHOLDER_IMAGE } from '../../utils'
 import './ListingCard.css'
 
 type ListingCardProps = {
@@ -10,7 +11,8 @@ function ListingCard({
   item,
   onClick,
 }: ListingCardProps) {
-  const image = item.images[0]
+  const photoUrl = item.images[0]?.photo_url || PLACEHOLDER_IMAGE
+  const altText = item.images[0]?.alt || item.title
 
   return (
     <article 
@@ -19,7 +21,7 @@ function ListingCard({
       style={{ cursor: onClick ? 'pointer' : 'default' }}
     >
       <div className="listing-card__media">
-        <img src={image.photo_url} alt={image.alt} className="listing-card__image" />
+        <img src={photoUrl} alt={altText} className="listing-card__image" />
         {item.isNew ? <span className="listing-card__flag">NEW</span> : null}
       </div>
 

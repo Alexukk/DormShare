@@ -3,7 +3,7 @@ import type { BottomNavItem } from '../../components/BottomNav/BottomNav'
 import BottomNav from '../../components/BottomNav/BottomNav'
 import { useDormShare } from '../../data/DormShareContext'
 import type { ProfileForm } from '../../data/types'
-import { getInitials } from '../../utils'
+import { getInitials, PLACEHOLDER_IMAGE } from '../../utils'
 import './ProfileScreen.css'
 
 type ProfileScreenProps = {
@@ -108,7 +108,7 @@ function ProfileScreen({ onNavigate }: ProfileScreenProps) {
                 }}
               >
                 <img 
-                  src={item.images[0]?.photo_url} 
+                  src={item.images[0]?.photo_url || PLACEHOLDER_IMAGE} 
                   alt={item.title} 
                 />
                 <div className="profile-item-card__copy">

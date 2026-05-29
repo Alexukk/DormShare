@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { useDormShare } from '../../data/DormShareContext'
-import { capitalize } from '../../utils'
+import { capitalize, PLACEHOLDER_IMAGE } from '../../utils'
 import { apiGet } from '../../data/apiClient'
 import { apiUserToUiUser } from '../../data/apiAdapters'
 import type { ApiUser, DormShareUser } from '../../data/types'
@@ -264,14 +264,18 @@ function ListingDetailScreen({
         <div
           className="listing-detail-screen__carousel"
           {...heroSwipe}
-          onClick={() => setLightboxOpen(true)}
+          onClick={() => {
+            if (item.images.length > 0) {
+              setLightboxOpen(true)
+            }
+          }}
           role="button"
           tabIndex={0}
-          aria-label="Tap to view full screen"
+          aria-label={item.images.length > 0 ? "Tap to view full screen" : "No images available"}
         >
           <img
-            src={item.images[activeImageIndex]?.photo_url}
-            alt={`${item.title} - View ${activeImageIndex + 1}`}
+            src={item.images[activeImageIndex]?.photo_url || PLACEHOLDER_IMAGE}
+            alt={item.images.length > 0 ? `${item.title} - View ${activeImageIndex + 1}` : item.title}
             draggable={false}
           />
         </div>
