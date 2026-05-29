@@ -199,13 +199,7 @@ function EditProfileView({
       <section className="profile-screen__photo-editor" aria-label="Profile photo">
         <div className="profile-screen__photo-wrap">
           <ProfileAvatar size="edit" initials={getInitials(profile.name)} />
-          <button type="button" aria-label="Change profile photo" onClick={() => alert("Photo picker simulation: You can upload your profile photo here!")}>
-            <span className="material-symbols-rounded" aria-hidden="true">
-              photo_camera
-            </span>
-          </button>
         </div>
-        <button type="button" onClick={() => alert("Photo picker simulation: Choose your profile photo!")}>Change photo</button>
       </section>
 
       <section className="profile-screen__form" aria-label="Profile fields">
@@ -214,20 +208,6 @@ function EditProfileView({
           label="Name"
           value={profile.name}
           onChange={(value) => updateField('name', value)}
-        />
-        <EditField
-          icon="alternate_email"
-          label="Username"
-          value={profile.username}
-          onChange={(value) => updateField('username', value)}
-        />
-        <EditField
-          icon="edit"
-          label="Bio"
-          value={profile.bio}
-          placeholder="Tell others about yourself..."
-          maxLength={150}
-          onChange={(value) => updateField('bio', value)}
         />
         <EditField
           icon="mail"
@@ -245,12 +225,6 @@ function EditProfileView({
 
       <section className="profile-screen__account" aria-label="Account">
         <h2>Account</h2>
-        <AccountRow
-          icon="lock"
-          title="Change password"
-          body="Update your password"
-          onClick={() => alert("Simulation: Password reset link has been dispatched to your email address!")}
-        />
         <AccountRow
           icon="delete"
           title="Delete account"
