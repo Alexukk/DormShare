@@ -38,3 +38,57 @@ button {
 #root {
   min-height: 100svh;
 }
+
+/* ── Loading Screen (App Splash) ─────────────── */
+
+.loading-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  background: linear-gradient(160deg, #e8eaf6 0%, #f5f7ff 40%, #ffffff 100%);
+}
+
+.loading-screen__content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.loading-screen__logo {
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--color-active) 0%, #1565c0 100%);
+  box-shadow: 0 8px 32px rgba(33, 100, 243, 0.3);
+}
+
+.loading-screen__logo .material-symbols-rounded {
+  font-size: 36px;
+  color: #fff;
+}
+
+.loading-screen__content h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.loading-screen__spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e2e5ea;
+  border-top-color: var(--color-active);
+  border-radius: 50%;
+  animation: loading-spin 0.7s linear infinite;
+}
+
+@keyframes loading-spin {
+  to { transform: rotate(360deg); }
+}

@@ -41,10 +41,14 @@ function ListingDetailScreen({
 
   const isFavorite = favoriteIds.has(item.id)
 
-  function handleStartChat() {
+  async function handleStartChat() {
     if (item) {
-      const chatId = startOrOpenChat(item)
-      onOpenChat(chatId)
+      try {
+        const chatId = await startOrOpenChat(item)
+        onOpenChat(chatId)
+      } catch {
+        alert('Failed to start chat. Please try again.')
+      }
     }
   }
 

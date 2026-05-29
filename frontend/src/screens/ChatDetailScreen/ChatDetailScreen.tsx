@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
 import type { FormEvent } from 'react'
 import { useDormShare } from '../../data/DormShareContext'
+import { connectChatWebSocket, sendWsChatMessage } from '../../data/chatWebSocket'
+import { adaptWsMessageToChatMessage } from '../../data/apiAdapters'
+import { getStoredToken } from '../../data/apiClient'
 import './ChatDetailScreen.css'
 
 type ChatDetailScreenProps = {
@@ -9,33 +12,64 @@ type ChatDetailScreenProps = {
 }
 
 function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
-  const { chats, sendMessage, typingStates } = useDormShare()
+  const { chats, currentUserId, replaceChatMessages, addChatMessages } = useDormShare()
   const [draft, setDraft] = useState('')
+  const [wsConnected, setWsConnected] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const wsRef = useRef<WebSocket | null>(null)
 
   const chat = chats.find((c) => c.id === chatId)
   const messages = chat?.messages ?? []
 
+  // ── WebSocket connection ─────────────────
+  useEffect(() => {
+    const token = getStoredToken()
+    if (!token || !chatId) return
+
+    const ws = connectChatWebSocket(chatId, token, {
+      onHistory: (historyMessages) => {
+        const adapted = historyMessages.map(m =>
+          adaptWsMessageToChatMessage(m, currentUserId)
+        )
+        replaceChatMessages(chatId, adapted)
+      },
+      onMessage: (msg) => {
+        const adapted = adaptWsMessageToChatMessage(msg, currentUserId)
+        addChatMessages(chatId, [adapted])
+      },
+      onOpen: () => setWsConnected(true),
+      onClose: () => setWsConnected(false),
+    })
+
+    wsRef.current = ws
+
+    return () => {
+      ws.close()
+      wsRef.current = null
+    }
+  }, [chatId, currentUserId, replaceChatMessages, addChatMessages])
+
   // Auto-scroll messages to bottom
   const totalMessagesCount = messages.length
-  const currentChatTyping = typingStates[chatId]
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [totalMessagesCount, currentChatTyping])
+  }, [totalMessagesCount])
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const nextMessage = draft.trim()
-    if (!nextMessage || !chat) {
-      return
+    if (!nextMessage || !chat) return
+
+    // Send via WebSocket
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      sendWsChatMessage(wsRef.current, nextMessage)
     }
-    sendMessage(chat.id, nextMessage)
+
     setDraft('')
   }
 
   function handleOpenListing() {
     if (chat) {
-      // Go back to feed and trigger listing details modal overlay
       onBack()
       setTimeout(() => {
         const clickEvent = new CustomEvent('open-listing-details', { detail: chat.listing.id })
@@ -62,8 +96,6 @@ function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
     )
   }
 
-  const isTyping = typingStates[chat.id]
-
   return (
     <main className="chat-detail" aria-label={`Chat with ${chat.participant.name}`}>
       <header className="chat-detail__header">
@@ -81,13 +113,13 @@ function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
         <div className="chat-detail__identity">
           <div className="chat-detail__avatar" aria-hidden="true">
             {chat.participant.initials}
-            {chat.participant.isOnline ? (
+            {wsConnected ? (
               <span className="chat-detail__online-dot" />
             ) : null}
           </div>
           <div>
             <h1>{chat.participant.name}</h1>
-            <p>{chat.participant.isOnline || isTyping ? 'Active now' : 'Offline'}</p>
+            <p>{wsConnected ? 'Connected' : 'Connecting...'}</p>
           </div>
         </div>
 
@@ -102,15 +134,17 @@ function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
         </button>
       </header>
 
-      <section className="chat-detail__listing" aria-label="Listing summary">
-        <img src={chat.listing.image.photo_url} alt={chat.listing.image.alt} />
-        <div className="chat-detail__listing-copy">
-          <h2>{chat.listing.title}</h2>
-          <strong>{chat.listing.price}</strong>
-          <span>{chat.listing.category}</span>
-        </div>
-        <button type="button" onClick={handleOpenListing}>View listing</button>
-      </section>
+      {chat.listing.image.photo_url && (
+        <section className="chat-detail__listing" aria-label="Listing summary">
+          <img src={chat.listing.image.photo_url} alt={chat.listing.image.alt} />
+          <div className="chat-detail__listing-copy">
+            <h2>{chat.listing.title}</h2>
+            <strong>{chat.listing.price}</strong>
+            <span>{chat.listing.category}</span>
+          </div>
+          <button type="button" onClick={handleOpenListing}>View listing</button>
+        </section>
+      )}
 
       <div className="chat-detail__date">{chat.dateLabel}</div>
 
@@ -150,22 +184,6 @@ function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
             </article>
           )
         })}
-
-        {/* Typing indicator bubble */}
-        {isTyping && (
-          <article className="chat-detail__message chat-detail__message--theirs">
-            <div className="chat-detail__message-avatar" aria-hidden="true">
-              {chat.participant.initials}
-            </div>
-            <div className="chat-detail__message-stack">
-              <div className="typing-indicator" aria-label="Seller is typing">
-                <span />
-                <span />
-                <span />
-              </div>
-            </div>
-          </article>
-        )}
 
         <div ref={messagesEndRef} />
       </section>
