@@ -1,9 +1,12 @@
 export type CategoryId =
   | 'all'
   | 'electronics'
-  | 'books'
   | 'furniture'
+  | 'books'
   | 'appliances'
+  | 'food'
+  | 'sports'
+  | 'clothing'
   | 'other'
 
 export type ListingCategoryId = Exclude<CategoryId, 'all'>
@@ -106,4 +109,68 @@ export interface BeforeInstallPromptEvent extends Event {
     platform: string
   }>
   prompt(): Promise<void>
+}
+
+// ── Backend API response types ───────────────────────
+
+/** Matches ImageRead from PydenticModels.py */
+export type ApiImage = {
+  id: string
+  photo_url: string
+}
+
+/** Matches ReviewRead from PydenticModels.py */
+export type ApiReview = {
+  id: string
+  borrower_id: string
+  transaction_id: string
+  text: string
+  stars_amount: number
+}
+
+/** Matches ItemReadWithImages from PydenticModels.py */
+export type ApiItem = {
+  id: string
+  title: string
+  description: string
+  price: string
+  trade_type: string
+  category: string
+  is_available: boolean
+  created_at: string
+  owner_id: string
+  images: ApiImage[]
+  reviews: ApiReview[]
+}
+
+/** Matches UserSend from PydenticModels.py */
+export type ApiUser = {
+  id: string
+  username: string
+  email: string
+  joined_at: string
+  role: string
+  university: string
+  items: ApiItem[]
+}
+
+/** Matches MessageResponse from PydenticModels.py */
+export type ApiMessage = {
+  id: string
+  content: string
+  sender_id: string
+  timestamp: string
+  is_viewed: boolean
+  reaction: string | null
+}
+
+/** Matches ChatResponse from PydenticModels.py */
+export type ApiChat = {
+  id: string
+  status: string
+  created_at: string
+  lender_id: string
+  borrower_id: string
+  item_id: string
+  messages: ApiMessage[]
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { DormShareProvider, useDormShare } from './data/DormShareContext'
 import type { BottomNavItem } from './components/BottomNav/BottomNav'
+import AuthScreen from './screens/AuthScreen/AuthScreen'
 import ChatDetailScreen from './screens/ChatDetailScreen/ChatDetailScreen'
 import ChatsScreen from './screens/ChatsScreen/ChatsScreen'
 import FeedScreen from './screens/FeedScreen/FeedScreen'
@@ -11,9 +12,37 @@ import NotificationDrawer from './components/NotificationDrawer/NotificationDraw
 
 type AppScreen = BottomNavItem | 'chat-detail' | 'listing-detail'
 
+function LoadingScreen() {
+  return (
+    <main className="loading-screen" aria-label="Loading DormShare">
+      <div className="loading-screen__content">
+        <div className="loading-screen__logo">
+          <span className="material-symbols-rounded" aria-hidden="true">storefront</span>
+        </div>
+        <h1>DormShare</h1>
+        <div className="loading-screen__spinner" />
+      </div>
+    </main>
+  )
+}
+
 function AppContent() {
+  const { isAuthenticated, isLoading } = useDormShare()
+
+  if (!isAuthenticated) {
+    return <AuthScreen />
+  }
+
+  if (isLoading) {
+    return <LoadingScreen />
+  }
+
+  return <AppShell />
+}
+
+function AppShell() {
   const [activeScreen, setActiveScreen] = useState<AppScreen>('feed')
-  const [selectedChatId, setSelectedChatId] = useState('chat-emily-chen')
+  const [selectedChatId, setSelectedChatId] = useState('')
   const [selectedListingId, setSelectedListingId] = useState('')
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false)
   const { markChatAsRead } = useDormShare()
@@ -89,7 +118,6 @@ function AppContent() {
         <FeedScreen onNavigate={handleNavigate} onOpenListing={handleOpenListing} />
       )}
 
-      {/* Slide-in notifications drawer overlay */}
       {showNotificationDrawer && (
         <NotificationDrawer
           onClose={() => setShowNotificationDrawer(false)}

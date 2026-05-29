@@ -18,14 +18,14 @@ const listingTabs = [
 ]
 
 function ProfileScreen({ onNavigate }: ProfileScreenProps) {
-  const { items, currentUserProfile, updateProfile, notificationCount, isInstallable, triggerInstallPrompt } = useDormShare()
+  const { items, currentUserProfile, updateProfile, notificationCount, isInstallable, triggerInstallPrompt, currentUserId } = useDormShare()
   const [mode, setMode] = useState<'profile' | 'edit'>('profile')
   const [selectedTab, setSelectedTab] = useState('all')
 
   // Find items owned by the current logged-in user (Andrew)
   const myItems = useMemo(() => {
-    return items.filter((item) => item.owner_id === 'user-andrew')
-  }, [items])
+    return items.filter((item) => item.owner_id === currentUserId)
+  }, [items, currentUserId])
 
   // Filter listings based on tabs (Mock support: sold and rented are empty for now)
   const visibleMyItems = useMemo(() => {
@@ -174,6 +174,7 @@ function EditProfileView({
   onNavigate,
 }: EditProfileViewProps) {
   const [profile, setProfile] = useState<ProfileForm>(initialProfile)
+  const { logout } = useDormShare()
 
   function updateField(field: keyof ProfileForm, value: string) {
     setProfile((current) => ({ ...current, [field]: value }))
@@ -263,6 +264,12 @@ function EditProfileView({
             }
           }}
           danger
+        />
+        <AccountRow
+          icon="logout"
+          title="Sign out"
+          body="Log out of your DormShare account"
+          onClick={() => logout()}
         />
       </section>
 

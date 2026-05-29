@@ -23,9 +23,12 @@ type ListingDraft = {
 
 const categoryOptions = [
   { id: 'electronics', label: 'Electronics', icon: 'desktop_windows' },
-  { id: 'books', label: 'Books', icon: 'menu_book' },
   { id: 'furniture', label: 'Furniture', icon: 'chair' },
+  { id: 'books', label: 'Books', icon: 'menu_book' },
   { id: 'appliances', label: 'Appliances', icon: 'kitchen' },
+  { id: 'food', label: 'Food', icon: 'restaurant' },
+  { id: 'sports', label: 'Sports Equipment', icon: 'sports_soccer' },
+  { id: 'clothing', label: 'Clothing', icon: 'checkroom' },
   { id: 'other', label: 'Other', icon: 'more_horiz' },
 ]
 
@@ -68,6 +71,7 @@ function SellScreen({ onNavigate }: SellScreenProps) {
   const [step, setStep] = useState<SellStep>('details')
   const [draft, setDraft] = useState<ListingDraft>(initialDraft)
   const [newPostedId, setNewPostedId] = useState('')
+  const [isPosting, setIsPosting] = useState(false)
 
   const [showConditionSheet, setShowConditionSheet] = useState(false)
   const [showPriceModeSheet, setShowPriceModeSheet] = useState(false)
@@ -84,11 +88,18 @@ function SellScreen({ onNavigate }: SellScreenProps) {
     setDraft((currentDraft) => ({ ...currentDraft, [field]: value }))
   }
 
-  function handlePost() {
-    // Add item to global context state database
-    const createdId = addItem(draft)
-    setNewPostedId(createdId)
-    setStep('posted')
+  async function handlePost() {
+    setIsPosting(true)
+    try {
+      // Add item to database via API
+      const createdId = await addItem(draft)
+      setNewPostedId(createdId)
+      setStep('posted')
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to post listing. Please try again.')
+    } finally {
+      setIsPosting(false)
+    }
   }
 
   return (
@@ -125,6 +136,7 @@ function SellScreen({ onNavigate }: SellScreenProps) {
           categoryLabel={selectedCategory.label}
           onEdit={() => setStep('details')}
           onPost={handlePost}
+          isPosting={isPosting}
         />
       ) : null}
 
@@ -452,9 +464,10 @@ type ReviewStepProps = {
   categoryLabel: string
   onEdit: () => void
   onPost: () => void
+  isPosting: boolean
 }
 
-function ReviewStep({ draft, categoryLabel, onEdit, onPost }: ReviewStepProps) {
+function ReviewStep({ draft, categoryLabel, onEdit, onPost, isPosting }: ReviewStepProps) {
   const mainImage = draft.images[0] || ''
   const thumbs = draft.images.slice(1, 4)
 
@@ -521,8 +534,8 @@ function ReviewStep({ draft, categoryLabel, onEdit, onPost }: ReviewStepProps) {
         </div>
       </section>
 
-      <button type="button" className="sell-screen__primary" onClick={onPost}>
-        Post listing
+      <button type="button" className="sell-screen__primary" onClick={onPost} disabled={isPosting}>
+        {isPosting ? 'Posting...' : 'Post listing'}
       </button>
       <button type="button" className="sell-screen__text-button" onClick={onEdit}>
         Go back and edit

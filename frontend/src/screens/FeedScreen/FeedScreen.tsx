@@ -13,10 +13,13 @@ import './FeedScreen.css'
 const FEED_CATEGORIES: FeedCategory[] = [
   { id: 'all', label: 'All', icon: 'grid_view' },
   { id: 'electronics', label: 'Electronics', icon: 'desktop_windows' },
-  { id: 'books', label: 'Books', icon: 'menu_book' },
   { id: 'furniture', label: 'Furniture', icon: 'chair' },
+  { id: 'books', label: 'Books', icon: 'menu_book' },
   { id: 'appliances', label: 'Appliances', icon: 'kitchen' },
-  { id: 'other', label: 'More', icon: 'expand_more' },
+  { id: 'food', label: 'Food', icon: 'restaurant' },
+  { id: 'sports', label: 'Sports', icon: 'sports_soccer' },
+  { id: 'clothing', label: 'Clothing', icon: 'checkroom' },
+  { id: 'other', label: 'Other', icon: 'more_horiz' },
 ]
 
 type FeedScreenProps = {
@@ -25,7 +28,7 @@ type FeedScreenProps = {
 }
 
 function FeedScreen({ onNavigate, onOpenListing }: FeedScreenProps) {
-  const { items, favoriteIds, toggleFavorite, currentUserProfile, notificationCount } = useDormShare()
+  const { items, favoriteIds, toggleFavorite, currentUserProfile, notificationCount, refreshFeed } = useDormShare()
   const [selectedCategory, setSelectedCategory] = useState<CategoryId>('all')
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -68,10 +71,10 @@ function FeedScreen({ onNavigate, onOpenListing }: FeedScreenProps) {
       <section className="feed-screen__listings" aria-labelledby="latest-listings">
         <div className="feed-screen__section-header">
           <h2 id="latest-listings">Latest Listings</h2>
-          <button type="button" className="feed-screen__see-all">
-            <span>See all</span>
+          <button type="button" className="feed-screen__see-all" onClick={() => refreshFeed()}>
+            <span>Refresh</span>
             <span className="material-symbols-rounded feed-screen__see-all-icon">
-              arrow_forward
+              refresh
             </span>
           </button>
         </div>
@@ -89,7 +92,9 @@ function FeedScreen({ onNavigate, onOpenListing }: FeedScreenProps) {
             ))}
           </div>
         ) : (
-          <p className="feed-screen__empty">No listings match your search.</p>
+          <p className="feed-screen__empty">
+            {items.length === 0 ? 'No listings available at your university yet. Be the first to post!' : 'No listings match your search.'}
+          </p>
         )}
       </section>
 

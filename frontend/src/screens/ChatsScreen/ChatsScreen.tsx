@@ -51,7 +51,7 @@ function ChatsScreen({ onNavigate, onOpenChat }: ChatsScreenProps) {
         lastMessage: lastMsgObj ? lastMsgObj.content : 'No messages yet',
         timestampLabel: lastMsgObj ? lastMsgObj.timestampLabel : 'Just now',
         unreadCount: unreads,
-        isArchived: chat.id.includes('chris-wu') || chat.id.includes('hannah-brown'), // Archive specific static mocks
+        isArchived: false,
       }
     })
   }, [chats])

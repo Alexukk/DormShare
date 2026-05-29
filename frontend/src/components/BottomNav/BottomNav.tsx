@@ -12,7 +12,7 @@ type NavItem = {
 const navItems: NavItem[] = [
   { id: 'feed', label: 'Feed', icon: 'home' },
   { id: 'sell', label: 'Sell', icon: 'add_circle' },
-  { id: 'chats', label: 'Chats', icon: 'chat_bubble', badge: 2 },
+  { id: 'chats', label: 'Chats', icon: 'chat_bubble' },
   { id: 'profile', label: 'Profile', icon: 'person' },
 ]
 
