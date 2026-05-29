@@ -17,7 +17,7 @@ origins = [
     "http://localhost:5173",
     "http://127.0.0.1:3000",
     "http://127.0.0.1:5173",
-    "https://dorm-share-five.vercel.app",
+    "https://dorm-share-phi.vercel.app",
     "https://lovable.dev",
     "https://lovable.app",
     "https://lovable.project",
