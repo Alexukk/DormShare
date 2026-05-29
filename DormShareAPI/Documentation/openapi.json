@@ -201,7 +201,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
       }
     },
     "/item/details/{itemId}": {
@@ -211,6 +216,11 @@
         ],
         "summary": "Post Details",
         "operationId": "post_Details_item_details__itemId__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "itemId",
@@ -253,6 +263,11 @@
         ],
         "summary": "Categorized Feed",
         "operationId": "categorized_Feed_item_category__category__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "category",
@@ -1618,9 +1633,9 @@
             "minLength": 8,
             "title": "Password"
           },
-          "contact_way": {
+          "university": {
             "type": "string",
-            "title": "Contact Way"
+            "title": "University"
           }
         },
         "type": "object",
@@ -1628,7 +1643,7 @@
           "username",
           "email",
           "password",
-          "contact_way"
+          "university"
         ],
         "title": "UserCreate"
       },
@@ -1668,10 +1683,6 @@
             "format": "email",
             "title": "Email"
           },
-          "contact_way": {
-            "type": "string",
-            "title": "Contact Way"
-          },
           "joined_at": {
             "type": "string",
             "format": "date-time",
@@ -1680,6 +1691,10 @@
           "role": {
             "type": "string",
             "title": "Role"
+          },
+          "university": {
+            "type": "string",
+            "title": "University"
           },
           "items": {
             "items": {
@@ -1695,9 +1710,9 @@
           "id",
           "username",
           "email",
-          "contact_way",
           "joined_at",
-          "role"
+          "role",
+          "university"
         ],
         "title": "UserSend"
       },
