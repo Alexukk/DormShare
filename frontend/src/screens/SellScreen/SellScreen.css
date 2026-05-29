@@ -276,36 +276,7 @@
   font-size: 20px;
 }
 
-.sell-screen__condition {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: var(--space-14);
-  min-height: 72px;
-  padding: 0 var(--space-18);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-16);
-  background: var(--color-surface);
-  color: var(--color-text);
-  text-align: left;
-  box-shadow: var(--shadow-control);
-  cursor: pointer;
-}
 
-.sell-screen__condition strong {
-  display: block;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.sell-screen__condition small {
-  display: block;
-  margin-top: 2px;
-  color: var(--color-muted);
-  font-size: 13px;
-  font-weight: 500;
-}
 
 .sell-screen__primary {
   min-height: 56px;
@@ -759,21 +730,6 @@
 
   .sell-screen__category-chip .material-symbols-rounded {
     font-size: 18px;
-  }
-
-  .sell-screen__condition {
-    min-height: 58px;
-    padding: 0 var(--space-12);
-    gap: var(--space-10);
-    border-radius: var(--radius-12);
-  }
-
-  .sell-screen__condition strong {
-    font-size: 14px;
-  }
-
-  .sell-screen__condition small {
-    font-size: 11px;
   }
 
   .sell-screen__primary {

@@ -4,7 +4,6 @@ import BottomNav, {
 } from '../../components/BottomNav/BottomNav'
 import CategoryChips from '../../components/CategoryChips/CategoryChips'
 import ListingCard from '../../components/ListingCard/ListingCard'
-import NotificationButton from '../../components/NotificationButton/NotificationButton'
 import SearchFilterBar from '../../components/SearchFilterBar/SearchFilterBar'
 import { useDormShare } from '../../data/DormShareContext'
 import type { CategoryId, FeedCategory } from '../../data/types'
@@ -28,7 +27,7 @@ type FeedScreenProps = {
 }
 
 function FeedScreen({ onNavigate, onOpenListing }: FeedScreenProps) {
-  const { items, favoriteIds, toggleFavorite, currentUserProfile, notificationCount, refreshFeed } = useDormShare()
+  const { items, currentUserProfile, refreshFeed } = useDormShare()
   const [selectedCategory, setSelectedCategory] = useState<CategoryId>('all')
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -57,7 +56,6 @@ function FeedScreen({ onNavigate, onOpenListing }: FeedScreenProps) {
           <h1>Hey, {currentUserProfile.name.split(' ')[0]}! <span aria-hidden="true">👋</span></h1>
           <p>Buy, sell and find great deals on campus</p>
         </div>
-        <NotificationButton count={notificationCount} />
       </header>
 
       <SearchFilterBar value={searchQuery} onChange={setSearchQuery} />
@@ -85,8 +83,6 @@ function FeedScreen({ onNavigate, onOpenListing }: FeedScreenProps) {
               <ListingCard
                 key={item.id}
                 item={item}
-                isFavorite={favoriteIds.has(item.id)}
-                onFavoriteToggle={toggleFavorite}
                 onClick={() => onOpenListing?.(item.id)}
               />
             ))}

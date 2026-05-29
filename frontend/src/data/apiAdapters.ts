@@ -27,6 +27,7 @@ export function apiUserToUiUser(u: ApiUser): DormShareUser {
     name: u.username,
     initials: getInitials(u.username),
     isOnline: false, // no online-status API yet
+    university: u.university,
   }
 }
 
@@ -37,6 +38,7 @@ export function placeholderUser(ownerId: string): DormShareUser {
     name: 'Seller',
     initials: 'S',
     isOnline: false,
+    university: 'DormShare University',
   }
 }
 

@@ -22,6 +22,7 @@ export type DormShareUser = {
   name: string
   initials: string
   isOnline: boolean
+  university?: string
 }
 
 export type ListingImage = {
@@ -86,20 +87,6 @@ export type ProfileForm = {
   bio: string
   email: string
   school: string
-}
-
-export type NotificationType = 'like' | 'message' | 'system' | 'offer'
-
-export type DormShareNotification = {
-  id: string
-  type: NotificationType
-  title: string
-  body: string
-  timestamp: string
-  isRead: boolean
-  targetId?: string
-  senderName?: string
-  senderInitials?: string
 }
 
 export interface BeforeInstallPromptEvent extends Event {

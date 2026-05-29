@@ -5,8 +5,6 @@ import type {
   ChatDetail,
   ChatMessage,
   ProfileForm,
-  DormShareNotification,
-  NotificationType,
   BeforeInstallPromptEvent,
   ApiItem,
   ApiUser,
@@ -37,22 +35,17 @@ export type DormShareContextType = {
   items: FeedItem[]
   chats: ChatDetail[]
   currentUserProfile: ProfileForm
-  notifications: DormShareNotification[]
-  notificationCount: number
-  favoriteIds: Set<string>
   typingStates: Record<string, boolean>
   isInstallable: boolean
 
   // Actions
   triggerInstallPrompt: () => void
-  toggleFavorite: (itemId: string) => void
   addItem: (draft: {
     title: string
     description: string
     price: string
     priceMode: string
     category: string
-    condition: string
     images: string[]
   }) => Promise<string>
   deleteItem: (itemId: string) => Promise<void>
@@ -60,17 +53,6 @@ export type DormShareContextType = {
   startOrOpenChat: (item: FeedItem) => Promise<string>
   updateProfile: (profile: Partial<ProfileForm>) => void
   markChatAsRead: (chatId: string) => void
-  markNotificationAsRead: (id: string) => void
-  markAllNotificationsAsRead: () => void
-  clearAllNotifications: () => void
-  addNotification: (
-    type: NotificationType,
-    title: string,
-    body: string,
-    targetId?: string,
-    senderName?: string,
-    senderInitials?: string
-  ) => void
   refreshFeed: () => Promise<void>
   refreshChats: () => Promise<void>
   addChatMessages: (chatId: string, messages: ChatMessage[]) => void
@@ -96,8 +78,6 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<FeedItem[]>([])
   const [chats, setChats] = useState<ChatDetail[]>([])
   const [currentUserProfile, setCurrentUserProfile] = useState<ProfileForm>(initialProfile)
-  const [notifications, setNotifications] = useState<DormShareNotification[]>([])
-  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set())
   const [typingStates] = useState<Record<string, boolean>>({})
 
   // PWA Install States
@@ -108,8 +88,6 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
     }
     return true
   })
-
-  const notificationCount = notifications.filter(n => !n.isRead).length
 
   // ── PWA Install ─────────────────────────────
   useEffect(() => {
@@ -288,23 +266,9 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
     setItems([])
     setChats([])
     setCurrentUserProfile(initialProfile)
-    setNotifications([])
-    setFavoriteIds(new Set())
   }
 
   // ── Item Actions ─────────────────────────────
-
-  function toggleFavorite(itemId: string) {
-    setFavoriteIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(itemId)) {
-        next.delete(itemId)
-      } else {
-        next.add(itemId)
-      }
-      return next
-    })
-  }
 
   async function addItem(draft: {
     title: string
@@ -312,7 +276,6 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
     price: string
     priceMode: string
     category: string
-    condition: string
     images: string[]
   }): Promise<string> {
     // 1. Create item via API
@@ -345,58 +308,12 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
     // 3. Refresh feed to get the new item with its uploaded images
     await refreshFeed()
 
-    // 4. Notification
-    addNotification(
-      'system',
-      'Listing Live! 🚀',
-      `Awesome! Your listing "${draft.title}" is now visible to other campus students.`,
-      newItemId
-    )
-
     return newItemId
   }
 
   async function deleteItem(itemId: string): Promise<void> {
     await apiDelete(`/item/delete?itemId=${itemId}`)
     setItems(prev => prev.filter(i => i.id !== itemId))
-  }
-
-  // ── Notification Actions ─────────────────────
-
-  function addNotification(
-    type: NotificationType,
-    title: string,
-    body: string,
-    targetId?: string,
-    senderName?: string,
-    senderInitials?: string
-  ) {
-    const newNotif: DormShareNotification = {
-      id: `notif-local-${Date.now()}`,
-      type,
-      title,
-      body,
-      timestamp: 'Just now',
-      isRead: false,
-      targetId,
-      senderName,
-      senderInitials,
-    }
-    setNotifications((prev) => [newNotif, ...prev])
-  }
-
-  function markNotificationAsRead(id: string) {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-    )
-  }
-
-  function markAllNotificationsAsRead() {
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
-  }
-
-  function clearAllNotifications() {
-    setNotifications([])
   }
 
   // ── Profile Actions ─────────────────────────
@@ -533,23 +450,15 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
         items,
         chats,
         currentUserProfile,
-        notifications,
-        notificationCount,
-        favoriteIds,
         typingStates,
         isInstallable,
         triggerInstallPrompt,
-        toggleFavorite,
         addItem,
         deleteItem,
         sendMessage,
         startOrOpenChat,
         updateProfile,
         markChatAsRead,
-        markNotificationAsRead,
-        markAllNotificationsAsRead,
-        clearAllNotifications,
-        addNotification,
         refreshFeed,
         refreshChats,
         addChatMessages,

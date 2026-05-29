@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react'
 import type { BottomNavItem } from '../../components/BottomNav/BottomNav'
 import BottomNav from '../../components/BottomNav/BottomNav'
-import NotificationButton from '../../components/NotificationButton/NotificationButton'
 import { useDormShare } from '../../data/DormShareContext'
 import type { ProfileForm } from '../../data/types'
 import { getInitials } from '../../utils'
@@ -13,12 +12,11 @@ type ProfileScreenProps = {
 
 const listingTabs = [
   { id: 'all', label: 'All', icon: 'grid_view' },
-  { id: 'sold', label: 'Sold', icon: 'sell' },
   { id: 'rented', label: 'Rented', icon: 'schedule' },
 ]
 
 function ProfileScreen({ onNavigate }: ProfileScreenProps) {
-  const { items, currentUserProfile, updateProfile, notificationCount, isInstallable, triggerInstallPrompt, currentUserId } = useDormShare()
+  const { items, currentUserProfile, updateProfile, isInstallable, triggerInstallPrompt, currentUserId } = useDormShare()
   const [mode, setMode] = useState<'profile' | 'edit'>('profile')
   const [selectedTab, setSelectedTab] = useState('all')
 
@@ -27,10 +25,10 @@ function ProfileScreen({ onNavigate }: ProfileScreenProps) {
     return items.filter((item) => item.owner_id === currentUserId)
   }, [items, currentUserId])
 
-  // Filter listings based on tabs (Mock support: sold and rented are empty for now)
+  // Filter listings based on tabs (Mock support: rented is empty for now)
   const visibleMyItems = useMemo(() => {
-    if (selectedTab === 'sold' || selectedTab === 'rented') {
-      return [] // Pre-loaded sold/rented mock list is empty initially
+    if (selectedTab === 'rented') {
+      return [] // Pre-loaded rented mock list is empty initially
     }
     return myItems
   }, [myItems, selectedTab])
@@ -53,7 +51,6 @@ function ProfileScreen({ onNavigate }: ProfileScreenProps) {
     <main className="profile-screen" aria-label="Profile">
       <header className="profile-screen__header">
         <h1>Profile</h1>
-        <NotificationButton count={notificationCount} />
       </header>
 
       <section className="profile-screen__summary" aria-label="Profile summary">
