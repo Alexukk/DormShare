@@ -15,7 +15,7 @@ function LoadingScreen() {
     <main className="loading-screen" aria-label="Loading DormShare">
       <div className="loading-screen__content">
         <div className="loading-screen__logo">
-          <span className="material-symbols-rounded" aria-hidden="true">storefront</span>
+          <img src="/logo.png" alt="DormShare logo" className="loading-screen__logo-img" />
         </div>
         <h1>DormShare</h1>
         <div className="loading-screen__spinner" />

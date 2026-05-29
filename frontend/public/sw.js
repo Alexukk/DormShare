@@ -2,7 +2,7 @@ const CACHE_NAME = 'dormshare-cache-v1'
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
-  '/favicon.svg',
+  '/logo.png',
   '/icons.svg',
   '/manifest.json',
 ]
