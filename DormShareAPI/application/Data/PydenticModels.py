@@ -6,6 +6,8 @@ from typing import List
 
 from sqlmodel import SQLModel
 
+class SendMessage(SQLModel):
+    content: str
 
 class ImageRead(SQLModel):
     id: UUID
