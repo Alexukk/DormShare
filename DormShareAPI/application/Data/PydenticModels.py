@@ -32,6 +32,7 @@ class ItemReadWithImages(SQLModel):
     is_available: bool
     created_at: datetime
     owner_id: UUID
+    owner_username: str = ""
 
     images: list[ImageRead] = []
     reviews: list[ReviewRead] = []
