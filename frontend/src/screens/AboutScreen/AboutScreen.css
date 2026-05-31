@@ -84,14 +84,19 @@
   letter-spacing: -0.5px;
 }
 
+.about-screen__version-badge-container {
+  display: flex;
+  gap: var(--space-8);
+  margin-bottom: var(--space-12);
+}
+
 .about-screen__version {
   font-size: 12px;
   font-weight: 700;
   color: var(--color-primary);
   background: var(--color-surface-soft);
-  padding: 3px 8px;
+  padding: 4px 10px;
   border-radius: var(--radius-8, 8px);
-  margin-bottom: var(--space-10);
 }
 
 .about-screen__github-btn {

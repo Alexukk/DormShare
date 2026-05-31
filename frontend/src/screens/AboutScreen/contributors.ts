@@ -8,10 +8,17 @@ export type Contributor = {
 
 export const contributorsList: Contributor[] = [
   {
-    name: '',
-    role: '',
+    name: 'Alexukk',
+    role: 'Backend Developer',
     description: '',
     icon: '',
-    githubUrl: '',
+    githubUrl: 'https://github.com/Alexukk',
+  },
+  {
+    name: 'PerspicaciousGuy',
+    role: 'Frontend Developer',
+    description: '',
+    icon: '',
+    githubUrl: 'https://github.com/PerspicaciousGuy',
   }
 ]

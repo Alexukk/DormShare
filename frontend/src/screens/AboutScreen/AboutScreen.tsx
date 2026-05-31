@@ -32,7 +32,11 @@ function AboutScreen({ onBack, onNavigate }: AboutScreenProps) {
           <img src="/logo.png?v=3" alt="DormShare logo" className="about-screen__logo-img" />
         </div>
         <h2>DormShare</h2>
-        <span className="about-screen__version">Version 1.2.0 (Stable)</span>
+        
+        <div className="about-screen__version-badge-container">
+          <span className="about-screen__version">App: v1.2.0 (Stable)</span>
+          <span className="about-screen__version">API: v1.3.2 (Beta)</span>
+        </div>
 
         <p className="about-screen__mission">
           DormShare is a hyper-local peer-to-peer campus marketplace designed by college students, for college students.
