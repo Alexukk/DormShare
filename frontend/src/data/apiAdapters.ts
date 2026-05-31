@@ -48,15 +48,14 @@ export function adaptApiItemToFeedItem(
   apiItem: ApiItem,
   ownerUser?: DormShareUser,
 ): FeedItem {
-  // Resolve owner: explicit param > API response > placeholder
+  // Resolve owner: explicit param > API owner_username > placeholder
   const resolvedOwner = ownerUser
-    ?? (apiItem.owner
+    ?? (apiItem.owner_username
       ? {
-          id: apiItem.owner.id,
-          name: apiItem.owner.username,
-          initials: getInitials(apiItem.owner.username),
+          id: apiItem.owner_id,
+          name: apiItem.owner_username,
+          initials: getInitials(apiItem.owner_username),
           isOnline: false,
-          university: apiItem.owner.university,
         }
       : placeholderUser(apiItem.owner_id))
 

@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import type { FormEvent } from 'react'
 import { useDormShare } from '../../data/DormShareContext'
-import { connectChatWebSocket, sendWsChatMessage } from '../../data/chatWebSocket'
+import { apiGet, apiPost } from '../../data/apiClient'
 import { adaptWsMessageToChatMessage } from '../../data/apiAdapters'
-import { getStoredToken } from '../../data/apiClient'
+import type { ApiChat } from '../../data/types'
 import './ChatDetailScreen.css'
+
+const POLL_INTERVAL_MS = 3000
 
 type ChatDetailScreenProps = {
   chatId: string
@@ -14,40 +16,81 @@ type ChatDetailScreenProps = {
 function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
   const { chats, currentUserId, replaceChatMessages, addChatMessages } = useDormShare()
   const [draft, setDraft] = useState('')
-  const [wsConnected, setWsConnected] = useState(false)
+  const [isSending, setIsSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const wsRef = useRef<WebSocket | null>(null)
+  const lastPollTimestampRef = useRef<string | null>(null)
+
+  // Stable refs so effects don't re-trigger on every render
+  const replaceChatMessagesRef = useRef(replaceChatMessages)
+  replaceChatMessagesRef.current = replaceChatMessages
+  const addChatMessagesRef = useRef(addChatMessages)
+  addChatMessagesRef.current = addChatMessages
+  const currentUserIdRef = useRef(currentUserId)
+  currentUserIdRef.current = currentUserId
 
   const chat = chats.find((c) => c.id === chatId)
   const messages = chat?.messages ?? []
 
-  // ── WebSocket connection ─────────────────
+  // ── Load full chat history on mount ─────────────────
   useEffect(() => {
-    const token = getStoredToken()
-    if (!token || !chatId) return
+    if (!chatId) return
 
-    const ws = connectChatWebSocket(chatId, token, {
-      onHistory: (historyMessages) => {
-        const adapted = historyMessages.map(m =>
-          adaptWsMessageToChatMessage(m, currentUserId)
+    let cancelled = false
+
+    async function loadHistory() {
+      try {
+        const apiChat = await apiGet<ApiChat>(`/chat/get/${chatId}`)
+        if (cancelled) return
+
+        const adapted = apiChat.messages.map(m =>
+          adaptWsMessageToChatMessage(m, currentUserIdRef.current)
         )
-        replaceChatMessages(chatId, adapted)
-      },
-      onMessage: (msg) => {
-        const adapted = adaptWsMessageToChatMessage(msg, currentUserId)
-        addChatMessages(chatId, [adapted])
-      },
-      onOpen: () => setWsConnected(true),
-      onClose: () => setWsConnected(false),
-    })
+        replaceChatMessagesRef.current(chatId, adapted)
 
-    wsRef.current = ws
-
-    return () => {
-      ws.close()
-      wsRef.current = null
+        // Set the last timestamp for polling
+        if (apiChat.messages.length > 0) {
+          lastPollTimestampRef.current = apiChat.messages[apiChat.messages.length - 1].timestamp
+        } else {
+          lastPollTimestampRef.current = new Date().toISOString()
+        }
+      } catch {
+        // Chat might not exist or user is unauthorized
+      }
     }
-  }, [chatId, currentUserId, replaceChatMessages, addChatMessages])
+
+    loadHistory()
+    return () => { cancelled = true }
+  }, [chatId])
+
+  // ── Poll for new messages ─────────────────
+  useEffect(() => {
+    if (!chatId) return
+
+    const intervalId = setInterval(async () => {
+      if (!lastPollTimestampRef.current) return
+
+      try {
+        const afterParam = encodeURIComponent(lastPollTimestampRef.current)
+        const res = await apiGet<{ messages: Array<{ id: string; content: string; sender_id: string; timestamp: string; is_viewed: boolean; reaction: string | null }> }>(
+          `/chat/messages/${chatId}?after=${afterParam}`
+        )
+
+        if (res.messages && res.messages.length > 0) {
+          const adapted = res.messages.map(m =>
+            adaptWsMessageToChatMessage(m, currentUserIdRef.current)
+          )
+          addChatMessagesRef.current(chatId, adapted)
+
+          // Update last timestamp
+          lastPollTimestampRef.current = res.messages[res.messages.length - 1].timestamp
+        }
+      } catch {
+        // Silently ignore poll errors
+      }
+    }, POLL_INTERVAL_MS)
+
+    return () => clearInterval(intervalId)
+  }, [chatId])
 
   // Auto-scroll messages to bottom
   const totalMessagesCount = messages.length
@@ -55,17 +98,35 @@ function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [totalMessagesCount])
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const nextMessage = draft.trim()
-    if (!nextMessage || !chat) return
-
-    // Send via WebSocket
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      sendWsChatMessage(wsRef.current, nextMessage)
-    }
+    if (!nextMessage || !chat || isSending) return
 
     setDraft('')
+    setIsSending(true)
+
+    try {
+      // Send via REST API
+      const res = await apiPost<{ id: string; content: string; sender_id: string; timestamp: string; is_viewed: boolean; reaction: string | null }>(
+        `/chat/messages/${chatId}`,
+        { content: nextMessage }
+      )
+
+      // Add the confirmed message to chat
+      const adapted = adaptWsMessageToChatMessage(res, currentUserId)
+      addChatMessages(chatId, [adapted])
+
+      // Update poll timestamp so we don't re-fetch this message
+      if (res.timestamp) {
+        lastPollTimestampRef.current = res.timestamp
+      }
+    } catch {
+      // If send fails, show the message as unsent
+      // For now just silently fail — user can retype
+    } finally {
+      setIsSending(false)
+    }
   }
 
   function handleOpenListing() {
@@ -113,13 +174,11 @@ function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
         <div className="chat-detail__identity">
           <div className="chat-detail__avatar" aria-hidden="true">
             {chat.participant.initials}
-            {wsConnected ? (
-              <span className="chat-detail__online-dot" />
-            ) : null}
+            <span className="chat-detail__online-dot" />
           </div>
           <div>
             <h1>{chat.participant.name}</h1>
-            <p>{wsConnected ? 'Connected' : 'Connecting...'}</p>
+            <p>Online</p>
           </div>
         </div>
 
@@ -198,7 +257,12 @@ function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
             placeholder="Type a message..."
           />
         </label>
-        <button type="submit" className="chat-detail__send" aria-label="Send message">
+        <button
+          type="submit"
+          className="chat-detail__send"
+          aria-label="Send message"
+          disabled={isSending}
+        >
           <span className="material-symbols-rounded" aria-hidden="true">
             send
           </span>

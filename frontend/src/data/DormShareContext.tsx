@@ -386,8 +386,8 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
     return chatId
   }
 
-  function sendMessage(chatId: string, content: string) {
-    // Optimistic local update — actual send happens via WebSocket in ChatDetailScreen
+  async function sendMessage(chatId: string, content: string) {
+    // Optimistic local update for instant UI feedback
     const timestamp = formatTimestamp()
     const newMessage: ChatMessage = {
       id: `msg-optimistic-${Date.now()}`,
@@ -408,6 +408,14 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
         return chat
       })
     )
+
+    // Send via REST API
+    try {
+      await apiPost(`/chat/messages/${chatId}`, { content })
+    } catch {
+      // If API fails, the optimistic message stays visible
+      // A future improvement could mark it as "failed"
+    }
   }
 
   /** Replace all messages for a chat (used when WebSocket sends history) */
