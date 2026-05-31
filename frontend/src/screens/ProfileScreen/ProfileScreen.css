@@ -160,7 +160,7 @@
 
 .profile-screen__tabs {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -336,29 +336,6 @@
 
 .profile-screen__photo-wrap {
   position: relative;
-}
-
-.profile-screen__photo-wrap button {
-  position: absolute;
-  right: -4px;
-  bottom: 20px;
-  display: inline-grid;
-  width: 58px;
-  height: 58px;
-  place-items: center;
-  border-radius: var(--radius-pill);
-  background: var(--color-surface);
-  color: var(--color-icon);
-  box-shadow: var(--shadow-floating);
-  cursor: pointer;
-}
-
-.profile-screen__photo-editor > button {
-  background: transparent;
-  color: var(--color-primary);
-  font-size: 19px;
-  font-weight: 800;
-  cursor: pointer;
 }
 
 .profile-screen__form,
@@ -586,21 +563,6 @@
 
   .profile-row--account small {
     font-size: 11px;
-  }
-
-  .profile-screen__photo-wrap button {
-    width: 36px;
-    height: 36px;
-    bottom: 6px;
-    right: -2px;
-  }
-
-  .profile-screen__photo-wrap button .material-symbols-rounded {
-    font-size: 18px;
-  }
-
-  .profile-screen__photo-editor > button {
-    font-size: 14px;
   }
 
   .profile-item-card__copy h3 {

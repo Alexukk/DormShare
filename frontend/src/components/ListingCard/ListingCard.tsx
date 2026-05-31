@@ -1,48 +1,33 @@
 import type { FeedItem } from '../../data/dormshareApi'
+import { PLACEHOLDER_IMAGE } from '../../utils'
 import './ListingCard.css'
 
 type ListingCardProps = {
   item: FeedItem
-  isFavorite: boolean
-  onFavoriteToggle: (itemId: string) => void
   onClick?: () => void
 }
 
 function ListingCard({
   item,
-  isFavorite,
-  onFavoriteToggle,
   onClick,
 }: ListingCardProps) {
-  const image = item.images[0]
+  const photoUrl = item.images[0]?.photo_url || PLACEHOLDER_IMAGE
+  const altText = item.images[0]?.alt || item.title
 
   return (
     <article 
-      className="listing-card" 
+      className={`listing-card ${!item.is_available ? 'listing-card--sold' : ''}`} 
       onClick={onClick} 
       style={{ cursor: onClick ? 'pointer' : 'default' }}
     >
       <div className="listing-card__media">
-        <img src={image.photo_url} alt={image.alt} className="listing-card__image" />
+        <img src={photoUrl} alt={altText} className="listing-card__image" />
         {item.isNew ? <span className="listing-card__flag">NEW</span> : null}
-        <button
-          type="button"
-          className="listing-card__favorite"
-          aria-label={
-            isFavorite
-              ? `Remove ${item.title} from favorites`
-              : `Add ${item.title} to favorites`
-          }
-          aria-pressed={isFavorite}
-          onClick={(e) => {
-            e.stopPropagation()
-            onFavoriteToggle(item.id)
-          }}
-        >
-          <span className="material-symbols-rounded listing-card__favorite-icon">
-            favorite
-          </span>
-        </button>
+        {!item.is_available && (
+          <div className="listing-card__sold-overlay">
+            <span className="listing-card__sold-badge">SOLD</span>
+          </div>
+        )}
       </div>
 
       <div className="listing-card__body">
@@ -54,14 +39,6 @@ function ListingCard({
             {item.owner.initials}
           </span>
           <span className="listing-card__seller-name">{item.owner.name}</span>
-          <span
-            className="listing-card__status-dot"
-            aria-label={item.owner.isOnline ? 'Online' : 'Offline'}
-            role="img"
-          />
-          <span className="listing-card__status-text">
-            {item.owner.isOnline ? 'Online' : 'Offline'}
-          </span>
         </div>
       </div>
     </article>

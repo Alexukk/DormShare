@@ -27,6 +27,7 @@ export function apiUserToUiUser(u: ApiUser): DormShareUser {
     name: u.username,
     initials: getInitials(u.username),
     isOnline: false, // no online-status API yet
+    university: u.university,
   }
 }
 
@@ -37,6 +38,7 @@ export function placeholderUser(ownerId: string): DormShareUser {
     name: 'Seller',
     initials: 'S',
     isOnline: false,
+    university: 'DormShare University',
   }
 }
 
@@ -46,6 +48,17 @@ export function adaptApiItemToFeedItem(
   apiItem: ApiItem,
   ownerUser?: DormShareUser,
 ): FeedItem {
+  // Resolve owner: explicit param > API owner_username > placeholder
+  const resolvedOwner = ownerUser
+    ?? (apiItem.owner_username
+      ? {
+          id: apiItem.owner_id,
+          name: apiItem.owner_username,
+          initials: getInitials(apiItem.owner_username),
+          isOnline: false,
+        }
+      : placeholderUser(apiItem.owner_id))
+
   return {
     id: apiItem.id,
     title: apiItem.title,
@@ -56,13 +69,14 @@ export function adaptApiItemToFeedItem(
     is_available: apiItem.is_available,
     created_at: apiItem.created_at,
     owner_id: apiItem.owner_id,
-    owner: ownerUser ?? placeholderUser(apiItem.owner_id),
-    images: apiItem.images.map((img): ListingImage => ({
+    owner: resolvedOwner,
+    images: (apiItem.images || []).map((img): ListingImage => ({
       id: img.id,
       photo_url: img.photo_url,
       alt: apiItem.title,
     })),
     isNew: false,
+    reviews: apiItem.reviews ?? [],
   }
 }
 

@@ -1,16 +1,15 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react'
 import type {
   FeedItem,
   ChatDetail,
   ChatMessage,
   ProfileForm,
-  DormShareNotification,
-  NotificationType,
   BeforeInstallPromptEvent,
   ApiItem,
   ApiUser,
   ApiChat,
+  ApiTransaction,
 } from './types'
 import {
   adaptApiItemToFeedItem,
@@ -19,7 +18,7 @@ import {
   apiUserToUiUser,
   placeholderUser,
 } from './apiAdapters'
-import { apiGet, apiPost, apiPostFormData, apiDelete, ApiError } from './apiClient'
+import { apiGet, apiPost, apiPatch, apiPostFormData, apiDelete, ApiError } from './apiClient'
 import { login as authLogin, register as authRegister, logout as authLogout, isAuthenticated as checkAuth } from './authService'
 import { capitalize, formatTimestamp } from '../utils'
 
@@ -37,22 +36,17 @@ export type DormShareContextType = {
   items: FeedItem[]
   chats: ChatDetail[]
   currentUserProfile: ProfileForm
-  notifications: DormShareNotification[]
-  notificationCount: number
-  favoriteIds: Set<string>
   typingStates: Record<string, boolean>
   isInstallable: boolean
 
   // Actions
   triggerInstallPrompt: () => void
-  toggleFavorite: (itemId: string) => void
   addItem: (draft: {
     title: string
     description: string
     price: string
     priceMode: string
     category: string
-    condition: string
     images: string[]
   }) => Promise<string>
   deleteItem: (itemId: string) => Promise<void>
@@ -60,21 +54,21 @@ export type DormShareContextType = {
   startOrOpenChat: (item: FeedItem) => Promise<string>
   updateProfile: (profile: Partial<ProfileForm>) => void
   markChatAsRead: (chatId: string) => void
-  markNotificationAsRead: (id: string) => void
-  markAllNotificationsAsRead: () => void
-  clearAllNotifications: () => void
-  addNotification: (
-    type: NotificationType,
-    title: string,
-    body: string,
-    targetId?: string,
-    senderName?: string,
-    senderInitials?: string
-  ) => void
   refreshFeed: () => Promise<void>
   refreshChats: () => Promise<void>
   addChatMessages: (chatId: string, messages: ChatMessage[]) => void
   replaceChatMessages: (chatId: string, messages: ChatMessage[]) => void
+  deleteChat: (chatId: string) => Promise<void>
+  updateItemDetails: (itemId: string, fields: Partial<FeedItem>) => Promise<void>
+  toggleItemStatus: (itemId: string) => Promise<void>
+  createTransaction: (chatId: string) => Promise<ApiTransaction>
+  getTransactionByChat: (chatId: string) => Promise<ApiTransaction | null>
+  approveTransaction: (transactionId: string) => Promise<ApiTransaction>
+  confirmTransaction: (transactionId: string) => Promise<ApiTransaction>
+  cancelTransaction: (transactionId: string) => Promise<ApiTransaction>
+  submitReview: (transactionId: string, rating: number, comment: string) => Promise<void>
+  fetchItemsByCategory: (category: string) => Promise<void>
+  deleteListingImage: (imageId: string) => Promise<void>
 }
 
 const DormShareContext = createContext<DormShareContextType | undefined>(undefined)
@@ -96,9 +90,29 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<FeedItem[]>([])
   const [chats, setChats] = useState<ChatDetail[]>([])
   const [currentUserProfile, setCurrentUserProfile] = useState<ProfileForm>(initialProfile)
-  const [notifications, setNotifications] = useState<DormShareNotification[]>([])
-  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set())
   const [typingStates] = useState<Record<string, boolean>>({})
+
+  // Workaround: track local read timestamps to override is_viewed status
+  const [lastReadTimestamps, setLastReadTimestamps] = useState<Record<string, number>>(() => {
+    try {
+      const saved = localStorage.getItem('dormshare_read_timestamps')
+      return saved ? JSON.parse(saved) : {}
+    } catch {
+      return {}
+    }
+  })
+
+  const lastReadTimestampsRef = useRef(lastReadTimestamps)
+  lastReadTimestampsRef.current = lastReadTimestamps
+
+  const updateLastReadTimestamp = useCallback((chatId: string) => {
+    const now = Date.now()
+    setLastReadTimestamps(prev => {
+      const next = { ...prev, [chatId]: now }
+      localStorage.setItem('dormshare_read_timestamps', JSON.stringify(next))
+      return next
+    })
+  }, [])
 
   // PWA Install States
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
@@ -108,8 +122,6 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
     }
     return true
   })
-
-  const notificationCount = notifications.filter(n => !n.isRead).length
 
   // ── PWA Install ─────────────────────────────
   useEffect(() => {
@@ -210,7 +222,22 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
           // keep placeholder
         }
 
-        chatDetails.push(adaptApiChatToChatDetail(apiChat, currentUserId, otherUser, itemSummary))
+        const adapted = adaptApiChatToChatDetail(apiChat, currentUserId, otherUser, itemSummary)
+        
+        // Purely frontend workaround: force messages sent before our last read timestamp to status: 'read'
+        const lastReadTime = lastReadTimestampsRef.current[apiChat.id] || 0
+        adapted.messages = adapted.messages.map(msg => {
+          if (msg.sender === 'them' && msg.status !== 'read') {
+            const apiMsg = apiChat.messages.find(m => m.id === msg.id)
+            const msgTime = apiMsg ? new Date(apiMsg.timestamp).getTime() : 0
+            if (msgTime <= lastReadTime) {
+              return { ...msg, status: 'read' as const }
+            }
+          }
+          return msg
+        })
+
+        chatDetails.push(adapted)
       }
 
       setChats(chatDetails)
@@ -248,11 +275,19 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
     return () => { cancelled = true }
   }, [isAuthenticated, loadProfile, refreshFeed])
 
-  // Load chats once currentUserId is available
+  // Load chats once currentUserId is available, and poll periodically
   useEffect(() => {
-    if (currentUserId && isAuthenticated) {
+    if (!currentUserId || !isAuthenticated) return
+
+    // Load instantly
+    refreshChats()
+
+    // Poll every 5 seconds for new chats and conversation updates
+    const intervalId = setInterval(() => {
       refreshChats()
-    }
+    }, 5000)
+
+    return () => clearInterval(intervalId)
   }, [currentUserId, isAuthenticated, refreshChats])
 
   // ── Auth Actions ─────────────────────────────
@@ -288,23 +323,9 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
     setItems([])
     setChats([])
     setCurrentUserProfile(initialProfile)
-    setNotifications([])
-    setFavoriteIds(new Set())
   }
 
   // ── Item Actions ─────────────────────────────
-
-  function toggleFavorite(itemId: string) {
-    setFavoriteIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(itemId)) {
-        next.delete(itemId)
-      } else {
-        next.add(itemId)
-      }
-      return next
-    })
-  }
 
   async function addItem(draft: {
     title: string
@@ -312,7 +333,6 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
     price: string
     priceMode: string
     category: string
-    condition: string
     images: string[]
   }): Promise<string> {
     // 1. Create item via API
@@ -345,14 +365,6 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
     // 3. Refresh feed to get the new item with its uploaded images
     await refreshFeed()
 
-    // 4. Notification
-    addNotification(
-      'system',
-      'Listing Live! 🚀',
-      `Awesome! Your listing "${draft.title}" is now visible to other campus students.`,
-      newItemId
-    )
-
     return newItemId
   }
 
@@ -361,42 +373,77 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
     setItems(prev => prev.filter(i => i.id !== itemId))
   }
 
-  // ── Notification Actions ─────────────────────
+  async function updateItemDetails(itemId: string, fields: Partial<FeedItem>): Promise<void> {
+    const res = await apiPatch<ApiItem>(`/item/update/${itemId}`, {
+      title: fields.title,
+      description: fields.description,
+      price: fields.price?.replace('$', ''), // strip $ if present
+      category: fields.category,
+    })
+    const adapted = adaptApiItemToFeedItem(res)
+    setItems(prev => prev.map(i => i.id === itemId ? adapted : i))
+  }
 
-  function addNotification(
-    type: NotificationType,
-    title: string,
-    body: string,
-    targetId?: string,
-    senderName?: string,
-    senderInitials?: string
-  ) {
-    const newNotif: DormShareNotification = {
-      id: `notif-local-${Date.now()}`,
-      type,
-      title,
-      body,
-      timestamp: 'Just now',
-      isRead: false,
-      targetId,
-      senderName,
-      senderInitials,
+  async function toggleItemStatus(itemId: string): Promise<void> {
+    const res = await apiPatch<ApiItem>(`/item/status/update/${itemId}`)
+    const adapted = adaptApiItemToFeedItem(res)
+    setItems(prev => prev.map(i => i.id === itemId ? adapted : i))
+  }
+
+  async function createTransaction(chatId: string): Promise<ApiTransaction> {
+    // POST /transaction/create returns only { status, transaction_id }, not the full transaction object.
+    // We need to fetch the full transaction data after creation so the UI gets the correct status.
+    await apiPost<{ status: string; transaction_id: string }>(`/transaction/create/${chatId}`)
+    const result = await apiGet<{ status: string; transaction: ApiTransaction }>(`/transaction/by-chat/${chatId}`)
+    return result.transaction
+  }
+
+  async function getTransactionByChat(chatId: string): Promise<ApiTransaction | null> {
+    try {
+      const result = await apiGet<{ status: string; transaction: ApiTransaction }>(`/transaction/by-chat/${chatId}`)
+      return result.transaction
+    } catch {
+      return null
     }
-    setNotifications((prev) => [newNotif, ...prev])
   }
 
-  function markNotificationAsRead(id: string) {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-    )
+  async function approveTransaction(transactionId: string): Promise<ApiTransaction> {
+    await apiPatch<{ status: string; transaction_id: string }>(`/transaction/approve/${transactionId}`)
+    const result = await apiGet<{ status: string; transaction: ApiTransaction }>(`/transaction/get/${transactionId}`)
+    return result.transaction
   }
 
-  function markAllNotificationsAsRead() {
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
+  async function confirmTransaction(transactionId: string): Promise<ApiTransaction> {
+    await apiPatch<{ status: string }>(`/transaction/confirm/${transactionId}`)
+    const result = await apiGet<{ status: string; transaction: ApiTransaction }>(`/transaction/get/${transactionId}`)
+    return result.transaction
   }
 
-  function clearAllNotifications() {
-    setNotifications([])
+  async function cancelTransaction(transactionId: string): Promise<ApiTransaction> {
+    await apiPatch<{ status: string }>(`/transaction/cancel/${transactionId}`)
+    const result = await apiGet<{ status: string; transaction: ApiTransaction }>(`/transaction/get/${transactionId}`)
+    return result.transaction
+  }
+
+  async function submitReview(transactionId: string, rating: number, comment: string): Promise<void> {
+    await apiPost(`/review/post/${transactionId}`, {
+      stars_amount: rating,
+      text: comment,
+    })
+  }
+
+  async function fetchItemsByCategory(category: string): Promise<void> {
+    const apiItems = await apiGet<ApiItem[]>(`/item/category/${category}`)
+    const feedItems = apiItems.map(item => adaptApiItemToFeedItem(item))
+    setItems(feedItems)
+  }
+
+  async function deleteListingImage(imageId: string): Promise<void> {
+    await apiDelete(`/images/delete/${imageId}`)
+    setItems(prev => prev.map(item => ({
+      ...item,
+      images: item.images.filter(img => img.id !== imageId)
+    })))
   }
 
   // ── Profile Actions ─────────────────────────
@@ -409,6 +456,7 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
   // ── Chat Actions ─────────────────────────────
 
   function markChatAsRead(chatId: string) {
+    updateLastReadTimestamp(chatId)
     setChats(prevChats =>
       prevChats.map(chat => {
         if (chat.id === chatId) {
@@ -423,9 +471,21 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
   }
 
   async function startOrOpenChat(item: FeedItem): Promise<string> {
-    // Call API to create or get existing chat
-    const res = await apiPost<{ status: string; chat_id: string }>(`/chat/create/${item.id}`)
-    const chatId = res.chat_id
+    let chatId: string
+    try {
+      // Call API to create or get existing chat
+      const res = await apiPost<{ status: string; chat_id: string }>(`/chat/create/${item.id}`)
+      chatId = res.chat_id
+    } catch (err) {
+      // Purely frontend workaround: If backend fails (e.g. database constraint error
+      // because we already have an active chat with this seller), look for that existing
+      // chat session in our local state list and open it instead.
+      const existingUserChat = chats.find(c => c.participant.id === item.owner.id)
+      if (existingUserChat) {
+        return existingUserChat.id
+      }
+      throw err
+    }
 
     // Check if we already have this chat locally
     const existingChat = chats.find(c => c.id === chatId)
@@ -469,8 +529,8 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
     return chatId
   }
 
-  function sendMessage(chatId: string, content: string) {
-    // Optimistic local update — actual send happens via WebSocket in ChatDetailScreen
+  async function sendMessage(chatId: string, content: string) {
+    // Optimistic local update for instant UI feedback
     const timestamp = formatTimestamp()
     const newMessage: ChatMessage = {
       id: `msg-optimistic-${Date.now()}`,
@@ -491,6 +551,14 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
         return chat
       })
     )
+
+    // Send via REST API
+    try {
+      await apiPost(`/chat/messages/${chatId}`, { content })
+    } catch {
+      // If API fails, the optimistic message stays visible
+      // A future improvement could mark it as "failed"
+    }
   }
 
   /** Replace all messages for a chat (used when WebSocket sends history) */
@@ -520,6 +588,11 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
     )
   }
 
+  async function deleteChat(chatId: string): Promise<void> {
+    await apiDelete(`/chat/delete/${chatId}`)
+    setChats(prev => prev.filter(c => c.id !== chatId))
+  }
+
   return (
     <DormShareContext.Provider
       value={{
@@ -533,27 +606,30 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
         items,
         chats,
         currentUserProfile,
-        notifications,
-        notificationCount,
-        favoriteIds,
         typingStates,
         isInstallable,
         triggerInstallPrompt,
-        toggleFavorite,
         addItem,
         deleteItem,
         sendMessage,
         startOrOpenChat,
         updateProfile,
         markChatAsRead,
-        markNotificationAsRead,
-        markAllNotificationsAsRead,
-        clearAllNotifications,
-        addNotification,
         refreshFeed,
         refreshChats,
         addChatMessages,
         replaceChatMessages,
+        deleteChat,
+        updateItemDetails,
+        toggleItemStatus,
+        createTransaction,
+        getTransactionByChat,
+        approveTransaction,
+        confirmTransaction,
+        cancelTransaction,
+        submitReview,
+        fetchItemsByCategory,
+        deleteListingImage,
       }}
     >
       {children}

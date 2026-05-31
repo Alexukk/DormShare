@@ -8,8 +8,6 @@ import FeedScreen from './screens/FeedScreen/FeedScreen'
 import ProfileScreen from './screens/ProfileScreen/ProfileScreen'
 import SellScreen from './screens/SellScreen/SellScreen'
 import ListingDetailScreen from './screens/ListingDetailScreen/ListingDetailScreen'
-import NotificationDrawer from './components/NotificationDrawer/NotificationDrawer'
-
 type AppScreen = BottomNavItem | 'chat-detail' | 'listing-detail'
 
 function LoadingScreen() {
@@ -17,7 +15,7 @@ function LoadingScreen() {
     <main className="loading-screen" aria-label="Loading DormShare">
       <div className="loading-screen__content">
         <div className="loading-screen__logo">
-          <span className="material-symbols-rounded" aria-hidden="true">storefront</span>
+          <img src="/logo.png?v=3" alt="DormShare logo" className="loading-screen__logo-img" />
         </div>
         <h1>DormShare</h1>
         <div className="loading-screen__spinner" />
@@ -44,7 +42,6 @@ function AppShell() {
   const [activeScreen, setActiveScreen] = useState<AppScreen>('feed')
   const [selectedChatId, setSelectedChatId] = useState('')
   const [selectedListingId, setSelectedListingId] = useState('')
-  const [showNotificationDrawer, setShowNotificationDrawer] = useState(false)
   const { markChatAsRead } = useDormShare()
 
   useEffect(() => {
@@ -57,16 +54,6 @@ function AppShell() {
     window.addEventListener('open-listing-details', handleOpenListingEvent)
     return () => {
       window.removeEventListener('open-listing-details', handleOpenListingEvent)
-    }
-  }, [])
-
-  useEffect(() => {
-    const handleOpenNotifDrawer = () => {
-      setShowNotificationDrawer(true)
-    }
-    window.addEventListener('open-notification-drawer', handleOpenNotifDrawer)
-    return () => {
-      window.removeEventListener('open-notification-drawer', handleOpenNotifDrawer)
     }
   }, [])
 
@@ -116,14 +103,6 @@ function AppShell() {
 
       {activeScreen === 'feed' && (
         <FeedScreen onNavigate={handleNavigate} onOpenListing={handleOpenListing} />
-      )}
-
-      {showNotificationDrawer && (
-        <NotificationDrawer
-          onClose={() => setShowNotificationDrawer(false)}
-          onOpenListing={handleOpenListing}
-          onOpenChat={handleOpenChat}
-        />
       )}
     </>
   )

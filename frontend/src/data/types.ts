@@ -22,6 +22,7 @@ export type DormShareUser = {
   name: string
   initials: string
   isOnline: boolean
+  university?: string
 }
 
 export type ListingImage = {
@@ -43,6 +44,7 @@ export type FeedItem = {
   owner: DormShareUser
   images: ListingImage[]
   isNew?: boolean
+  reviews?: ApiReview[]
 }
 
 export type ChatTabId = 'all' | 'unread' | 'archived'
@@ -88,20 +90,6 @@ export type ProfileForm = {
   school: string
 }
 
-export type NotificationType = 'like' | 'message' | 'system' | 'offer'
-
-export type DormShareNotification = {
-  id: string
-  type: NotificationType
-  title: string
-  body: string
-  timestamp: string
-  isRead: boolean
-  targetId?: string
-  senderName?: string
-  senderInitials?: string
-}
-
 export interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[]
   readonly userChoice: Promise<{
@@ -141,6 +129,7 @@ export type ApiItem = {
   owner_id: string
   images: ApiImage[]
   reviews: ApiReview[]
+  owner_username?: string
 }
 
 /** Matches UserSend from PydenticModels.py */
@@ -173,4 +162,19 @@ export type ApiChat = {
   borrower_id: string
   item_id: string
   messages: ApiMessage[]
+}
+
+/** Matches Transaction model from backend */
+export type ApiTransaction = {
+  id: string
+  chat_id: string
+  item_id: string
+  lender_id: string
+  borrower_id: string
+  lender_confirmation: boolean
+  borrower_confirmation: boolean
+  status: 'pending' | 'active' | 'completing' | 'completed' | 'canceled'
+  review_id: string | null
+  created_at: string
+  completed_at: string | null
 }

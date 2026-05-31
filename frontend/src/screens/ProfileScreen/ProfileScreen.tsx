@@ -1,10 +1,9 @@
 import { useState, useMemo } from 'react'
 import type { BottomNavItem } from '../../components/BottomNav/BottomNav'
 import BottomNav from '../../components/BottomNav/BottomNav'
-import NotificationButton from '../../components/NotificationButton/NotificationButton'
 import { useDormShare } from '../../data/DormShareContext'
 import type { ProfileForm } from '../../data/types'
-import { getInitials } from '../../utils'
+import { getInitials, PLACEHOLDER_IMAGE } from '../../utils'
 import './ProfileScreen.css'
 
 type ProfileScreenProps = {
@@ -13,12 +12,11 @@ type ProfileScreenProps = {
 
 const listingTabs = [
   { id: 'all', label: 'All', icon: 'grid_view' },
-  { id: 'sold', label: 'Sold', icon: 'sell' },
   { id: 'rented', label: 'Rented', icon: 'schedule' },
 ]
 
 function ProfileScreen({ onNavigate }: ProfileScreenProps) {
-  const { items, currentUserProfile, updateProfile, notificationCount, isInstallable, triggerInstallPrompt, currentUserId } = useDormShare()
+  const { items, currentUserProfile, updateProfile, isInstallable, triggerInstallPrompt, currentUserId } = useDormShare()
   const [mode, setMode] = useState<'profile' | 'edit'>('profile')
   const [selectedTab, setSelectedTab] = useState('all')
 
@@ -27,10 +25,10 @@ function ProfileScreen({ onNavigate }: ProfileScreenProps) {
     return items.filter((item) => item.owner_id === currentUserId)
   }, [items, currentUserId])
 
-  // Filter listings based on tabs (Mock support: sold and rented are empty for now)
+  // Filter listings based on tabs (Mock support: rented is empty for now)
   const visibleMyItems = useMemo(() => {
-    if (selectedTab === 'sold' || selectedTab === 'rented') {
-      return [] // Pre-loaded sold/rented mock list is empty initially
+    if (selectedTab === 'rented') {
+      return [] // Pre-loaded rented mock list is empty initially
     }
     return myItems
   }, [myItems, selectedTab])
@@ -53,7 +51,6 @@ function ProfileScreen({ onNavigate }: ProfileScreenProps) {
     <main className="profile-screen" aria-label="Profile">
       <header className="profile-screen__header">
         <h1>Profile</h1>
-        <NotificationButton count={notificationCount} />
       </header>
 
       <section className="profile-screen__summary" aria-label="Profile summary">
@@ -111,7 +108,7 @@ function ProfileScreen({ onNavigate }: ProfileScreenProps) {
                 }}
               >
                 <img 
-                  src={item.images[0]?.photo_url} 
+                  src={item.images[0]?.photo_url || PLACEHOLDER_IMAGE} 
                   alt={item.title} 
                 />
                 <div className="profile-item-card__copy">
@@ -202,13 +199,7 @@ function EditProfileView({
       <section className="profile-screen__photo-editor" aria-label="Profile photo">
         <div className="profile-screen__photo-wrap">
           <ProfileAvatar size="edit" initials={getInitials(profile.name)} />
-          <button type="button" aria-label="Change profile photo" onClick={() => alert("Photo picker simulation: You can upload your profile photo here!")}>
-            <span className="material-symbols-rounded" aria-hidden="true">
-              photo_camera
-            </span>
-          </button>
         </div>
-        <button type="button" onClick={() => alert("Photo picker simulation: Choose your profile photo!")}>Change photo</button>
       </section>
 
       <section className="profile-screen__form" aria-label="Profile fields">
@@ -217,20 +208,6 @@ function EditProfileView({
           label="Name"
           value={profile.name}
           onChange={(value) => updateField('name', value)}
-        />
-        <EditField
-          icon="alternate_email"
-          label="Username"
-          value={profile.username}
-          onChange={(value) => updateField('username', value)}
-        />
-        <EditField
-          icon="edit"
-          label="Bio"
-          value={profile.bio}
-          placeholder="Tell others about yourself..."
-          maxLength={150}
-          onChange={(value) => updateField('bio', value)}
         />
         <EditField
           icon="mail"
@@ -248,12 +225,6 @@ function EditProfileView({
 
       <section className="profile-screen__account" aria-label="Account">
         <h2>Account</h2>
-        <AccountRow
-          icon="lock"
-          title="Change password"
-          body="Update your password"
-          onClick={() => alert("Simulation: Password reset link has been dispatched to your email address!")}
-        />
         <AccountRow
           icon="delete"
           title="Delete account"

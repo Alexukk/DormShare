@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react'
 import BottomNav, {
   type BottomNavItem,
 } from '../../components/BottomNav/BottomNav'
-import NotificationButton from '../../components/NotificationButton/NotificationButton'
 import SearchFilterBar from '../../components/SearchFilterBar/SearchFilterBar'
 import { useDormShare } from '../../data/DormShareContext'
 import type { ChatTabId, ChatSummary } from '../../data/types'
@@ -16,7 +15,6 @@ type ChatsScreenProps = {
 const chatTabs: Array<{ id: ChatTabId; label: string }> = [
   { id: 'all', label: 'All' },
   { id: 'unread', label: 'Unread' },
-  { id: 'archived', label: 'Archived' },
 ]
 
 const avatarColorClasses = [
@@ -31,7 +29,7 @@ const avatarColorClasses = [
 ]
 
 function ChatsScreen({ onNavigate, onOpenChat }: ChatsScreenProps) {
-  const { chats, notificationCount } = useDormShare()
+  const { chats } = useDormShare()
   const [selectedTab, setSelectedTab] = useState<ChatTabId>('all')
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -67,8 +65,7 @@ function ChatsScreen({ onNavigate, onOpenChat }: ChatsScreenProps) {
     return chatSummaries.filter((chat) => {
       const matchesTab =
         selectedTab === 'all' ||
-        (selectedTab === 'unread' && chat.unreadCount > 0) ||
-        (selectedTab === 'archived' && chat.isArchived)
+        (selectedTab === 'unread' && chat.unreadCount > 0)
 
       const matchesQuery =
         !normalizedQuery ||
@@ -77,10 +74,7 @@ function ChatsScreen({ onNavigate, onOpenChat }: ChatsScreenProps) {
           .toLowerCase()
           .includes(normalizedQuery)
 
-      // Archives should be hidden on "All" tab unless selected "Archived" specifically
-      const filterArchive = selectedTab === 'archived' ? chat.isArchived : !chat.isArchived
-
-      return matchesTab && matchesQuery && filterArchive
+      return matchesTab && matchesQuery
     })
   }, [chatSummaries, searchQuery, selectedTab])
 
@@ -88,7 +82,6 @@ function ChatsScreen({ onNavigate, onOpenChat }: ChatsScreenProps) {
     <main className="chats-screen" aria-label="DormShare chats">
       <header className="chats-screen__header">
         <h1>Chats</h1>
-        <NotificationButton count={notificationCount} />
       </header>
 
       <SearchFilterBar
@@ -138,9 +131,6 @@ function ChatsScreen({ onNavigate, onOpenChat }: ChatsScreenProps) {
                 aria-hidden="true"
               >
                 {chat.participant.initials}
-                {chat.participant.isOnline ? (
-                  <span className="chats-screen__online-dot" />
-                ) : null}
               </div>
 
               <div className="chats-screen__content">

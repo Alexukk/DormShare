@@ -1,7 +1,6 @@
 import { useMemo, useState, useRef } from 'react'
 import type { BottomNavItem } from '../../components/BottomNav/BottomNav'
 import BottomNav from '../../components/BottomNav/BottomNav'
-import NotificationButton from '../../components/NotificationButton/NotificationButton'
 import { useDormShare } from '../../data/DormShareContext'
 import './SellScreen.css'
 
@@ -17,7 +16,6 @@ type ListingDraft = {
   price: string
   priceMode: string
   category: string
-  condition: string
   images: string[] // Local object URLs or static SVGs
 }
 
@@ -30,13 +28,6 @@ const categoryOptions = [
   { id: 'sports', label: 'Sports Equipment', icon: 'sports_soccer' },
   { id: 'clothing', label: 'Clothing', icon: 'checkroom' },
   { id: 'other', label: 'Other', icon: 'more_horiz' },
-]
-
-const conditionOptions = [
-  { id: 'New', label: 'Brand New', subLabel: 'Unopened, original packaging' },
-  { id: 'Like New', label: 'Like New', subLabel: 'Excellent condition, minimal usage' },
-  { id: 'Good', label: 'Good', subLabel: 'Fully functional, minor cosmetic wear' },
-  { id: 'Fair', label: 'Fair', subLabel: 'Shows visible wear, but works fine' },
 ]
 
 const priceModeOptions = [
@@ -52,7 +43,6 @@ const initialDraft: ListingDraft = {
   price: '',
   priceMode: 'Price is negotiable',
   category: 'electronics',
-  condition: 'Good',
   images: [],
 }
 
@@ -67,13 +57,13 @@ function getStepIndex(step: SellStep) {
 }
 
 function SellScreen({ onNavigate }: SellScreenProps) {
-  const { addItem, notificationCount } = useDormShare()
+  const { addItem } = useDormShare()
   const [step, setStep] = useState<SellStep>('details')
   const [draft, setDraft] = useState<ListingDraft>(initialDraft)
   const [newPostedId, setNewPostedId] = useState('')
   const [isPosting, setIsPosting] = useState(false)
+  const [errors, setErrors] = useState<Record<string, boolean>>({})
 
-  const [showConditionSheet, setShowConditionSheet] = useState(false)
   const [showPriceModeSheet, setShowPriceModeSheet] = useState(false)
 
   const currentStepIndex = getStepIndex(step)
@@ -86,6 +76,34 @@ function SellScreen({ onNavigate }: SellScreenProps) {
 
   function updateDraft(field: keyof ListingDraft, value: string | string[]) {
     setDraft((currentDraft) => ({ ...currentDraft, [field]: value }))
+  }
+
+  function handleContinue() {
+    const nextErrors: Record<string, boolean> = {}
+    if (!draft.title.trim()) {
+      nextErrors.title = true
+    }
+    if (!draft.description.trim()) {
+      nextErrors.description = true
+    }
+    if (!draft.price.trim() && draft.priceMode !== 'Free / Giveaway') {
+      nextErrors.price = true
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors)
+      return
+    }
+
+    setStep('review')
+  }
+
+  function handleClearError(field: string) {
+    setErrors(prev => {
+      const next = { ...prev }
+      delete next[field]
+      return next
+    })
   }
 
   async function handlePost() {
@@ -115,7 +133,6 @@ function SellScreen({ onNavigate }: SellScreenProps) {
                 : ''}
           </p>
         </div>
-        <NotificationButton count={notificationCount} />
       </header>
 
       <SellProgress currentStepIndex={currentStepIndex} />
@@ -123,9 +140,10 @@ function SellScreen({ onNavigate }: SellScreenProps) {
       {step === 'details' ? (
         <DetailsStep
           draft={draft}
+          errors={errors}
           onUpdate={updateDraft}
-          onContinue={() => setStep('review')}
-          onOpenCondition={() => setShowConditionSheet(true)}
+          onClearError={handleClearError}
+          onContinue={handleContinue}
           onOpenPriceMode={() => setShowPriceModeSheet(true)}
         />
       ) : null}
@@ -159,39 +177,6 @@ function SellScreen({ onNavigate }: SellScreenProps) {
       ) : null}
 
       {/* 7. Bottom sheets overlays */}
-      {showConditionSheet && (
-        <div className="sell-sheet-backdrop" onClick={() => setShowConditionSheet(false)}>
-          <div className="sell-sheet" onClick={(e) => e.stopPropagation()}>
-            <div className="sell-sheet__header">
-              <h3>Select Condition</h3>
-              <button className="sell-sheet__close" onClick={() => setShowConditionSheet(false)}>
-                <span className="material-symbols-rounded">close</span>
-              </button>
-            </div>
-            <div className="sell-sheet__options">
-              {conditionOptions.map((opt) => (
-                <button
-                  key={opt.id}
-                  className={`sell-sheet__option ${draft.condition === opt.id ? 'sell-sheet__option--selected' : ''}`}
-                  onClick={() => {
-                    updateDraft('condition', opt.id)
-                    setShowConditionSheet(false)
-                  }}
-                >
-                  <span className="sell-sheet__option-icon">
-                    <span className="material-symbols-rounded">sell</span>
-                  </span>
-                  <div>
-                    <strong>{opt.label}</strong>
-                    <small>{opt.subLabel}</small>
-                  </div>
-                  <span className="material-symbols-rounded sell-sheet__option-check">check_circle</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
 
       {showPriceModeSheet && (
         <div className="sell-sheet-backdrop" onClick={() => setShowPriceModeSheet(false)}>
@@ -274,17 +259,19 @@ function SellProgress({ currentStepIndex }: ProgressProps) {
 
 type DetailsStepProps = {
   draft: ListingDraft
+  errors: Record<string, boolean>
   onUpdate: (field: keyof ListingDraft, value: string | string[]) => void
+  onClearError: (field: string) => void
   onContinue: () => void
-  onOpenCondition: () => void
   onOpenPriceMode: () => void
 }
 
 function DetailsStep({
   draft,
+  errors,
   onUpdate,
+  onClearError,
   onContinue,
-  onOpenCondition,
   onOpenPriceMode,
 }: DetailsStepProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -317,41 +304,53 @@ function DetailsStep({
     <section className="sell-screen__details" aria-label="Item details">
       <h2>Item details</h2>
 
-      <label className="sell-field">
+      <label className={`sell-field ${errors.title ? 'sell-field--error' : ''}`}>
         <span className="material-symbols-rounded" aria-hidden="true">
           sell
         </span>
         <input
           type="text"
           value={draft.title}
-          onChange={(event) => onUpdate('title', event.target.value)}
+          onChange={(event) => {
+            onUpdate('title', event.target.value)
+            onClearError('title')
+          }}
           maxLength={60}
-          placeholder="Item title"
+          placeholder="Item title *"
         />
       </label>
+      {errors.title && (
+        <span className="sell-screen__error-text">Title is required.</span>
+      )}
       <div className="sell-screen__field-help">
         <span></span>
         <span>{draft.title.length}/60</span>
       </div>
 
-      <label className="sell-field sell-field--textarea">
+      <label className={`sell-field sell-field--textarea ${errors.description ? 'sell-field--error' : ''}`}>
         <span className="material-symbols-rounded" aria-hidden="true">
           article
         </span>
         <textarea
           value={draft.description}
-          onChange={(event) => onUpdate('description', event.target.value)}
+          onChange={(event) => {
+            onUpdate('description', event.target.value)
+            onClearError('description')
+          }}
           maxLength={300}
-          placeholder="Description"
+          placeholder="Description *"
         />
       </label>
+      {errors.description && (
+        <span className="sell-screen__error-text">Description is required.</span>
+      )}
       <div className="sell-screen__field-help">
         <span></span>
         <span>{draft.description.length}/300</span>
       </div>
 
       <div className="sell-screen__price-row">
-        <label className="sell-field">
+        <label className={`sell-field ${errors.price ? 'sell-field--error' : ''}`}>
           <span className="material-symbols-rounded" aria-hidden="true">
             attach_money
           </span>
@@ -360,8 +359,11 @@ function DetailsStep({
             min="0"
             disabled={draft.priceMode === 'Free / Giveaway'}
             value={draft.price}
-            onChange={(event) => onUpdate('price', event.target.value)}
-            placeholder="Price"
+            onChange={(event) => {
+              onUpdate('price', event.target.value)
+              onClearError('price')
+            }}
+            placeholder={draft.priceMode === 'Free / Giveaway' ? 'Price' : 'Price *'}
           />
         </label>
         <button type="button" className="sell-screen__select-button" onClick={onOpenPriceMode}>
@@ -371,6 +373,9 @@ function DetailsStep({
           </span>
         </button>
       </div>
+      {errors.price && (
+        <span className="sell-screen__error-text">Price is required.</span>
+      )}
 
       <section className="sell-screen__section-block" aria-label="Photos">
         <h2>Photos</h2>
@@ -439,19 +444,6 @@ function DetailsStep({
         </div>
       </section>
 
-      <button type="button" className="sell-screen__condition" onClick={onOpenCondition}>
-        <span className="material-symbols-rounded" aria-hidden="true">
-          sell
-        </span>
-        <span>
-          <strong>Condition: {draft.condition}</strong>
-          <small>Tap to change condition of your item</small>
-        </span>
-        <span className="material-symbols-rounded" aria-hidden="true">
-          chevron_right
-        </span>
-      </button>
-
       <button type="button" className="sell-screen__primary" onClick={onContinue}>
         Continue
       </button>
@@ -499,7 +491,6 @@ function ReviewStep({ draft, categoryLabel, onEdit, onPost, isPosting }: ReviewS
       <section className="sell-card" aria-label="Listing details">
         <h2>Listing details</h2>
         <DetailRow icon="sell" label="Category" value={categoryLabel} />
-        <DetailRow icon="sell" label="Condition" value={draft.condition} />
         <DetailRow
           icon="attach_money"
           label="Price"
@@ -515,7 +506,7 @@ function ReviewStep({ draft, categoryLabel, onEdit, onPost, isPosting }: ReviewS
           <h2>Tips for a great listing</h2>
           <ul>
             <li>Clear photos from multiple angles</li>
-            <li>Accurate description and condition</li>
+            <li>Accurate, helpful description</li>
             <li>Respond to messages quickly</li>
           </ul>
         </div>
@@ -571,7 +562,6 @@ function PostedStep({ draft, categoryLabel, onOpenPostedListing }: PostedStepPro
             <h3>{draft.title}</h3>
             <strong>${draft.price || '0'}</strong>
             <IconLine icon="sell" text={categoryLabel} />
-            <IconLine icon="auto_awesome" text={draft.condition} />
             <IconLine icon="paid" text={draft.priceMode} />
           </div>
         </div>
