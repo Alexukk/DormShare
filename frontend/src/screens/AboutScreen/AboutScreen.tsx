@@ -29,7 +29,7 @@ function AboutScreen({ onBack, onNavigate }: AboutScreenProps) {
       {/* Brand Header Card */}
       <section className="about-screen__brand-card" aria-label="Brand introduction">
         <div className="about-screen__logo-container">
-          <img src="/logo.png?v=3" alt="DormShare logo" className="about-screen__logo-img" />
+          <img src="/logo.png?v=4" alt="DormShare logo" className="about-screen__logo-img" />
         </div>
         <h2>DormShare</h2>
         

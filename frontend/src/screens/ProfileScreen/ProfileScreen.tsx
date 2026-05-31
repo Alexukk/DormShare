@@ -61,6 +61,16 @@ function ProfileScreen({ onNavigate }: ProfileScreenProps) {
     <main className="profile-screen" aria-label="Profile">
       <header className="profile-screen__header">
         <h1>Profile</h1>
+        <button
+          type="button"
+          className="profile-screen__info-btn"
+          onClick={() => setMode('about')}
+          aria-label="About DormShare"
+        >
+          <span className="material-symbols-rounded" aria-hidden="true">
+            info
+          </span>
+        </button>
       </header>
 
       <section className="profile-screen__summary" aria-label="Profile summary">
@@ -82,22 +92,6 @@ function ProfileScreen({ onNavigate }: ProfileScreenProps) {
           </span>
         </span>
         <span>Edit profile</span>
-        <span className="material-symbols-rounded" aria-hidden="true">
-          chevron_right
-        </span>
-      </button>
-
-      <button
-        type="button"
-        className="profile-row profile-row--about"
-        onClick={() => setMode('about')}
-      >
-        <span className="profile-row__icon">
-          <span className="material-symbols-rounded" aria-hidden="true">
-            info
-          </span>
-        </span>
-        <span>About DormShare</span>
         <span className="material-symbols-rounded" aria-hidden="true">
           chevron_right
         </span>
