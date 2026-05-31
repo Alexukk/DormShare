@@ -170,6 +170,24 @@ function ImageLightbox({ images, startIndex, onClose }: LightboxProps) {
 
 /* ── Main Screen ────────────────────────── */
 
+const formatUniversityName = (name?: string): string => {
+  if (!name) return 'North Campus'
+  
+  // Strip parentheses and Cyrillic/translation text inside
+  let cleaned = name.split('(')[0].trim()
+  
+  // Simplify common long academic titles
+  cleaned = cleaned.replace(/National University of Science and Technology/gi, 'NUST')
+  cleaned = cleaned.replace(/National University of/gi, 'National Uni of')
+  cleaned = cleaned.replace(/State University of/gi, 'State Uni of')
+  cleaned = cleaned.replace(/University of Michigan/gi, 'U of Michigan')
+  
+  if (cleaned.length > 36) {
+    return cleaned.substring(0, 33) + '...'
+  }
+  return cleaned
+}
+
 function ListingDetailScreen({
   listingId,
   onBack,
@@ -506,7 +524,12 @@ function ListingDetailScreen({
           <h1>{item.title}</h1>
           <div className="listing-detail-screen__price-row">
             <strong className="listing-detail-screen__price">{item.price}</strong>
-            <span className="listing-detail-screen__trade-type">{item.trade_type}</span>
+            <span className={`listing-detail-screen__trade-badge listing-detail-screen__trade-badge--${item.trade_type.toLowerCase().includes('barter') ? 'barter' : 'standard'}`}>
+              <span className="material-symbols-rounded" aria-hidden="true">
+                {item.trade_type.toLowerCase().includes('barter') ? 'sync_alt' : 'payments'}
+              </span>
+              <span>{item.trade_type}</span>
+            </span>
           </div>
         </div>
 
@@ -515,16 +538,25 @@ function ListingDetailScreen({
           <div className="listing-detail-screen__seller-avatar" aria-hidden="true">
             {resolvedOwner.initials}
           </div>
-          <div className="listing-detail-screen__seller-info">
-            <h2>{resolvedOwner.name}</h2>
-            <p>Member</p>
+          
+          <div className="listing-detail-screen__seller-body">
+            <div className="listing-detail-screen__seller-main">
+              <h2>{resolvedOwner.name}</h2>
+            </div>
+            
+            <div className="listing-detail-screen__seller-divider" />
+            
+            <div className="listing-detail-screen__seller-uni">
+              <span className="material-symbols-rounded" aria-hidden="true">
+                school
+              </span>
+              <span>{formatUniversityName(resolvedOwner.university)}</span>
+            </div>
           </div>
-          <div className="listing-detail-screen__seller-meta">
-            <span className="material-symbols-rounded" aria-hidden="true">
-              school
-            </span>
-            <span>{resolvedOwner.university || 'U of M'}</span>
-          </div>
+          
+          <span className="material-symbols-rounded listing-detail-screen__seller-chevron" aria-hidden="true">
+            chevron_right
+          </span>
         </section>
 
         {/* 4. Product Description */}
@@ -542,7 +574,7 @@ function ListingDetailScreen({
               </span>
               <span>Campus Location</span>
             </div>
-            <strong>{resolvedOwner.university || 'North Campus Union'}</strong>
+            <strong>{formatUniversityName(resolvedOwner.university)}</strong>
           </div>
           <div className="listing-detail-screen__spec-row">
             <div className="listing-detail-screen__spec-label">
