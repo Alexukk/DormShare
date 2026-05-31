@@ -131,9 +131,6 @@ function ChatsScreen({ onNavigate, onOpenChat }: ChatsScreenProps) {
                 aria-hidden="true"
               >
                 {chat.participant.initials}
-                {chat.participant.isOnline ? (
-                  <span className="chats-screen__online-dot" />
-                ) : null}
               </div>
 
               <div className="chats-screen__content">

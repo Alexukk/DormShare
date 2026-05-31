@@ -14,11 +14,13 @@ type ChatDetailScreenProps = {
 }
 
 function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
-  const { chats, currentUserId, replaceChatMessages, addChatMessages } = useDormShare()
+  const { chats, currentUserId, replaceChatMessages, addChatMessages, deleteChat, markChatAsRead } = useDormShare()
   const [draft, setDraft] = useState('')
   const [isSending, setIsSending] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const lastPollTimestampRef = useRef<string | null>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   // Stable refs so effects don't re-trigger on every render
   const replaceChatMessagesRef = useRef(replaceChatMessages)
@@ -27,6 +29,35 @@ function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
   addChatMessagesRef.current = addChatMessages
   const currentUserIdRef = useRef(currentUserId)
   currentUserIdRef.current = currentUserId
+  const markChatAsReadRef = useRef(markChatAsRead)
+  markChatAsReadRef.current = markChatAsRead
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  async function handleDeleteChat() {
+    if (!chatId) return
+    const confirmDelete = window.confirm(
+      'Are you sure you want to delete this chat? This will remove all messages from your inbox.'
+    )
+    if (!confirmDelete) return
+
+    try {
+      await deleteChat(chatId)
+      onBack()
+    } catch {
+      alert('Failed to delete chat. Please try again.')
+    }
+  }
 
   const chat = chats.find((c) => c.id === chatId)
   const messages = chat?.messages ?? []
@@ -80,6 +111,7 @@ function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
             adaptWsMessageToChatMessage(m, currentUserIdRef.current)
           )
           addChatMessagesRef.current(chatId, adapted)
+          markChatAsReadRef.current(chatId) // Keep last read timestamp current since user is actively viewing this screen!
 
           // Update last timestamp
           lastPollTimestampRef.current = res.messages[res.messages.length - 1].timestamp
@@ -174,23 +206,38 @@ function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
         <div className="chat-detail__identity">
           <div className="chat-detail__avatar" aria-hidden="true">
             {chat.participant.initials}
-            <span className="chat-detail__online-dot" />
           </div>
           <div>
             <h1>{chat.participant.name}</h1>
-            <p>Online</p>
           </div>
         </div>
 
-        <button
-          type="button"
-          className="chat-detail__menu"
-          aria-label="Conversation actions"
-        >
-          <span className="material-symbols-rounded" aria-hidden="true">
-            more_horiz
-          </span>
-        </button>
+        <div className="chat-detail__menu-container" ref={menuRef}>
+          <button
+            type="button"
+            className="chat-detail__menu"
+            aria-label="Conversation actions"
+            onClick={() => setIsMenuOpen(prev => !prev)}
+          >
+            <span className="material-symbols-rounded" aria-hidden="true">
+              more_horiz
+            </span>
+          </button>
+          {isMenuOpen && (
+            <div className="chat-detail__dropdown">
+              <button
+                type="button"
+                className="chat-detail__dropdown-item chat-detail__dropdown-item--danger"
+                onClick={handleDeleteChat}
+              >
+                <span className="material-symbols-rounded" aria-hidden="true">
+                  delete
+                </span>
+                Delete Chat
+              </button>
+            </div>
+          )}
+        </div>
       </header>
 
       {chat.listing.image.photo_url && (

@@ -175,10 +175,17 @@ function ListingDetailScreen({
   onBack,
   onOpenChat,
 }: ListingDetailScreenProps) {
-  const { items, startOrOpenChat } = useDormShare()
+  const { items, startOrOpenChat, currentUserId, deleteItem, updateItemDetails, toggleItemStatus } = useDormShare()
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [seller, setSeller] = useState<DormShareUser | null>(null)
+
+  const [isEditing, setIsEditing] = useState(false)
+  const [editTitle, setEditTitle] = useState('')
+  const [editDescription, setEditDescription] = useState('')
+  const [editPrice, setEditPrice] = useState('')
+  const [editCategory, setEditCategory] = useState('')
+  const [editErrors, setEditErrors] = useState<Record<string, boolean>>({})
 
   const item = items.find((i) => i.id === listingId)
 
@@ -246,6 +253,179 @@ function ListingDetailScreen({
         alert('Failed to start chat. Please try again.')
       }
     }
+  }
+
+  function handleStartEditing() {
+    if (!item) return
+    setEditTitle(item.title)
+    setEditDescription(item.description)
+    setEditPrice(item.price.replace('$', ''))
+    setEditCategory(item.category)
+    setEditErrors({})
+    setIsEditing(true)
+  }
+
+  async function handleSaveChanges() {
+    if (!item) return
+    const nextErrors: Record<string, boolean> = {}
+    if (!editTitle.trim()) nextErrors.title = true
+    if (!editDescription.trim()) nextErrors.description = true
+    if (!editPrice.trim()) nextErrors.price = true
+
+    if (Object.keys(nextErrors).length > 0) {
+      setEditErrors(nextErrors)
+      return
+    }
+
+    try {
+      await updateItemDetails(item.id, {
+        title: editTitle,
+        description: editDescription,
+        price: editPrice,
+        category: editCategory as any,
+      })
+      setIsEditing(false)
+    } catch {
+      alert('Failed to save changes. Please try again.')
+    }
+  }
+
+  async function handleToggleStatus() {
+    if (!item) return
+    try {
+      await toggleItemStatus(item.id)
+    } catch {
+      alert('Failed to update status. Please try again.')
+    }
+  }
+
+  async function handleDelete() {
+    if (!item) return
+    const confirmDelete = window.confirm('Are you sure you want to delete this listing? This action cannot be undone.')
+    if (!confirmDelete) return
+    try {
+      await deleteItem(item.id)
+      onBack()
+    } catch {
+      alert('Failed to delete listing. Please try again.')
+    }
+  }
+
+  if (isEditing) {
+    return (
+      <main className="listing-detail-screen listing-detail-screen--editing" aria-label={`Editing ${item.title}`}>
+        <header className="listing-detail-screen__edit-header">
+          <button
+            type="button"
+            className="listing-detail-screen__circle-btn"
+            onClick={() => setIsEditing(false)}
+            aria-label="Cancel editing"
+          >
+            <span className="material-symbols-rounded" aria-hidden="true">
+              close
+            </span>
+          </button>
+          <h1>Edit Listing</h1>
+        </header>
+
+        <section className="listing-detail-screen__edit-form">
+          <label className={`sell-field ${editErrors.title ? 'sell-field--error' : ''}`}>
+            <span className="material-symbols-rounded" aria-hidden="true">
+              sell
+            </span>
+            <input
+              type="text"
+              value={editTitle}
+              onChange={(e) => {
+                setEditTitle(e.target.value)
+                setEditErrors(prev => ({ ...prev, title: false }))
+              }}
+              maxLength={60}
+              placeholder="Item title *"
+            />
+          </label>
+          {editErrors.title && (
+            <span className="sell-screen__error-text">Title is required.</span>
+          )}
+
+          <label className={`sell-field sell-field--textarea ${editErrors.description ? 'sell-field--error' : ''}`}>
+            <span className="material-symbols-rounded" aria-hidden="true">
+              article
+            </span>
+            <textarea
+              value={editDescription}
+              onChange={(e) => {
+                setEditDescription(e.target.value)
+                setEditErrors(prev => ({ ...prev, description: false }))
+              }}
+              maxLength={300}
+              placeholder="Description *"
+            />
+          </label>
+          {editErrors.description && (
+            <span className="sell-screen__error-text">Description is required.</span>
+          )}
+
+          <label className={`sell-field ${editErrors.price ? 'sell-field--error' : ''}`}>
+            <span className="material-symbols-rounded" aria-hidden="true">
+              attach_money
+            </span>
+            <input
+              type="number"
+              min="0"
+              value={editPrice}
+              onChange={(e) => {
+                setEditPrice(e.target.value)
+                setEditErrors(prev => ({ ...prev, price: false }))
+              }}
+              placeholder="Price *"
+            />
+          </label>
+          {editErrors.price && (
+            <span className="sell-screen__error-text">Price is required.</span>
+          )}
+
+          <section className="sell-screen__section-block" aria-label="Category">
+            <h2>Category</h2>
+            <div className="sell-screen__categories">
+              {[
+                { id: 'electronics', label: 'Electronics', icon: 'desktop_windows' },
+                { id: 'furniture', label: 'Furniture', icon: 'chair' },
+                { id: 'books', label: 'Books', icon: 'menu_book' },
+                { id: 'appliances', label: 'Appliances', icon: 'kitchen' },
+                { id: 'food', label: 'Food', icon: 'restaurant' },
+                { id: 'sports', label: 'Sports Equipment', icon: 'sports_soccer' },
+                { id: 'clothing', label: 'Clothing', icon: 'checkroom' },
+                { id: 'other', label: 'Other', icon: 'more_horiz' },
+              ].map((category) => (
+                <button
+                  key={category.id}
+                  type="button"
+                  className="sell-screen__category-chip"
+                  aria-pressed={editCategory === category.id}
+                  onClick={() => setEditCategory(category.id)}
+                >
+                  <span className="material-symbols-rounded" aria-hidden="true">
+                    {category.icon}
+                  </span>
+                  <span>{category.label}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        </section>
+
+        <footer className="listing-detail-screen__action-bar listing-detail-screen__action-bar--editing">
+          <button
+            type="button"
+            className="listing-detail-screen__save-btn"
+            onClick={handleSaveChanges}
+          >
+            Save Changes
+          </button>
+        </footer>
+      </main>
+    )
   }
 
   return (
@@ -319,6 +499,9 @@ function ListingDetailScreen({
             {item.isNew ? (
               <span className="listing-detail-screen__badge">NEW</span>
             ) : null}
+            {!item.is_available ? (
+              <span className="listing-detail-screen__badge listing-detail-screen__badge--sold">SOLD</span>
+            ) : null}
           </div>
           <h1>{item.title}</h1>
           <div className="listing-detail-screen__price-row">
@@ -331,13 +514,10 @@ function ListingDetailScreen({
         <section className="listing-detail-screen__seller" aria-label="Seller details">
           <div className="listing-detail-screen__seller-avatar" aria-hidden="true">
             {resolvedOwner.initials}
-            {resolvedOwner.isOnline ? (
-              <span className="listing-detail-screen__online-dot" />
-            ) : null}
           </div>
           <div className="listing-detail-screen__seller-info">
             <h2>{resolvedOwner.name}</h2>
-            <p>{resolvedOwner.isOnline ? 'Online now' : 'Active today'}</p>
+            <p>Member</p>
           </div>
           <div className="listing-detail-screen__seller-meta">
             <span className="material-symbols-rounded" aria-hidden="true">
@@ -387,16 +567,52 @@ function ListingDetailScreen({
 
       {/* 6. Floating Action Bottom Drawer */}
       <footer className="listing-detail-screen__action-bar">
-        <button
-          type="button"
-          className="listing-detail-screen__chat-btn"
-          onClick={handleStartChat}
-        >
-          <span className="material-symbols-rounded" aria-hidden="true">
-            chat_bubble
-          </span>
-          <span>Chat with Seller</span>
-        </button>
+        {currentUserId === item.owner_id ? (
+          <div className="listing-detail-screen__owner-actions">
+            <button
+              type="button"
+              className="listing-detail-screen__owner-btn"
+              onClick={handleStartEditing}
+            >
+              <span className="material-symbols-rounded" aria-hidden="true">
+                edit
+              </span>
+              <span>Edit</span>
+            </button>
+            <button
+              type="button"
+              className="listing-detail-screen__owner-btn listing-detail-screen__status-btn"
+              onClick={handleToggleStatus}
+            >
+              <span className="material-symbols-rounded" aria-hidden="true">
+                {item.is_available ? 'unpublished' : 'check_circle'}
+              </span>
+              <span>{item.is_available ? 'Mark Sold' : 'Make Active'}</span>
+            </button>
+            <button
+              type="button"
+              className="listing-detail-screen__owner-btn listing-detail-screen__delete-btn"
+              onClick={handleDelete}
+            >
+              <span className="material-symbols-rounded" aria-hidden="true">
+                delete
+              </span>
+              <span>Delete</span>
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            className="listing-detail-screen__chat-btn"
+            onClick={handleStartChat}
+            disabled={!item.is_available}
+          >
+            <span className="material-symbols-rounded" aria-hidden="true">
+              chat_bubble
+            </span>
+            <span>{item.is_available ? 'Chat with Seller' : 'Listing Sold'}</span>
+          </button>
+        )}
       </footer>
     </main>
   )

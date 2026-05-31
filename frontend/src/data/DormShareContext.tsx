@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react'
 import type {
   FeedItem,
   ChatDetail,
@@ -17,7 +17,7 @@ import {
   apiUserToUiUser,
   placeholderUser,
 } from './apiAdapters'
-import { apiGet, apiPost, apiPostFormData, apiDelete, ApiError } from './apiClient'
+import { apiGet, apiPost, apiPatch, apiPostFormData, apiDelete, ApiError } from './apiClient'
 import { login as authLogin, register as authRegister, logout as authLogout, isAuthenticated as checkAuth } from './authService'
 import { capitalize, formatTimestamp } from '../utils'
 
@@ -57,6 +57,9 @@ export type DormShareContextType = {
   refreshChats: () => Promise<void>
   addChatMessages: (chatId: string, messages: ChatMessage[]) => void
   replaceChatMessages: (chatId: string, messages: ChatMessage[]) => void
+  deleteChat: (chatId: string) => Promise<void>
+  updateItemDetails: (itemId: string, fields: Partial<FeedItem>) => Promise<void>
+  toggleItemStatus: (itemId: string) => Promise<void>
 }
 
 const DormShareContext = createContext<DormShareContextType | undefined>(undefined)
@@ -79,6 +82,28 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
   const [chats, setChats] = useState<ChatDetail[]>([])
   const [currentUserProfile, setCurrentUserProfile] = useState<ProfileForm>(initialProfile)
   const [typingStates] = useState<Record<string, boolean>>({})
+
+  // Workaround: track local read timestamps to override is_viewed status
+  const [lastReadTimestamps, setLastReadTimestamps] = useState<Record<string, number>>(() => {
+    try {
+      const saved = localStorage.getItem('dormshare_read_timestamps')
+      return saved ? JSON.parse(saved) : {}
+    } catch {
+      return {}
+    }
+  })
+
+  const lastReadTimestampsRef = useRef(lastReadTimestamps)
+  lastReadTimestampsRef.current = lastReadTimestamps
+
+  const updateLastReadTimestamp = useCallback((chatId: string) => {
+    const now = Date.now()
+    setLastReadTimestamps(prev => {
+      const next = { ...prev, [chatId]: now }
+      localStorage.setItem('dormshare_read_timestamps', JSON.stringify(next))
+      return next
+    })
+  }, [])
 
   // PWA Install States
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
@@ -188,7 +213,22 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
           // keep placeholder
         }
 
-        chatDetails.push(adaptApiChatToChatDetail(apiChat, currentUserId, otherUser, itemSummary))
+        const adapted = adaptApiChatToChatDetail(apiChat, currentUserId, otherUser, itemSummary)
+        
+        // Purely frontend workaround: force messages sent before our last read timestamp to status: 'read'
+        const lastReadTime = lastReadTimestampsRef.current[apiChat.id] || 0
+        adapted.messages = adapted.messages.map(msg => {
+          if (msg.sender === 'them' && msg.status !== 'read') {
+            const apiMsg = apiChat.messages.find(m => m.id === msg.id)
+            const msgTime = apiMsg ? new Date(apiMsg.timestamp).getTime() : 0
+            if (msgTime <= lastReadTime) {
+              return { ...msg, status: 'read' as const }
+            }
+          }
+          return msg
+        })
+
+        chatDetails.push(adapted)
       }
 
       setChats(chatDetails)
@@ -226,11 +266,19 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
     return () => { cancelled = true }
   }, [isAuthenticated, loadProfile, refreshFeed])
 
-  // Load chats once currentUserId is available
+  // Load chats once currentUserId is available, and poll periodically
   useEffect(() => {
-    if (currentUserId && isAuthenticated) {
+    if (!currentUserId || !isAuthenticated) return
+
+    // Load instantly
+    refreshChats()
+
+    // Poll every 5 seconds for new chats and conversation updates
+    const intervalId = setInterval(() => {
       refreshChats()
-    }
+    }, 5000)
+
+    return () => clearInterval(intervalId)
   }, [currentUserId, isAuthenticated, refreshChats])
 
   // ── Auth Actions ─────────────────────────────
@@ -316,6 +364,23 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
     setItems(prev => prev.filter(i => i.id !== itemId))
   }
 
+  async function updateItemDetails(itemId: string, fields: Partial<FeedItem>): Promise<void> {
+    const res = await apiPatch<ApiItem>(`/item/update/${itemId}`, {
+      title: fields.title,
+      description: fields.description,
+      price: fields.price?.replace('$', ''), // strip $ if present
+      category: fields.category,
+    })
+    const adapted = adaptApiItemToFeedItem(res)
+    setItems(prev => prev.map(i => i.id === itemId ? adapted : i))
+  }
+
+  async function toggleItemStatus(itemId: string): Promise<void> {
+    const res = await apiPatch<ApiItem>(`/item/status/update/${itemId}`)
+    const adapted = adaptApiItemToFeedItem(res)
+    setItems(prev => prev.map(i => i.id === itemId ? adapted : i))
+  }
+
   // ── Profile Actions ─────────────────────────
 
   function updateProfile(fields: Partial<ProfileForm>) {
@@ -326,6 +391,7 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
   // ── Chat Actions ─────────────────────────────
 
   function markChatAsRead(chatId: string) {
+    updateLastReadTimestamp(chatId)
     setChats(prevChats =>
       prevChats.map(chat => {
         if (chat.id === chatId) {
@@ -445,6 +511,11 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
     )
   }
 
+  async function deleteChat(chatId: string): Promise<void> {
+    await apiDelete(`/chat/delete/${chatId}`)
+    setChats(prev => prev.filter(c => c.id !== chatId))
+  }
+
   return (
     <DormShareContext.Provider
       value={{
@@ -471,6 +542,9 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
         refreshChats,
         addChatMessages,
         replaceChatMessages,
+        deleteChat,
+        updateItemDetails,
+        toggleItemStatus,
       }}
     >
       {children}

@@ -5,6 +5,12 @@
   border-radius: var(--listing-card-radius);
   background: var(--color-surface);
   box-shadow: var(--shadow-card);
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.listing-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
 }
 
 .listing-card__media {
@@ -19,6 +25,11 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.listing-card:hover .listing-card__image {
+  transform: scale(1.05);
 }
 
 .listing-card__flag {
@@ -112,5 +123,61 @@
   .listing-card__seller {
     grid-template-columns: auto minmax(0, 1fr);
     gap: var(--space-6);
+  }
+}
+
+/* Sold State Styling */
+.listing-card--sold {
+  cursor: pointer; /* Keep pointer so user can still tap/click to view sold item details */
+}
+
+.listing-card--sold .listing-card__image {
+  filter: grayscale(15%) brightness(85%);
+}
+
+.listing-card--sold .listing-card__body {
+  opacity: 0.85;
+}
+
+/* Sold Overlay */
+.listing-card__sold-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 2;
+  animation: fadeInOverlay 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.listing-card__sold-badge {
+  font-family: 'Outfit', 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--color-surface);
+  background: linear-gradient(135deg, #ff3b30, #e02b20);
+  padding: 8px 18px;
+  border-radius: var(--radius-pill);
+  letter-spacing: 2px;
+  box-shadow: 0 8px 20px rgba(255, 59, 48, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transform: scale(1);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+}
+
+.listing-card:hover .listing-card__sold-badge {
+  transform: scale(1.08);
+  box-shadow: 0 12px 28px rgba(255, 59, 48, 0.6);
+}
+
+@keyframes fadeInOverlay {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }

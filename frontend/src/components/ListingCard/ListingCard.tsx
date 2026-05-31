@@ -16,13 +16,18 @@ function ListingCard({
 
   return (
     <article 
-      className="listing-card" 
+      className={`listing-card ${!item.is_available ? 'listing-card--sold' : ''}`} 
       onClick={onClick} 
       style={{ cursor: onClick ? 'pointer' : 'default' }}
     >
       <div className="listing-card__media">
         <img src={photoUrl} alt={altText} className="listing-card__image" />
         {item.isNew ? <span className="listing-card__flag">NEW</span> : null}
+        {!item.is_available && (
+          <div className="listing-card__sold-overlay">
+            <span className="listing-card__sold-badge">SOLD</span>
+          </div>
+        )}
       </div>
 
       <div className="listing-card__body">

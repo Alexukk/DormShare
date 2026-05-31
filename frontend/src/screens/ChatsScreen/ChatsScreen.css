@@ -160,17 +160,6 @@
   color: #e67e00;
 }
 
-.chats-screen__online-dot {
-  position: absolute;
-  right: 4px;
-  bottom: 7px;
-  width: var(--chat-online-dot-size);
-  height: var(--chat-online-dot-size);
-  border: 3px solid var(--color-bg);
-  border-radius: var(--radius-pill);
-  background: var(--color-success);
-}
-
 .chats-screen__content {
   min-width: 0;
 }
