@@ -9,6 +9,7 @@ import type {
   ApiItem,
   ApiUser,
   ApiChat,
+  ApiTransaction,
 } from './types'
 import {
   adaptApiItemToFeedItem,
@@ -60,6 +61,14 @@ export type DormShareContextType = {
   deleteChat: (chatId: string) => Promise<void>
   updateItemDetails: (itemId: string, fields: Partial<FeedItem>) => Promise<void>
   toggleItemStatus: (itemId: string) => Promise<void>
+  createTransaction: (chatId: string) => Promise<ApiTransaction>
+  getTransactionByChat: (chatId: string) => Promise<ApiTransaction | null>
+  approveTransaction: (transactionId: string) => Promise<ApiTransaction>
+  confirmTransaction: (transactionId: string) => Promise<ApiTransaction>
+  cancelTransaction: (transactionId: string) => Promise<ApiTransaction>
+  submitReview: (transactionId: string, rating: number, comment: string) => Promise<void>
+  fetchItemsByCategory: (category: string) => Promise<void>
+  deleteListingImage: (imageId: string) => Promise<void>
 }
 
 const DormShareContext = createContext<DormShareContextType | undefined>(undefined)
@@ -381,6 +390,62 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
     setItems(prev => prev.map(i => i.id === itemId ? adapted : i))
   }
 
+  async function createTransaction(chatId: string): Promise<ApiTransaction> {
+    // POST /transaction/create returns only { status, transaction_id }, not the full transaction object.
+    // We need to fetch the full transaction data after creation so the UI gets the correct status.
+    await apiPost<{ status: string; transaction_id: string }>(`/transaction/create/${chatId}`)
+    const result = await apiGet<{ status: string; transaction: ApiTransaction }>(`/transaction/by-chat/${chatId}`)
+    return result.transaction
+  }
+
+  async function getTransactionByChat(chatId: string): Promise<ApiTransaction | null> {
+    try {
+      const result = await apiGet<{ status: string; transaction: ApiTransaction }>(`/transaction/by-chat/${chatId}`)
+      return result.transaction
+    } catch {
+      return null
+    }
+  }
+
+  async function approveTransaction(transactionId: string): Promise<ApiTransaction> {
+    await apiPatch<{ status: string; transaction_id: string }>(`/transaction/approve/${transactionId}`)
+    const result = await apiGet<{ status: string; transaction: ApiTransaction }>(`/transaction/get/${transactionId}`)
+    return result.transaction
+  }
+
+  async function confirmTransaction(transactionId: string): Promise<ApiTransaction> {
+    await apiPatch<{ status: string }>(`/transaction/confirm/${transactionId}`)
+    const result = await apiGet<{ status: string; transaction: ApiTransaction }>(`/transaction/get/${transactionId}`)
+    return result.transaction
+  }
+
+  async function cancelTransaction(transactionId: string): Promise<ApiTransaction> {
+    await apiPatch<{ status: string }>(`/transaction/cancel/${transactionId}`)
+    const result = await apiGet<{ status: string; transaction: ApiTransaction }>(`/transaction/get/${transactionId}`)
+    return result.transaction
+  }
+
+  async function submitReview(transactionId: string, rating: number, comment: string): Promise<void> {
+    await apiPost(`/review/post/${transactionId}`, {
+      stars_amount: rating,
+      text: comment,
+    })
+  }
+
+  async function fetchItemsByCategory(category: string): Promise<void> {
+    const apiItems = await apiGet<ApiItem[]>(`/item/category/${category}`)
+    const feedItems = apiItems.map(item => adaptApiItemToFeedItem(item))
+    setItems(feedItems)
+  }
+
+  async function deleteListingImage(imageId: string): Promise<void> {
+    await apiDelete(`/images/delete/${imageId}`)
+    setItems(prev => prev.map(item => ({
+      ...item,
+      images: item.images.filter(img => img.id !== imageId)
+    })))
+  }
+
   // ── Profile Actions ─────────────────────────
 
   function updateProfile(fields: Partial<ProfileForm>) {
@@ -406,9 +471,21 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
   }
 
   async function startOrOpenChat(item: FeedItem): Promise<string> {
-    // Call API to create or get existing chat
-    const res = await apiPost<{ status: string; chat_id: string }>(`/chat/create/${item.id}`)
-    const chatId = res.chat_id
+    let chatId: string
+    try {
+      // Call API to create or get existing chat
+      const res = await apiPost<{ status: string; chat_id: string }>(`/chat/create/${item.id}`)
+      chatId = res.chat_id
+    } catch (err) {
+      // Purely frontend workaround: If backend fails (e.g. database constraint error
+      // because we already have an active chat with this seller), look for that existing
+      // chat session in our local state list and open it instead.
+      const existingUserChat = chats.find(c => c.participant.id === item.owner.id)
+      if (existingUserChat) {
+        return existingUserChat.id
+      }
+      throw err
+    }
 
     // Check if we already have this chat locally
     const existingChat = chats.find(c => c.id === chatId)
@@ -545,6 +622,14 @@ export function DormShareProvider({ children }: { children: ReactNode }) {
         deleteChat,
         updateItemDetails,
         toggleItemStatus,
+        createTransaction,
+        getTransactionByChat,
+        approveTransaction,
+        confirmTransaction,
+        cancelTransaction,
+        submitReview,
+        fetchItemsByCategory,
+        deleteListingImage,
       }}
     >
       {children}

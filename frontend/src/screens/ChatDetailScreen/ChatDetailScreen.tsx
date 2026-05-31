@@ -3,7 +3,8 @@ import type { FormEvent } from 'react'
 import { useDormShare } from '../../data/DormShareContext'
 import { apiGet, apiPost } from '../../data/apiClient'
 import { adaptWsMessageToChatMessage } from '../../data/apiAdapters'
-import type { ApiChat } from '../../data/types'
+import type { ApiChat, ApiTransaction } from '../../data/types'
+import ReviewModal from '../../components/ReviewModal/ReviewModal'
 import './ChatDetailScreen.css'
 
 const POLL_INTERVAL_MS = 3000
@@ -14,10 +15,27 @@ type ChatDetailScreenProps = {
 }
 
 function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
-  const { chats, currentUserId, replaceChatMessages, addChatMessages, deleteChat, markChatAsRead } = useDormShare()
+  const { 
+    chats, 
+    currentUserId, 
+    replaceChatMessages, 
+    addChatMessages, 
+    deleteChat, 
+    markChatAsRead,
+    createTransaction,
+    getTransactionByChat,
+    approveTransaction,
+    confirmTransaction,
+    cancelTransaction,
+  } = useDormShare()
   const [draft, setDraft] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [apiChatData, setApiChatData] = useState<ApiChat | null>(null)
+  const [transaction, setTransaction] = useState<ApiTransaction | null>(null)
+  const [isLoadingTransaction, setIsLoadingTransaction] = useState(false)
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false)
+  
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const lastPollTimestampRef = useRef<string | null>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -61,6 +79,17 @@ function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
 
   const chat = chats.find((c) => c.id === chatId)
   const messages = chat?.messages ?? []
+  const isSeller = transaction?.lender_id && currentUserId
+    ? transaction.lender_id.toLowerCase() === currentUserId.toLowerCase()
+    : apiChatData?.lender_id && currentUserId
+    ? apiChatData.lender_id.toLowerCase() === currentUserId.toLowerCase()
+    : false
+
+  const isBorrower = transaction?.borrower_id && currentUserId
+    ? transaction.borrower_id.toLowerCase() === currentUserId.toLowerCase()
+    : apiChatData?.borrower_id && currentUserId
+    ? apiChatData.borrower_id.toLowerCase() === currentUserId.toLowerCase()
+    : false
 
   // ── Load full chat history on mount ─────────────────
   useEffect(() => {
@@ -72,6 +101,7 @@ function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
       try {
         const apiChat = await apiGet<ApiChat>(`/chat/get/${chatId}`)
         if (cancelled) return
+        setApiChatData(apiChat)
 
         const adapted = apiChat.messages.map(m =>
           adaptWsMessageToChatMessage(m, currentUserIdRef.current)
@@ -92,6 +122,80 @@ function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
     loadHistory()
     return () => { cancelled = true }
   }, [chatId])
+
+  // ── Load and sync Transaction progress ───────────────
+  const getTransactionByChatRef = useRef(getTransactionByChat)
+  getTransactionByChatRef.current = getTransactionByChat
+
+  useEffect(() => {
+    if (!chatId) return
+    let active = true
+
+    async function loadTransaction() {
+      setIsLoadingTransaction(true)
+      const tx = await getTransactionByChatRef.current(chatId)
+      if (active) {
+        setTransaction(tx)
+        setIsLoadingTransaction(false)
+      }
+    }
+
+    loadTransaction()
+    return () => { active = false }
+  }, [chatId])
+
+  async function handleCreateTransaction() {
+    setIsLoadingTransaction(true)
+    try {
+      const tx = await createTransaction(chatId)
+      setTransaction(tx)
+    } catch {
+      alert('Failed to initiate transaction request. Please try again.')
+    } finally {
+      setIsLoadingTransaction(false)
+    }
+  }
+
+  async function handleApproveTransaction() {
+    if (!transaction) return
+    setIsLoadingTransaction(true)
+    try {
+      const tx = await approveTransaction(transaction.id)
+      setTransaction(tx)
+    } catch {
+      alert('Failed to approve transaction request.')
+    } finally {
+      setIsLoadingTransaction(false)
+    }
+  }
+
+  async function handleConfirmTransaction() {
+    if (!transaction) return
+    setIsLoadingTransaction(true)
+    try {
+      const tx = await confirmTransaction(transaction.id)
+      setTransaction(tx)
+    } catch {
+      alert('Failed to confirm delivery.')
+    } finally {
+      setIsLoadingTransaction(false)
+    }
+  }
+
+  async function handleCancelTransaction() {
+    if (!transaction) return
+    const confirmCancel = window.confirm('Are you sure you want to cancel this transaction request?')
+    if (!confirmCancel) return
+    setIsLoadingTransaction(true)
+    try {
+      const tx = await cancelTransaction(transaction.id)
+      setTransaction(tx)
+    } catch {
+      alert('Failed to cancel transaction.')
+    } finally {
+      setIsLoadingTransaction(false)
+    }
+  }
 
   // ── Poll for new messages ─────────────────
   useEffect(() => {
@@ -252,6 +356,127 @@ function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
         </section>
       )}
 
+      {/* ── Transaction Status Banner ───────────────── */}
+      <section className="chat-detail__tx-banner" aria-label="Transaction progress">
+        <div className="chat-detail__tx-content">
+          <span className="material-symbols-rounded chat-detail__tx-icon" aria-hidden="true">
+            {!transaction
+              ? 'shopping_cart'
+              : transaction.status === 'pending'
+              ? 'hourglass_empty'
+              : transaction.status === 'active'
+              ? 'check_circle'
+              : transaction.status === 'completed'
+              ? 'celebration'
+              : 'cancel'}
+          </span>
+          <div className="chat-detail__tx-text">
+            {!transaction ? (
+              <>
+                <h3>Barter/Purchase Option</h3>
+                <p>Ready to finalize the deal? Propose a transaction request.</p>
+              </>
+            ) : transaction.status === 'pending' ? (
+              <>
+                <h3>Pending Approval</h3>
+                <p>{isSeller ? 'A buyer wants to trade for this item. Review below:' : 'Waiting for seller to approve your request.'}</p>
+              </>
+            ) : transaction.status === 'active' ? (
+              <>
+                <h3>Deal Active!</h3>
+                <p>{isSeller
+                  ? (transaction.lender_confirmation ? 'You confirmed! Waiting for buyer to confirm receipt.' : 'Sale approved! Waiting for buyer to receive item and confirm.')
+                  : (transaction.borrower_confirmation ? 'You confirmed! Waiting for seller to confirm.' : 'Deal approved! Confirm once you have received the item.')
+                }</p>
+              </>
+            ) : transaction.status === 'completed' ? (
+              <>
+                <h3>Transaction Completed!</h3>
+                <p>Deal successfully completed. Leave a review to share your feedback!</p>
+              </>
+            ) : (
+              <>
+                <h3>Transaction Cancelled</h3>
+                <p>This deal has been cancelled.</p>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="chat-detail__tx-actions">
+          {!transaction ? (
+            !isSeller && (
+              <button
+                type="button"
+                className="chat-detail__tx-btn chat-detail__tx-btn--primary"
+                onClick={handleCreateTransaction}
+                disabled={isLoadingTransaction}
+              >
+                Propose Deal
+              </button>
+            )
+          ) : transaction.status === 'pending' ? (
+            isSeller ? (
+              <>
+                <button
+                  type="button"
+                  className="chat-detail__tx-btn chat-detail__tx-btn--success"
+                  onClick={handleApproveTransaction}
+                  disabled={isLoadingTransaction}
+                >
+                  Approve Deal
+                </button>
+                <button
+                  type="button"
+                  className="chat-detail__tx-btn chat-detail__tx-btn--danger"
+                  onClick={handleCancelTransaction}
+                  disabled={isLoadingTransaction}
+                >
+                  Decline
+                </button>
+              </>
+            ) : (
+              <p className="chat-detail__tx-hint">Waiting for seller&apos;s response…</p>
+            )
+          ) : transaction.status === 'active' ? (
+            <>
+              {!isSeller && (
+                <button
+                  type="button"
+                  className="chat-detail__tx-btn chat-detail__tx-btn--success"
+                  onClick={handleConfirmTransaction}
+                  disabled={isLoadingTransaction || transaction.borrower_confirmation}
+                >
+                  {transaction.borrower_confirmation ? 'Confirmed ✓' : 'Confirm Received'}
+                </button>
+              )}
+              {isSeller && (
+                <button
+                  type="button"
+                  className="chat-detail__tx-btn chat-detail__tx-btn--success"
+                  onClick={handleConfirmTransaction}
+                  disabled={isLoadingTransaction || transaction.lender_confirmation}
+                >
+                  {transaction.lender_confirmation ? 'Confirmed ✓' : 'Confirm Handover'}
+                </button>
+              )}
+            </>
+          ) : transaction.status === 'completed' ? (
+            isBorrower ? (
+              <button
+                type="button"
+                className="chat-detail__tx-btn chat-detail__tx-btn--primary"
+                onClick={() => setIsReviewModalOpen(true)}
+              >
+                Rate &amp; Review
+              </button>
+            ) : (
+              <p className="chat-detail__tx-hint">Transaction complete!</p>
+            )
+          ) : null}
+        </div>
+      </section>
+
       <div className="chat-detail__date">{chat.dateLabel}</div>
 
       <section className="chat-detail__messages" aria-label="Message history">
@@ -315,6 +540,13 @@ function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
           </span>
         </button>
       </form>
+
+      {isReviewModalOpen && transaction && (
+        <ReviewModal
+          transactionId={transaction.id}
+          onClose={() => setIsReviewModalOpen(false)}
+        />
+      )}
     </main>
   )
 }

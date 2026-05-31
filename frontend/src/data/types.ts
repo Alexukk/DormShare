@@ -44,6 +44,7 @@ export type FeedItem = {
   owner: DormShareUser
   images: ListingImage[]
   isNew?: boolean
+  reviews?: ApiReview[]
 }
 
 export type ChatTabId = 'all' | 'unread' | 'archived'
@@ -161,4 +162,19 @@ export type ApiChat = {
   borrower_id: string
   item_id: string
   messages: ApiMessage[]
+}
+
+/** Matches Transaction model from backend */
+export type ApiTransaction = {
+  id: string
+  chat_id: string
+  item_id: string
+  lender_id: string
+  borrower_id: string
+  lender_confirmation: boolean
+  borrower_confirmation: boolean
+  status: 'pending' | 'active' | 'completing' | 'completed' | 'canceled'
+  review_id: string | null
+  created_at: string
+  completed_at: string | null
 }

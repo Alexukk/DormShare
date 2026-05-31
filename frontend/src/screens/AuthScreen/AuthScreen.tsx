@@ -83,7 +83,7 @@ function AuthScreen() {
         {/* Logo / Brand */}
         <header className="auth-screen__brand">
           <div className="auth-screen__logo" aria-hidden="true">
-            <img src="/logo.png" alt="DormShare logo" className="auth-screen__logo-img" />
+            <img src="/logo.png?v=3" alt="DormShare logo" className="auth-screen__logo-img" />
           </div>
           <h1>DormShare</h1>
           <p>Buy, sell &amp; trade with campus students</p>

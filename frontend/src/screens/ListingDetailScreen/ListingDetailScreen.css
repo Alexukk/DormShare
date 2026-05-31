@@ -798,3 +798,128 @@
   }
 }
 
+/* Inline Editor Photos grid */
+.listing-detail-screen__edit-photos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: var(--space-12);
+  margin-top: var(--space-12);
+}
+
+.listing-detail-screen__edit-photo-slot {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-12);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  background: var(--color-surface-soft);
+}
+
+.listing-detail-screen__edit-photo-slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.listing-detail-screen__photo-delete-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: rgba(15, 23, 42, 0.72);
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.listing-detail-screen__photo-delete-btn:hover {
+  background: rgba(255, 59, 48, 0.9);
+  transform: scale(1.1);
+}
+
+.listing-detail-screen__photo-delete-btn .material-symbols-rounded {
+  font-size: 14px;
+}
+
+.listing-detail-screen__no-photos-text {
+  font-size: 14px;
+  color: var(--color-muted);
+  font-weight: 500;
+  margin: var(--space-8) 0 0;
+}
+
+/* Reviews Section */
+.listing-detail-screen__reviews {
+  display: grid;
+  gap: var(--space-16);
+  margin-top: var(--space-32);
+}
+
+.listing-detail-screen__reviews h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-text);
+  letter-spacing: -0.015em;
+}
+
+.listing-detail-screen__reviews-list {
+  display: grid;
+  gap: var(--space-12);
+}
+
+.listing-detail-screen__review-card {
+  display: grid;
+  gap: var(--space-8);
+  padding: var(--space-16) var(--space-20);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-20, 20px);
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.02);
+}
+
+.listing-detail-screen__review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.listing-detail-screen__review-stars {
+  display: flex;
+  gap: 2px;
+}
+
+.listing-detail-screen__review-author {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: var(--color-surface-soft);
+  padding: 4px 8px;
+  border-radius: var(--radius-8, 8px);
+  letter-spacing: 0.02em;
+}
+
+.listing-detail-screen__review-text {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text-secondary, #4b5563);
+  line-height: 1.5;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.listing-detail-screen__no-reviews {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+

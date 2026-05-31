@@ -76,6 +76,7 @@ export function adaptApiItemToFeedItem(
       alt: apiItem.title,
     })),
     isNew: false,
+    reviews: apiItem.reviews ?? [],
   }
 }
 

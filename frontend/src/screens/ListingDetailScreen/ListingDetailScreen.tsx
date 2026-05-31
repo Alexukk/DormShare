@@ -193,7 +193,7 @@ function ListingDetailScreen({
   onBack,
   onOpenChat,
 }: ListingDetailScreenProps) {
-  const { items, startOrOpenChat, currentUserId, deleteItem, updateItemDetails, toggleItemStatus } = useDormShare()
+  const { items, startOrOpenChat, currentUserId, deleteItem, updateItemDetails, toggleItemStatus, deleteListingImage } = useDormShare()
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [seller, setSeller] = useState<DormShareUser | null>(null)
@@ -329,6 +329,17 @@ function ListingDetailScreen({
     }
   }
 
+  async function handleDeletePhoto(imageId: string) {
+    const confirmDelete = window.confirm('Are you sure you want to delete this photo from the listing?')
+    if (!confirmDelete) return
+
+    try {
+      await deleteListingImage(imageId)
+    } catch {
+      alert('Failed to delete photo. Please try again.')
+    }
+  }
+
   if (isEditing) {
     return (
       <main className="listing-detail-screen listing-detail-screen--editing" aria-label={`Editing ${item.title}`}>
@@ -401,6 +412,32 @@ function ListingDetailScreen({
           </label>
           {editErrors.price && (
             <span className="sell-screen__error-text">Price is required.</span>
+          )}
+
+          {item && (
+            <section className="sell-screen__section-block" aria-label="Images Manager">
+              <h2>Images</h2>
+              <div className="listing-detail-screen__edit-photos">
+                {item.images.map((img) => (
+                  <div key={img.id} className="listing-detail-screen__edit-photo-slot">
+                    <img src={img.photo_url} alt="Listing thumbnail" />
+                    <button
+                      type="button"
+                      className="listing-detail-screen__photo-delete-btn"
+                      onClick={() => handleDeletePhoto(img.id)}
+                      aria-label="Delete image"
+                    >
+                      <span className="material-symbols-rounded" aria-hidden="true">
+                        close
+                      </span>
+                    </button>
+                  </div>
+                ))}
+                {item.images.length === 0 && (
+                  <p className="listing-detail-screen__no-photos-text">No images uploaded for this listing.</p>
+                )}
+              </div>
+            </section>
           )}
 
           <section className="sell-screen__section-block" aria-label="Category">
@@ -594,6 +631,43 @@ function ListingDetailScreen({
             </div>
             <strong>{new Date(item.created_at).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}</strong>
           </div>
+        </section>
+
+        {/* 5b. Trade/Peer Reviews */}
+        <section className="listing-detail-screen__reviews" aria-label="Reviews">
+          <h3>Trade Reviews</h3>
+          {item.reviews && item.reviews.length > 0 ? (
+            <div className="listing-detail-screen__reviews-list">
+              {item.reviews.map((review) => (
+                <div key={review.id} className="listing-detail-screen__review-card">
+                  <div className="listing-detail-screen__review-header">
+                    <div className="listing-detail-screen__review-stars">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <span
+                          key={i}
+                          className="material-symbols-rounded"
+                          style={{
+                            fontSize: '18px',
+                            fontVariationSettings: "'FILL' 1",
+                            color: i < review.stars_amount ? 'hsla(45, 100%, 55%, 1)' : '#d1d5db'
+                          }}
+                          aria-hidden="true"
+                        >
+                          star
+                        </span>
+                      ))}
+                    </div>
+                    <span className="listing-detail-screen__review-author">Verified Buyer</span>
+                  </div>
+                  {review.text && (
+                    <p className="listing-detail-screen__review-text">&ldquo;{review.text}&rdquo;</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="listing-detail-screen__no-reviews">No reviews for this listing yet.</p>
+          )}
         </section>
       </section>
 

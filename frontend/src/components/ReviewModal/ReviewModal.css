@@ -1,0 +1,234 @@
+.review-modal {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal, 1000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-20);
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: reviewModalFadeIn 0.3s ease-out forwards;
+}
+
+.review-modal__card {
+  position: relative;
+  display: grid;
+  gap: var(--space-20);
+  width: min(100%, 460px);
+  padding: var(--space-32);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-28, 28px);
+  box-shadow: var(--shadow-floating);
+  text-align: center;
+  animation: reviewModalSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.review-modal__close {
+  position: absolute;
+  top: var(--space-16);
+  right: var(--space-16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-soft);
+  color: var(--color-text-soft);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.review-modal__close:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+  transform: rotate(90deg);
+}
+
+.review-modal__card h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--color-text);
+  line-height: 1.15;
+}
+
+.review-modal__subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-muted-strong);
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+.review-modal__form {
+  display: grid;
+  gap: var(--space-24);
+}
+
+.review-modal__stars-container {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-10);
+  margin: var(--space-8) 0;
+}
+
+.review-modal__star-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: #d1d5db; /* gray star default */
+  cursor: pointer;
+  transform: scale(1);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.2s ease;
+}
+
+.review-modal__star-btn .material-symbols-rounded {
+  font-size: 44px;
+  font-variation-settings: 'FILL' 0;
+}
+
+.review-modal__star-btn--active {
+  color: hsla(45, 100%, 55%, 1); /* premium bright gold */
+  filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.35));
+}
+
+.review-modal__star-btn--active .material-symbols-rounded {
+  font-variation-settings: 'FILL' 1;
+}
+
+.review-modal__star-btn:hover {
+  transform: scale(1.22);
+}
+
+.review-modal__comment-label {
+  display: grid;
+  gap: var(--space-8);
+  text-align: left;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.review-modal__comment-label textarea {
+  width: 100%;
+  min-height: 108px;
+  padding: var(--space-14);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-16);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  resize: none;
+  outline: 0;
+  box-shadow: var(--shadow-control);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.review-modal__comment-label textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary), var(--shadow-control);
+}
+
+.review-modal__comment-label textarea::placeholder {
+  color: var(--color-muted);
+}
+
+.review-modal__char-count {
+  justify-self: end;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+.review-modal__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 var(--space-24);
+  border: 0;
+  border-radius: var(--radius-16);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.review-modal__btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.review-modal__btn--primary {
+  background: var(--color-primary);
+  color: var(--color-surface);
+  box-shadow: var(--shadow-primary);
+}
+
+.review-modal__btn--primary:hover:not(:disabled) {
+  opacity: 0.95;
+  transform: translateY(-2px);
+}
+
+/* Success Card */
+.review-modal__card--success {
+  padding: var(--space-40) var(--space-32);
+}
+
+.review-modal__success-circle {
+  display: inline-grid;
+  width: 88px;
+  height: 88px;
+  place-items: center;
+  color: var(--color-success, #2caf50);
+  margin: 0 auto var(--space-8);
+  animation: successBounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+.review-modal__success-circle .material-symbols-rounded {
+  font-size: 88px;
+  font-variation-settings: 'FILL' 1;
+}
+
+@keyframes reviewModalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes reviewModalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes successBounce {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
