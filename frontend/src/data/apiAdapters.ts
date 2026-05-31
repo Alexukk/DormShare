@@ -48,6 +48,18 @@ export function adaptApiItemToFeedItem(
   apiItem: ApiItem,
   ownerUser?: DormShareUser,
 ): FeedItem {
+  // Resolve owner: explicit param > API response > placeholder
+  const resolvedOwner = ownerUser
+    ?? (apiItem.owner
+      ? {
+          id: apiItem.owner.id,
+          name: apiItem.owner.username,
+          initials: getInitials(apiItem.owner.username),
+          isOnline: false,
+          university: apiItem.owner.university,
+        }
+      : placeholderUser(apiItem.owner_id))
+
   return {
     id: apiItem.id,
     title: apiItem.title,
@@ -58,8 +70,8 @@ export function adaptApiItemToFeedItem(
     is_available: apiItem.is_available,
     created_at: apiItem.created_at,
     owner_id: apiItem.owner_id,
-    owner: ownerUser ?? placeholderUser(apiItem.owner_id),
-    images: apiItem.images.map((img): ListingImage => ({
+    owner: resolvedOwner,
+    images: (apiItem.images || []).map((img): ListingImage => ({
       id: img.id,
       photo_url: img.photo_url,
       alt: apiItem.title,

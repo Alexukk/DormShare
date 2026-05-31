@@ -128,6 +128,7 @@ export type ApiItem = {
   owner_id: string
   images: ApiImage[]
   reviews: ApiReview[]
+  owner?: { id: string; username: string; university: string }
 }
 
 /** Matches UserSend from PydenticModels.py */
