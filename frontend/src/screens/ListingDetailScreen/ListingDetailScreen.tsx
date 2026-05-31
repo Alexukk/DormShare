@@ -10,6 +10,7 @@ type ListingDetailScreenProps = {
   listingId: string
   onBack: () => void
   onOpenChat: (chatId: string) => void
+  onOpenUserProfile?: (userId: string) => void
 }
 
 /* ── Shared swipe hook ────────────────────────── */
@@ -192,6 +193,7 @@ function ListingDetailScreen({
   listingId,
   onBack,
   onOpenChat,
+  onOpenUserProfile,
 }: ListingDetailScreenProps) {
   const { items, startOrOpenChat, currentUserId, deleteItem, updateItemDetails, toggleItemStatus, deleteListingImage } = useDormShare()
   const [activeImageIndex, setActiveImageIndex] = useState(0)
@@ -571,7 +573,19 @@ function ListingDetailScreen({
         </div>
 
         {/* 3. Seller Profile Card */}
-        <section className="listing-detail-screen__seller" aria-label="Seller details">
+        <section
+          className="listing-detail-screen__seller listing-detail-screen__seller--clickable"
+          aria-label="Seller details"
+          onClick={() => onOpenUserProfile?.(resolvedOwner.id)}
+          tabIndex={0}
+          role="button"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              onOpenUserProfile?.(resolvedOwner.id)
+            }
+          }}
+        >
           <div className="listing-detail-screen__seller-avatar" aria-hidden="true">
             {resolvedOwner.initials}
           </div>
@@ -579,15 +593,6 @@ function ListingDetailScreen({
           <div className="listing-detail-screen__seller-body">
             <div className="listing-detail-screen__seller-main">
               <h2>{resolvedOwner.name}</h2>
-            </div>
-            
-            <div className="listing-detail-screen__seller-divider" />
-            
-            <div className="listing-detail-screen__seller-uni">
-              <span className="material-symbols-rounded" aria-hidden="true">
-                school
-              </span>
-              <span>{formatUniversityName(resolvedOwner.university)}</span>
             </div>
           </div>
           

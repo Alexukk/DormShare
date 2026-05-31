@@ -58,6 +58,19 @@
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: var(--space-14);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.chat-detail__identity--clickable {
+  cursor: pointer;
+}
+
+.chat-detail__identity--clickable:hover {
+  opacity: 0.82;
+}
+
+.chat-detail__identity--clickable:active {
+  transform: scale(0.97);
 }
 
 .chat-detail__avatar,
