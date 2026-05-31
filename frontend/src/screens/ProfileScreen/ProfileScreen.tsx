@@ -4,6 +4,7 @@ import BottomNav from '../../components/BottomNav/BottomNav'
 import { useDormShare } from '../../data/DormShareContext'
 import type { ProfileForm } from '../../data/types'
 import { getInitials, PLACEHOLDER_IMAGE } from '../../utils'
+import AboutScreen from '../AboutScreen/AboutScreen'
 import './ProfileScreen.css'
 
 type ProfileScreenProps = {
@@ -17,7 +18,7 @@ const listingTabs = [
 
 function ProfileScreen({ onNavigate }: ProfileScreenProps) {
   const { items, currentUserProfile, updateProfile, isInstallable, triggerInstallPrompt, currentUserId } = useDormShare()
-  const [mode, setMode] = useState<'profile' | 'edit'>('profile')
+  const [mode, setMode] = useState<'profile' | 'edit' | 'about'>('profile')
   const [selectedTab, setSelectedTab] = useState('all')
 
   // Find items owned by the current logged-in user (Andrew)
@@ -41,6 +42,15 @@ function ProfileScreen({ onNavigate }: ProfileScreenProps) {
           updateProfile(updatedProfile)
           setMode('profile')
         }}
+        onBack={() => setMode('profile')}
+        onNavigate={onNavigate}
+      />
+    )
+  }
+
+  if (mode === 'about') {
+    return (
+      <AboutScreen
         onBack={() => setMode('profile')}
         onNavigate={onNavigate}
       />
@@ -72,6 +82,22 @@ function ProfileScreen({ onNavigate }: ProfileScreenProps) {
           </span>
         </span>
         <span>Edit profile</span>
+        <span className="material-symbols-rounded" aria-hidden="true">
+          chevron_right
+        </span>
+      </button>
+
+      <button
+        type="button"
+        className="profile-row profile-row--about"
+        onClick={() => setMode('about')}
+      >
+        <span className="profile-row__icon">
+          <span className="material-symbols-rounded" aria-hidden="true">
+            info
+          </span>
+        </span>
+        <span>About DormShare</span>
         <span className="material-symbols-rounded" aria-hidden="true">
           chevron_right
         </span>

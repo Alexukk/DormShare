@@ -94,7 +94,8 @@
   box-shadow: var(--shadow-control);
 }
 
-.profile-row--edit {
+.profile-row--edit,
+.profile-row--about {
   min-height: 64px;
   margin-bottom: var(--space-24);
   padding: 0 var(--space-20);
@@ -464,7 +465,8 @@
     font-size: 12px;
   }
 
-  .profile-row--edit {
+  .profile-row--edit,
+  .profile-row--about {
     min-height: 52px;
     margin-bottom: var(--space-20);
     padding: 0 var(--space-14);
