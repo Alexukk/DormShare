@@ -12,9 +12,10 @@ const POLL_INTERVAL_MS = 3000
 type ChatDetailScreenProps = {
   chatId: string
   onBack: () => void
+  onOpenUserProfile?: (userId: string) => void
 }
 
-function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
+function ChatDetailScreen({ chatId, onBack, onOpenUserProfile }: ChatDetailScreenProps) {
   const { 
     chats, 
     currentUserId, 
@@ -307,7 +308,19 @@ function ChatDetailScreen({ chatId, onBack }: ChatDetailScreenProps) {
           </span>
         </button>
 
-        <div className="chat-detail__identity">
+        <div
+          className="chat-detail__identity chat-detail__identity--clickable"
+          onClick={() => onOpenUserProfile?.(chat.participant.id)}
+          tabIndex={0}
+          role="button"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              onOpenUserProfile?.(chat.participant.id)
+            }
+          }}
+          aria-label={`View ${chat.participant.name}'s profile`}
+        >
           <div className="chat-detail__avatar" aria-hidden="true">
             {chat.participant.initials}
           </div>

@@ -8,14 +8,15 @@ import FeedScreen from './screens/FeedScreen/FeedScreen'
 import ProfileScreen from './screens/ProfileScreen/ProfileScreen'
 import SellScreen from './screens/SellScreen/SellScreen'
 import ListingDetailScreen from './screens/ListingDetailScreen/ListingDetailScreen'
-type AppScreen = BottomNavItem | 'chat-detail' | 'listing-detail'
+import UserProfileScreen from './screens/UserProfileScreen/UserProfileScreen'
+type AppScreen = BottomNavItem | 'chat-detail' | 'listing-detail' | 'user-profile'
 
 function LoadingScreen() {
   return (
     <main className="loading-screen" aria-label="Loading DormShare">
       <div className="loading-screen__content">
         <div className="loading-screen__logo">
-          <img src="/logo.png?v=3" alt="DormShare logo" className="loading-screen__logo-img" />
+          <img src="/logo.png?v=4" alt="DormShare logo" className="loading-screen__logo-img" />
         </div>
         <h1>DormShare</h1>
         <div className="loading-screen__spinner" />
@@ -42,7 +43,15 @@ function AppShell() {
   const [activeScreen, setActiveScreen] = useState<AppScreen>('feed')
   const [selectedChatId, setSelectedChatId] = useState('')
   const [selectedListingId, setSelectedListingId] = useState('')
+  const [selectedUserProfileId, setSelectedUserProfileId] = useState('')
+  const [userProfileBackScreen, setUserProfileBackScreen] = useState<AppScreen>('feed')
   const { markChatAsRead } = useDormShare()
+
+  function handleOpenUserProfile(userId: string) {
+    setSelectedUserProfileId(userId)
+    setUserProfileBackScreen(activeScreen)
+    setActiveScreen('user-profile')
+  }
 
   useEffect(() => {
     const handleOpenListingEvent = (e: Event) => {
@@ -79,6 +88,7 @@ function AppShell() {
           listingId={selectedListingId}
           onBack={() => setActiveScreen('feed')}
           onOpenChat={handleOpenChat}
+          onOpenUserProfile={handleOpenUserProfile}
         />
       )}
 
@@ -86,6 +96,7 @@ function AppShell() {
         <ChatDetailScreen
           chatId={selectedChatId}
           onBack={() => setActiveScreen('chats')}
+          onOpenUserProfile={handleOpenUserProfile}
         />
       )}
 
@@ -103,6 +114,14 @@ function AppShell() {
 
       {activeScreen === 'feed' && (
         <FeedScreen onNavigate={handleNavigate} onOpenListing={handleOpenListing} />
+      )}
+
+      {activeScreen === 'user-profile' && (
+        <UserProfileScreen
+          userId={selectedUserProfileId}
+          onBack={() => setActiveScreen(userProfileBackScreen)}
+          onOpenListing={handleOpenListing}
+        />
       )}
     </>
   )

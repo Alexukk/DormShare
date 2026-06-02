@@ -255,12 +255,22 @@
   border-radius: var(--radius-20);
   margin-bottom: var(--space-32);
   box-shadow: 0 4px 18px rgba(15, 23, 42, 0.02);
-  transition: all 0.22s ease-in-out;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.listing-detail-screen__seller:hover {
+.listing-detail-screen__seller--clickable {
+  cursor: pointer;
+}
+
+.listing-detail-screen__seller--clickable:hover {
   border-color: var(--color-primary-soft);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+  background: var(--color-surface-hover, #fafafa);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.listing-detail-screen__seller--clickable:active {
+  transform: translateY(0);
 }
 
 .listing-detail-screen__seller-avatar {

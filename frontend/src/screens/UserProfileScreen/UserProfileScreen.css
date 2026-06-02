@@ -1,0 +1,429 @@
+.user-profile-screen {
+  min-height: 100vh;
+  padding: var(--space-16) var(--space-20) calc(var(--space-40) + var(--safe-bottom));
+  background: var(--color-background);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  animation: userProfileScreenSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 1. Header Bar */
+.user-profile-screen__topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  padding: var(--space-8) 0;
+}
+
+.user-profile-screen__back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-control);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.user-profile-screen__back-btn:hover {
+  background: var(--color-surface-hover);
+  transform: scale(1.05);
+}
+
+.user-profile-screen__back-btn .material-symbols-rounded {
+  font-size: var(--icon-size-md);
+}
+
+.user-profile-screen__topbar h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-text);
+  letter-spacing: -0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+/* 2. Hero Section */
+.user-profile-screen__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-28) var(--space-24);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-24, 24px);
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.02);
+}
+
+.user-profile-screen__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: var(--space-16);
+  box-shadow: 0 8px 20px rgba(8, 119, 242, 0.08);
+}
+
+.user-profile-screen__hero h2 {
+  margin: 0 0 var(--space-8);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-text);
+  letter-spacing: -0.5px;
+}
+
+.user-profile-screen__hero-uni {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-6);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-soft);
+  padding: var(--space-6) var(--space-12);
+  border-radius: var(--radius-pill);
+}
+
+.user-profile-screen__hero-uni .material-symbols-rounded {
+  font-size: var(--icon-size-sm);
+  color: var(--color-primary);
+}
+
+/* 3. Segment Tabs */
+.user-profile-screen__tabs {
+  display: flex;
+  gap: var(--space-12);
+  padding: 4px;
+  background: var(--color-surface-soft);
+  border-radius: var(--radius-16, 16px);
+  border: 1px solid var(--color-border);
+}
+
+.user-profile-screen__tab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  padding: var(--space-10) var(--space-12);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-12, 12px);
+  font-size: var(--font-size-body);
+  font-weight: 800;
+  color: var(--color-muted-strong);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-profile-screen__tab .material-symbols-rounded {
+  font-size: var(--icon-size-md);
+  font-variation-settings: 'FILL' 0, 'wght' 600;
+}
+
+.user-profile-screen__tab--active {
+  background: var(--color-surface);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-control);
+}
+
+.user-profile-screen__tab--active .material-symbols-rounded {
+  font-variation-settings: 'FILL' 1, 'wght' 700;
+}
+
+/* 4. Tab Content Panels */
+.user-profile-screen__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  flex-grow: 1;
+}
+
+/* Listings Tab */
+.user-profile-screen__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--listing-grid-gap);
+}
+
+.user-profile-screen__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-48) var(--space-24);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-24, 24px);
+  min-height: 260px;
+  flex-grow: 1;
+}
+
+.user-profile-screen__empty-icon {
+  font-size: 40px;
+  color: var(--color-muted-strong);
+  margin-bottom: var(--space-12);
+}
+
+.user-profile-screen__empty h3 {
+  margin: 0 0 var(--space-4);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.user-profile-screen__empty p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-muted-strong);
+  max-width: 28ch;
+  line-height: 1.45;
+}
+
+/* About Tab */
+.user-profile-screen__about-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.user-profile-screen__about-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-16);
+  padding: var(--space-16) var(--space-20);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-20, 20px);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.01);
+}
+
+.user-profile-screen__about-icon {
+  font-size: 24px;
+  color: var(--color-primary);
+  margin-top: 2px;
+  font-variation-settings: 'FILL' 1;
+}
+
+.user-profile-screen__about-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.user-profile-screen__about-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-muted-strong);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.user-profile-screen__about-val {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.user-profile-screen__about-val--capitalize {
+  text-transform: capitalize;
+}
+
+.user-profile-screen__email-link {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.user-profile-screen__email-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+/* Loading/Error States */
+.user-profile-screen__state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-48) var(--space-24);
+  flex-grow: 1;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-24, 24px);
+  min-height: 380px;
+}
+
+.user-profile-screen__spinner {
+  width: 40px;
+  height: 40px;
+  border: 3.5px solid var(--color-primary-soft);
+  border-top-color: var(--color-primary);
+  border-radius: var(--radius-pill);
+  animation: userProfileSpinner 0.8s linear infinite;
+  margin-bottom: var(--space-16);
+}
+
+.user-profile-screen__state-container p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-muted-strong);
+}
+
+.user-profile-screen__error-icon {
+  font-size: 44px;
+  color: #ef4444;
+  margin-bottom: var(--space-12);
+}
+
+.user-profile-screen__retry-btn {
+  margin-top: var(--space-16);
+  padding: 8px 20px;
+  background: var(--color-primary);
+  color: #fff;
+  border: 0;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(8, 119, 242, 0.2);
+  transition: opacity 0.2s ease;
+}
+
+.user-profile-screen__retry-btn:hover {
+  opacity: 0.9;
+}
+
+/* Animations */
+@keyframes userProfileScreenSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes userProfileSpinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 360px) {
+  .user-profile-screen__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 5. User Profile Reviews Sub-Section */
+.user-profile-screen__reviews-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  margin-top: var(--space-20);
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-20);
+}
+
+.user-profile-screen__reviews-section h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+}
+
+.user-profile-screen__reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+
+.user-profile-screen__review-card {
+  padding: var(--space-14) var(--space-16);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-16, 16px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.005);
+}
+
+.user-profile-screen__review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+}
+
+.user-profile-screen__review-stars {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.user-profile-screen__review-item {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-muted-strong);
+}
+
+.user-profile-screen__review-text {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary, #4b5563);
+  line-height: 1.45;
+  font-style: italic;
+}
+
+.user-profile-screen__no-reviews {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-24) var(--space-16);
+  background: var(--color-surface-soft);
+  border-radius: var(--radius-16, 16px);
+  color: var(--color-muted-strong);
+  text-align: center;
+  gap: var(--space-6);
+  border: 1px dashed var(--color-border);
+}
+
+.user-profile-screen__no-reviews .material-symbols-rounded {
+  font-size: 28px;
+  color: var(--color-muted-strong);
+}
+
+.user-profile-screen__no-reviews p {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+}

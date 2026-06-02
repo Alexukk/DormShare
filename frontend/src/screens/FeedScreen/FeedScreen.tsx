@@ -88,9 +88,17 @@ function FeedScreen({ onNavigate, onOpenListing }: FeedScreenProps) {
             ))}
           </div>
         ) : (
-          <p className="feed-screen__empty">
-            {items.length === 0 ? 'No listings available at your university yet. Be the first to post!' : 'No listings match your search.'}
-          </p>
+          <div className="feed-screen__empty">
+            <span className="feed-screen__empty-icon">
+              <span className="material-symbols-rounded" aria-hidden="true">
+                search_off
+              </span>
+            </span>
+            <h3>No Listings Found</h3>
+            <p>
+              {items.length === 0 ? 'No listings available at your university yet. Be the first to post!' : 'No listings match your search.'}
+            </p>
+          </div>
         )}
       </section>
 

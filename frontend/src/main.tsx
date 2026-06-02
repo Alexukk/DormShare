@@ -34,7 +34,22 @@ if (import.meta.env.DEV) {
 } else {
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch(() => {
+      navigator.serviceWorker.register('/sw.js').then((reg) => {
+        reg.onupdatefound = () => {
+          const installingWorker = reg.installing
+          if (installingWorker) {
+            installingWorker.onstatechange = () => {
+              if (installingWorker.state === 'installed') {
+                if (navigator.serviceWorker.controller) {
+                  // New update is available, reload page automatically to apply
+                  console.log('[Service Worker] New update available. Reloading...')
+                  window.location.reload()
+                }
+              }
+            }
+          }
+        }
+      }).catch(() => {
         // Service worker registration failed silently
       })
     })
